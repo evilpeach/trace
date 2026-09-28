@@ -165,6 +165,10 @@ export function createBrowserClient(): TraceClient {
           evidence: report.evidence.filter((anchor) =>
             flow.fileIds.includes(anchor.fileId),
           ),
+          // Keep legacy fingerprints unchanged when no designation applies.
+          ...(report.mainJourney?.flowId === flow.id
+            ? { mainJourney: report.mainJourney }
+            : {}),
         }),
       );
     for (const finding of report.findings) {

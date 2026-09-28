@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  AlertTriangle,
   ArrowRight,
   BookmarkCheck,
   FileCode2,
@@ -14,7 +15,7 @@ import { Dialog } from "./Dialog";
 import "./review-changes.css";
 
 /** Reading a checkpoint comparison must never activate its older report. */
-export function ReviewChangesBar({
+export function ReviewChangesControl({
   loaded,
   saving,
   onCheckpoint,
@@ -59,7 +60,7 @@ export function ReviewChangesBar({
         },
         {
           key: "flows" as const,
-          label: "Flows",
+          label: "User journeys",
           kind: "flow" as const,
           icon: GitBranch,
         },
@@ -98,46 +99,76 @@ export function ReviewChangesBar({
           : result.status === "current"
             ? "You’re viewing your saved checkpoint."
             : count
-              ? `${groupCount("files")} file ${groupCount("files") === 1 ? "change" : "changes"} · ${groupCount("flows")} flow ${groupCount("flows") === 1 ? "change" : "changes"} · ${groupCount("findings")} finding ${groupCount("findings") === 1 ? "change" : "changes"}`
-              : "No changes to files, flows, or findings since your checkpoint.";
+              ? `${groupCount("files")} file ${groupCount("files") === 1 ? "change" : "changes"} · ${groupCount("flows")} journey ${groupCount("flows") === 1 ? "change" : "changes"} · ${groupCount("findings")} finding ${groupCount("findings") === 1 ? "change" : "changes"}`
+              : "No changes to files, user journeys, or findings since your checkpoint.";
+  const hasChanges = result?.status === "compared" && count > 0;
+  const isSaved =
+    result?.status === "current" ||
+    (result?.status === "compared" && count === 0);
+  const label = error
+    ? "Retry checkpoint"
+    : !result
+      ? "Checking checkpoint…"
+      : result.status === "no-checkpoint"
+        ? "Save checkpoint"
+        : result.status === "unavailable"
+          ? "Checkpoint unavailable"
+          : result.status === "current"
+            ? "Checkpoint saved"
+            : hasChanges
+              ? `${count} ${count === 1 ? "change" : "changes"} since review`
+              : "No changes since review";
+  const actionHint = error
+    ? ` ${error} Click to retry.`
+    : result && result.status !== "no-checkpoint"
+      ? " Open checkpoint details."
+      : "";
+  const description = `${label}. ${detail}${actionHint}`;
+  const statusClass = error
+    ? "is-error"
+    : hasChanges || result?.status === "unavailable"
+      ? "is-warning"
+      : isSaved
+        ? "is-saved"
+        : "";
+  const Icon = error
+    ? RefreshCw
+    : result?.status === "unavailable"
+      ? AlertTriangle
+      : isSaved || result?.status === "no-checkpoint"
+        ? BookmarkCheck
+        : History;
   return (
     <>
-      <div className="review-changes-bar">
-        <History size={15} />
-        <div>
-          <strong>Since your last review</strong>
-          <span>{detail}</span>
-        </div>
-        {error ? (
-          <button
-            className="button small"
-            onClick={() => setAttempt((value) => value + 1)}
-          >
-            <RefreshCw size={13} />
-            Retry
-          </button>
-        ) : result?.status === "no-checkpoint" ? (
-          <button
-            className="button small"
-            disabled={saving}
-            onClick={onCheckpoint}
-          >
-            <BookmarkCheck size={13} />
-            Save checkpoint
-          </button>
-        ) : result ? (
-          <button className="button small" onClick={() => setExpanded(true)}>
-            View changes
-            <ArrowRight size={13} />
-          </button>
+      <button
+        className={`checkpoint-control ${statusClass}`}
+        disabled={saving || (!result && !error)}
+        title={description}
+        aria-label={description}
+        aria-haspopup={
+          result && result.status !== "no-checkpoint" ? "dialog" : undefined
+        }
+        onClick={() => {
+          if (error) setAttempt((value) => value + 1);
+          else if (result?.status === "no-checkpoint") onCheckpoint();
+          else setExpanded(true);
+        }}
+      >
+        <Icon size={15} aria-hidden="true" />
+        <span className="checkpoint-control-label">{label}</span>
+        {hasChanges ? (
+          <span className="checkpoint-control-count" aria-hidden="true">
+            {count}
+          </span>
         ) : null}
-      </div>
+      </button>
       {expanded && result ? (
         <Dialog
           title="Since your last review"
           wide
           onClose={() => setExpanded(false)}
         >
+          <p className="dialog-lead">{detail}</p>
           {result.baseline ? (
             <p className="dialog-lead">
               Compared with your checkpoint saved{" "}
@@ -201,6 +232,7 @@ export function ReviewChangesBar({
                                 <span>{entity.path ?? entity.title}</span>
                               ) : (
                                 <button
+                                  disabled={saving}
                                   onClick={() => {
                                     setExpanded(false);
                                     onEntity(kind, entity.id);
@@ -219,19 +251,34 @@ export function ReviewChangesBar({
               })}
             </>
           ) : null}
-          {result.baseline && result.baseline.handle !== loaded.handle ? (
+          <div className="changes-actions">
             <button
               className="button"
               disabled={saving}
               onClick={() => {
                 setExpanded(false);
-                onBaseline(result.baseline!.handle);
+                onCheckpoint();
               }}
             >
-              Open checkpoint report
-              <ArrowRight size={14} />
+              <BookmarkCheck size={14} />
+              {result.status === "no-checkpoint"
+                ? "Save checkpoint"
+                : "Update checkpoint"}
             </button>
-          ) : null}
+            {result.baseline && result.baseline.handle !== loaded.handle ? (
+              <button
+                className="button"
+                disabled={saving}
+                onClick={() => {
+                  setExpanded(false);
+                  onBaseline(result.baseline!.handle);
+                }}
+              >
+                Open checkpoint report
+                <ArrowRight size={14} />
+              </button>
+            ) : null}
+          </div>
           <p className="caption changes-footnote">
             Updated can include source, explanation, or evidence changes. Saving
             a new checkpoint moves this comparison forward; it does not mark

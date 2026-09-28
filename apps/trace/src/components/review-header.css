@@ -1,0 +1,304 @@
+/* Compact toolbar: identity + actions, then sections + review status. */
+.review-header.compact-review-header {
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+  container-type: inline-size;
+  position: relative;
+  z-index: 6;
+}
+.compact-header-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 65px;
+  padding: 10px 20px 8px;
+}
+.compact-review-identity {
+  min-width: 0;
+  flex: 1;
+}
+.compact-review-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.compact-review-header h1 {
+  font-size: 1.2rem;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.review-pr-badge {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 5px;
+  color: var(--accent-secondary);
+  background: var(--surface-secondary);
+  white-space: nowrap;
+}
+.compact-review-branches {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.compact-review-branches svg {
+  flex-shrink: 0;
+}
+.compact-review-branches code,
+.compact-base-branch {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.compact-base-branch {
+  max-width: 30%;
+}
+.compact-review-branches code {
+  max-width: 400px;
+}
+.compact-header-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 7px;
+}
+.compact-header-actions .button {
+  min-height: 33px;
+  padding: 6px 10px;
+  font-size: 0.8667rem;
+}
+.review-actions-menu {
+  position: relative;
+}
+.review-actions-popover {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  min-width: 245px;
+  max-width: calc(100vw - 32px);
+  padding: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 32px var(--shadow);
+}
+.review-actions-popover button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 10px;
+  text-align: left;
+  font-size: 0.8667rem;
+  border-radius: 4px;
+}
+.review-actions-popover button:hover:not(:disabled),
+.review-actions-popover button:focus-visible {
+  background: var(--surface-hover);
+}
+.review-actions-popover svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.compact-header-bottom {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+}
+.compact-review-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.compact-review-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 8px 8px 10px;
+  font-size: 0.8667rem;
+  position: relative;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.compact-review-tabs button[aria-current="page"] {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+.compact-review-tabs button[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text-accent);
+}
+.review-tab-count {
+  font-size: 0.7333rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--surface-tint);
+}
+.compact-review-tabs [aria-current="page"] .review-tab-count {
+  background: var(--surface-primary);
+}
+.compact-header-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  min-width: 0;
+}
+.compact-review-progress {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.compact-progress-track {
+  width: 42px;
+  height: 4px;
+  border-radius: 3px;
+  background: var(--surface-tint);
+  overflow: hidden;
+}
+.compact-progress-track i {
+  display: block;
+  height: 100%;
+  background: var(--text-success);
+}
+.review-details-trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 4px 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  border-radius: 5px;
+}
+.review-details-trigger:hover {
+  background: var(--surface-hover);
+}
+.report-details dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 13px 22px;
+  font-size: 0.9333rem;
+}
+.report-details dt {
+  color: var(--muted);
+}
+.report-details dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.report-details code {
+  font-size: 0.8667rem;
+}
+@container (max-width: 950px) {
+  .compact-header-status {
+    gap: 7px;
+  }
+  .compact-progress-track,
+  .review-progress-label {
+    display: none;
+  }
+  .compact-header-status .checkpoint-control-label {
+    display: none;
+  }
+  .compact-header-status .checkpoint-control-count {
+    display: inline;
+  }
+}
+@container (max-width: 670px) {
+  .compact-header-main {
+    padding-inline: 14px;
+    gap: 8px;
+  }
+  .compact-header-bottom {
+    padding-inline: 8px;
+    gap: 6px;
+  }
+  .compact-review-tabs {
+    gap: 0;
+  }
+  .compact-review-tabs button {
+    gap: 4px;
+    padding-inline: 6px;
+  }
+  .review-actions-trigger > span,
+  .review-details-trigger > span {
+    display: none;
+  }
+  .compact-header-status {
+    gap: 5px;
+  }
+}
+/* Fallback for older WebKit versions without container queries. */
+@media (max-width: 1150px) {
+  .compact-header-status {
+    gap: 7px;
+  }
+  .compact-progress-track,
+  .review-progress-label {
+    display: none;
+  }
+  .compact-header-status .checkpoint-control-label {
+    display: none;
+  }
+  .compact-header-status .checkpoint-control-count {
+    display: inline;
+  }
+}
+@media (max-width: 850px) {
+  .compact-header-main {
+    padding-inline: 14px;
+    gap: 8px;
+  }
+  .compact-header-bottom {
+    padding-inline: 8px;
+    gap: 6px;
+  }
+  .compact-review-tabs {
+    gap: 0;
+  }
+  .compact-review-tabs button {
+    gap: 4px;
+    padding-inline: 6px;
+  }
+  .review-actions-trigger > span,
+  .review-details-trigger > span {
+    display: none;
+  }
+}
+@media (max-width: 650px) {
+  .report-details dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .report-details dd {
+    margin-bottom: 10px;
+  }
+}

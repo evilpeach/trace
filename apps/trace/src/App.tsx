@@ -23,7 +23,6 @@ import {
   GitBranch,
   History,
   Layers,
-  LayoutGrid,
   List,
   LoaderCircle,
   LockKeyhole,
@@ -76,7 +75,12 @@ import {
   matchShortcut,
   type ShortcutAction,
 } from "./shortcuts";
-import { ReviewChangesBar } from "./components/ReviewChanges";
+import { ReviewChangesControl } from "./components/ReviewChanges";
+import {
+  ReviewHeader,
+  ReportDetails,
+  reviewSections as viewItems,
+} from "./components/ReviewHeader";
 import { useReviewResume } from "./useReviewResume";
 import {
   useReviewWorkspace,
@@ -101,6 +105,7 @@ import {
 type Evidence = TraceReport["evidence"][number];
 type Modal =
   | "settings"
+  | "report-details"
   | "add-project"
   | "import"
   | "request-import"
@@ -114,12 +119,6 @@ type Modal =
   | "copy"
   | null;
 type Position = ReviewPosition;
-const viewItems = [
-  { id: "overview", label: "Overview", icon: LayoutGrid },
-  { id: "files", label: "Files", icon: FileCode2 },
-  { id: "flows", label: "Flows", icon: GitBranch },
-  { id: "findings", label: "Findings", icon: Flag },
-] as const;
 const emptyPosition: Position = {
   view: "overview",
   fileId: "",
@@ -490,6 +489,9 @@ export default function App() {
     (action: ShortcutAction, event: KeyboardEvent) => {
       if (
         modal ||
+        document.querySelector("dialog[open]") ||
+        (event.target instanceof Element &&
+          !!event.target.closest("[role=menu]")) ||
         ((busy || saving || composerBusy) && action !== "toggleSidebar")
       )
         return;
@@ -1169,144 +1171,52 @@ export default function App() {
             className={`review-surface ${diffFocused && position.view === "files" ? "is-code-focused" : ""}`}
             hidden={surface !== "review"}
           >
-            <header className="review-header">
-              <div className="review-header-topline">
-                <div className="eyebrow">
-                  <span className="status-dot" />
-                  REVIEW WORKSPACE{" "}
-                  <span className="muted">
-                    /{" "}
-                    {new Date(report.generatedAt).toLocaleDateString(
-                      undefined,
-                      { month: "short", day: "numeric", year: "numeric" },
-                    )}
-                  </span>
-                </div>
-                <div className="review-file-counts">
-                  <span>{report.files.length} changed files</span>
-                  <span aria-hidden="true">·</span>
-                  <span>{report.contextFiles.length} supporting files</span>
-                </div>
-              </div>
-              <div className="header-main">
-                <div>
-                  <h1>{report.title}</h1>
-                  <div className="review-subtitle">
-                    <span className="review-branches">
-                      <span
-                        className="branch-name base-branch"
-                        title={
-                          report.comparison.base.label ??
-                          report.comparison.base.oid
-                        }
-                      >
-                        {report.comparison.base.label ??
-                          report.comparison.base.oid.slice(0, 8)}
-                      </span>
-                      {report.pullRequest ? (
-                        <ArrowLeft size={12} aria-hidden="true" />
-                      ) : (
-                        <ArrowRight size={12} aria-hidden="true" />
-                      )}
-                      <span
-                        className="branch-tag"
-                        title={
-                          report.comparison.head.label ??
-                          report.comparison.head.oid
-                        }
-                      >
-                        <GitBranch size={11} aria-hidden="true" />
-                        <span className="branch-name">
-                          {report.comparison.head.label ??
-                            report.comparison.head.oid.slice(0, 8)}
-                        </span>
-                      </span>
-                    </span>
-                  </div>
-                </div>
-                <div className="header-actions">
-                  {!synthetic ? (
-                    <button
-                      className="button"
-                      disabled={!client.native || !!busy || saving}
-                      onClick={() =>
-                        beginNewReview(activeProjectId ?? null, loaded)
-                      }
-                    >
-                      <RefreshCw size={14} />
-                      Prepare updated report
-                    </button>
-                  ) : null}
-                  <button
-                    className={`button ${reviewDone ? "" : "primary"}`}
-                    disabled={!!busy || saving}
-                    onClick={() => setPRDone(loaded, !reviewDone)}
-                    title="Personal review status; does not approve or merge the pull request"
-                  >
-                    <Check size={14} />
-                    {reviewDone ? "Reopen review" : "Mark done"}
-                  </button>
-                  <button
-                    className="button"
-                    disabled={!!busy || saving}
-                    onClick={saveCheckpoint}
-                  >
-                    <Check size={14} />
-                    {loaded.state.checkpoint
-                      ? "Update checkpoint"
-                      : "Save checkpoint"}
-                  </button>
-                  {!synthetic ? (
-                    <button
-                      className={`button ${loaded.repository ? "" : "primary"}`}
-                      title={loaded.repository?.displayPath}
-                      disabled={!client.native || !!busy || saving}
-                      onClick={() => setModal("repository")}
-                    >
-                      <FolderOpen size={14} />
-                      {loaded.repository
-                        ? "Change repository"
-                        : "Connect repository"}
-                    </button>
-                  ) : (
-                    <button
-                      className="button"
-                      onClick={() => setModal("library")}
-                    >
-                      <History size={14} />
-                      Reports
-                    </button>
-                  )}
-                </div>
-              </div>
-              <nav className="view-tabs" aria-label="Review sections">
-                {viewItems.map(({ id, label, icon: Icon }) => (
-                  <button
-                    key={id}
-                    aria-current={position.view === id ? "page" : undefined}
-                    className={position.view === id ? "active" : ""}
-                    title={`${label}${prefs.shortcuts[id] ? ` (${formatShortcut(prefs.shortcuts[id])})` : ""}`}
-                    onClick={() => navigate({ view: id, evidenceId: null })}
-                  >
-                    <Icon size={14} />
-                    {label}
-                    {id !== "overview" ? (
-                      <span>{report[id].length}</span>
-                    ) : null}
-                  </button>
-                ))}
-                <div className="file-progress">
-                  <span>
-                    <i
-                      style={{
-                        width: `${report.files.length ? (reviewedCount / report.files.length) * 100 : 0}%`,
-                      }}
-                    />
-                  </span>
-                  {reviewedCount} of {report.files.length} files reviewed
-                </div>
-              </nav>
-            </header>
+            <ReviewHeader
+              key={`${loaded.handle}:${surface}`}
+              loaded={loaded}
+              view={position.view}
+              shortcuts={prefs.shortcuts}
+              reviewedCount={reviewedCount}
+              done={reviewDone}
+              disabled={!!busy || saving}
+              native={client.native}
+              onView={(view) => navigate({ view, evidenceId: null })}
+              onDone={() => setPRDone(loaded, !reviewDone)}
+              onRefresh={() => beginNewReview(activeProjectId ?? null, loaded)}
+              onCheckpoint={saveCheckpoint}
+              onRepository={() => setModal("repository")}
+              onLibrary={() => setModal("library")}
+              onDetails={() => setModal("report-details")}
+            >
+              <ReviewChangesControl
+                key={loaded.handle}
+                loaded={loaded}
+                saving={saving || !!busy}
+                onCheckpoint={saveCheckpoint}
+                onEntity={(kind, id) => {
+                  if (kind === "file") {
+                    setFileQuery("");
+                    setRoundFilter("all");
+                    setFlowFilter("all");
+                    setUnreviewedOnly(false);
+                    setFileLayout("single");
+                  }
+                  navigate(
+                    kind === "file"
+                      ? { view: "files", fileId: id, evidenceId: null }
+                      : kind === "flow"
+                        ? { view: "flows", flowId: id, evidenceId: null }
+                        : { view: "findings", findingId: id, evidenceId: null },
+                  );
+                }}
+                onBaseline={(handle) => {
+                  void load(
+                    () => client.openReport(handle),
+                    "Opening checkpoint",
+                  );
+                }}
+              />
+            </ReviewHeader>
             {unseenUpdate ? (
               <div className="review-update-notice" role="status">
                 <RefreshCw size={14} />
@@ -1336,34 +1246,7 @@ export default function App() {
                 </button>
               </div>
             ) : null}
-            <ReviewChangesBar
-              key={loaded.handle}
-              loaded={loaded}
-              saving={saving || !!busy}
-              onCheckpoint={saveCheckpoint}
-              onEntity={(kind, id) => {
-                if (kind === "file") {
-                  setFileQuery("");
-                  setRoundFilter("all");
-                  setFlowFilter("all");
-                  setUnreviewedOnly(false);
-                  setFileLayout("single");
-                }
-                navigate(
-                  kind === "file"
-                    ? { view: "files", fileId: id, evidenceId: null }
-                    : kind === "flow"
-                      ? { view: "flows", flowId: id, evidenceId: null }
-                      : { view: "findings", findingId: id, evidenceId: null },
-                );
-              }}
-              onBaseline={(handle) => {
-                void load(
-                  () => client.openReport(handle),
-                  "Opening checkpoint",
-                );
-              }}
-            />
+
             <div
               className="workspace-content"
               ref={contentRef}
@@ -1445,11 +1328,11 @@ export default function App() {
                     </label>
                     <select
                       className="filter-select"
-                      aria-label="Filter by flow"
+                      aria-label="Filter by journey"
                       value={flowFilter}
                       onChange={(event) => setFlowFilter(event.target.value)}
                     >
-                      <option value="all">All flows</option>
+                      <option value="all">All journeys</option>
                       {report.flows.map((flow) => (
                         <option key={flow.id} value={flow.id}>
                           {flow.title}
@@ -1848,35 +1731,44 @@ export default function App() {
       {modal ? (
         <Dialog
           title={
-            modal === "settings"
-              ? "Settings"
-              : modal === "add-project"
-                ? "Add a project"
-                : modal === "request-import"
-                  ? "Match a report to this request"
-                  : modal === "import"
-                    ? "Import a review"
-                    : modal === "search"
-                      ? "Go to anything"
-                      : modal === "library"
-                        ? "Review inbox"
-                        : modal === "activity"
-                          ? "Review activity"
-                          : modal === "primer"
-                            ? "A little context goes a long way."
-                            : modal === "skill"
-                              ? "From code to a clear review"
-                              : modal === "repository"
-                                ? "Connect the reviewed checkout"
-                                : modal === "copy"
-                                  ? "Copy this text"
-                                  : (source?.title ?? "Source evidence")
+            modal === "report-details"
+              ? "Report details"
+              : modal === "settings"
+                ? "Settings"
+                : modal === "add-project"
+                  ? "Add a project"
+                  : modal === "request-import"
+                    ? "Match a report to this request"
+                    : modal === "import"
+                      ? "Import a review"
+                      : modal === "search"
+                        ? "Go to anything"
+                        : modal === "library"
+                          ? "Review inbox"
+                          : modal === "activity"
+                            ? "Review activity"
+                            : modal === "primer"
+                              ? "A little context goes a long way."
+                              : modal === "skill"
+                                ? "From code to a clear review"
+                                : modal === "repository"
+                                  ? "Connect the reviewed checkout"
+                                  : modal === "copy"
+                                    ? "Copy this text"
+                                    : (source?.title ?? "Source evidence")
           }
           onClose={() => setModal(null)}
           wide={
             modal === "primer" || modal === "library" || modal === "settings"
           }
         >
+          {modal === "report-details" && loaded ? (
+            <ReportDetails
+              loaded={loaded}
+              reviewedCount={reviewedCount}
+              done={reviewDone}
+            />
+          ) : null}
           {modal === "settings" ? (
             <SettingsPanel native={client.native} />
           ) : null}
@@ -2085,7 +1977,7 @@ export default function App() {
                   autoFocus
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Find a file, flow, or finding…"
+                  placeholder="Find a file, journey, or finding…"
                   aria-label="Search report"
                 />
               </label>
@@ -2133,7 +2025,7 @@ export default function App() {
                         <GitBranch size={16} />
                         <span>
                           {flow.title}
-                          <small>Flow story</small>
+                          <small>User journey</small>
                         </span>
                         <ArrowUpRight size={14} />
                       </button>
@@ -2165,7 +2057,7 @@ export default function App() {
                     ))}
                 </div>
               ) : (
-                <p>Open a report to search its files, flows, and findings.</p>
+                <p>Open a report to search its files, user journeys, and findings.</p>
               )}
             </>
           ) : null}

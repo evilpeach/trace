@@ -802,6 +802,7 @@ mod tests {
         ] {
             report[key] = json!([]);
         }
+        report.as_object_mut().unwrap().remove("mainJourney");
         crate::validation::validate(&report).unwrap();
         std::fs::write(&request.output_path, serde_json::to_vec(&report).unwrap()).unwrap();
         let blocked = store.check_review(&request.id).unwrap();

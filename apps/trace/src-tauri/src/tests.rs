@@ -199,6 +199,10 @@ fn review_requests_persist_export_toolkit_and_import_without_activating() {
     assert!(request.prompt.contains(&request.output_path));
     assert!(request.prompt.contains("Account switching"));
     assert!(request.prompt.contains("omit pullRequest"));
+    assert!(request.prompt.contains("mainJourney.flowId"));
+    assert!(request.prompt.contains("mainJourney.why"));
+    assert!(request.prompt.contains("Do not use array order"));
+    assert!(request.prompt.contains("omit mainJourney"));
     assert!(!request.prompt.contains("\"pullRequest\": null"));
     assert_eq!(store.check_review(&request.id).unwrap().status, "waiting");
     let comparison = fixture.comparison(&store, &loaded);
@@ -653,6 +657,138 @@ fn state_survives_restart_conflicts_and_guidance_changes() {
         )
         .unwrap_err()
         .contains("STALE_GENERATION"));
+}
+
+#[test]
+fn legacy_journey_fingerprint_is_preserved() {
+    let temp = tempfile::tempdir().unwrap();
+    let mut store = Store::new(temp.path().join("state")).unwrap();
+    let mut report: Value = serde_json::from_str(EXAMPLE).unwrap();
+    report.as_object_mut().unwrap().remove("mainJourney");
+    let loaded = store.import_value(report).unwrap();
+    let state = store
+        .decide(
+            &loaded.handle,
+            "flow",
+            "flow-checkout",
+            Some("reviewed"),
+            loaded.state.revision,
+            None,
+        )
+        .unwrap();
+    // Historical unverified example fingerprint, before mainJourney existed.
+    assert_eq!(
+        state.flows["flow-checkout"].fingerprint,
+        "af069a1ee900ed496a65d39140da8cfcc67902d85e9c8a1cdf24d5d1e0ba9a17"
+    );
+}
+
+#[test]
+fn main_journey_changes_invalidate_only_affected_guidance() {
+    let designation = |flow: &str, why: &str| json!({"flowId":flow,"why":why});
+    let original = designation("flow-checkout", "Connects account selection to checkout.");
+    for (name, before, after, affected) in [
+        ("added", None, Some(original.clone()), vec!["flow-checkout"]),
+        (
+            "rationale",
+            Some(original.clone()),
+            Some(designation(
+                "flow-checkout",
+                "Covers the central account-switching journey.",
+            )),
+            vec!["flow-checkout"],
+        ),
+        (
+            "removed",
+            Some(original.clone()),
+            None,
+            vec!["flow-checkout"],
+        ),
+        (
+            "reassigned",
+            Some(original.clone()),
+            Some(designation(
+                "flow-secondary",
+                "This journey covers the principal changed behavior.",
+            )),
+            vec!["flow-checkout", "flow-secondary"],
+        ),
+    ] {
+        let temp = tempfile::tempdir().unwrap();
+        let mut store = Store::new(temp.path().join("state")).unwrap();
+        let mut report: Value = serde_json::from_str(EXAMPLE).unwrap();
+        report.as_object_mut().unwrap().remove("mainJourney");
+        for id in ["flow-secondary", "flow-unrelated"] {
+            let mut flow = report["flows"][0].clone();
+            flow["id"] = id.into();
+            report["flows"].as_array_mut().unwrap().push(flow);
+        }
+        if let Some(before) = before {
+            report["mainJourney"] = before;
+        }
+        let first = store.import_value(report.clone()).unwrap();
+        let mut state = first.state;
+        for (kind, id, decision) in [
+            ("file", "file-session", "reviewed"),
+            ("flow", "flow-checkout", "reviewed"),
+            ("flow", "flow-secondary", "reviewed"),
+            ("flow", "flow-unrelated", "reviewed"),
+            ("finding", "finding-account-race", "confirmed"),
+        ] {
+            state = store
+                .decide(
+                    &first.handle,
+                    kind,
+                    id,
+                    Some(decision),
+                    state.revision,
+                    Some("Human review note"),
+                )
+                .unwrap();
+        }
+        let saved = store.checkpoint(&first.handle, state.revision).unwrap();
+        report.as_object_mut().unwrap().remove("mainJourney");
+        if let Some(after) = after {
+            report["mainJourney"] = after;
+        }
+        let next = store.import_value(report).unwrap();
+        for id in ["flow-checkout", "flow-secondary", "flow-unrelated"] {
+            assert_eq!(
+                next.state.flows[id].stale,
+                affected.contains(&id),
+                "{name}: {id}"
+            );
+            assert_eq!(
+                next.state.flows[id].fingerprint,
+                saved.flows[id].fingerprint
+            );
+            assert_eq!(
+                next.state.flows[id].note.as_deref(),
+                Some("Human review note")
+            );
+        }
+        assert!(!next.state.files["file-session"].stale, "{name}");
+        assert!(next.state.findings["finding-account-race"].stale, "{name}");
+        assert_eq!(next.state.checkpoint.as_ref().unwrap().digest, first.digest);
+        let changes = store.review_changes(&next.handle).unwrap();
+        assert_eq!(
+            changes
+                .flows
+                .changed
+                .iter()
+                .map(|item| item.id.as_str())
+                .collect::<Vec<_>>(),
+            affected,
+            "{name}"
+        );
+        assert_eq!(changes.flows.unchanged, 3 - affected.len(), "{name}");
+        assert!(changes.files.changed.is_empty(), "{name}");
+        assert_eq!(changes.findings.changed[0].id, "finding-account-race");
+        assert_eq!(
+            store.open(&next.handle).unwrap().state.revision,
+            next.state.revision
+        );
+    }
 }
 
 #[test]

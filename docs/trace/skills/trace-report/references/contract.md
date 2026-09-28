@@ -154,6 +154,29 @@ Each `flows` item contains stable `id`, `title`, `tldr`, `actor`, `trigger`, int
 can include changed files and unchanged context. `tldr` is a direct explanation
 of the behavior change, not the flow's title repeated.
 
+Optional root `mainJourney` explicitly identifies the comparison's central
+end-to-end user or system journey:
+
+```json
+{
+  "flowId": "flow-checkout",
+  "why": "Checkout connects the customer action, account selection, session request and navigation changed by this comparison."
+}
+```
+
+`flowId` must reference an existing `flows` item. `why` is a nonempty plain-text
+explanation (not whitespace alone) of why that journey is central to the PR's
+purpose and changed behavior. This designation is separate from finding severity:
+a main journey may have no findings, and the highest-priority finding may belong
+to another flow. Keep the journey within the actual comparison's scope.
+
+The field is optional so older reports remain valid. When it is absent, no main
+journey has been explicitly designated; neither array order nor findings imply
+one. Do not infer importance from `flows[0]`. When `flows` is empty, omit
+`mainJourney`. If evidence does not support a central journey, omit the field and
+explain the limitation in `coverage.note`. On refresh, recheck the reason and
+reference; preserve the flow id only while its conceptual identity persists.
+
 Each snapshot is `{status, graph, reason}`. For `known`, `graph` contains nodes and
 edges and `reason` is null. For `unavailable` or `not-applicable`, graph is null
 and the reason is nonempty. A newly introduced flow can have a not-applicable

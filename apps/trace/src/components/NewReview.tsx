@@ -441,8 +441,8 @@ export function NewReviewComposer({
             : "What would you like to understand?"}
         </h1>
         <p>
-          Turn a pull request or branch into file explanations, connected flows,
-          and findings you can inspect.
+          Turn a pull request or branch into file explanations, connected user
+          journeys, and findings you can inspect.
         </p>
       </header>
       <section className="new-review-composer" aria-label="New review composer">
@@ -885,7 +885,7 @@ export function NewReviewComposer({
         <div>
           <GitBranch size={19} />
           <h3>The main journey</h3>
-          <p>Follow the change across files.</p>
+          <p>Follow the PR’s central behavior and why it matters.</p>
         </div>
         <div>
           <Flag size={19} />

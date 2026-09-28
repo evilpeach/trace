@@ -132,9 +132,20 @@ Diff requirements:
 
 V1 uses bounded, lazy blob reads and virtualized diff rows. The renderer must benchmark long lines, a 10,000-line hunk, and a large file list before selecting a production diff component.
 
-## 8. Flows: behavior across files
+## 8. User journeys: behavior across files
 
 A flow is a named behavior with an actor/trigger, starting conditions, intended outcome, a change TLDR, and structured before/after graph snapshots. A linear graph may be rendered as an ordered trace. Examples include “submit an order,” “restore a session,” or “cancel a pending request.” It may cross changed and unchanged source files. The contract's separate `contextFiles` inventory anchors unchanged supporting code without adding it to changed-file counts or progress.
+
+The UI calls these **User journeys**; its count indicates authored journeys, not
+issues or severity. Optional report-level `mainJourney: { flowId, why }` explicitly
+identifies the PR’s central end-to-end behavior. The referenced journey is shown
+first with a **Main journey** badge and **Why this matters** explanation. This is
+the report author’s designation, not an automatic criticality ranking. Existing
+saved selections remain intact. Selecting another journey must not label that
+journey as main. Reports without the field remain valid and clearly say that a
+main journey has not been identified; array order alone never establishes importance.
+Risk stays in linked findings. A designation or rationale change invalidates the
+affected journey’s reviewed guidance, using the existing stale-state mechanism.
 
 Every flow card starts with its own TLDR: what the behavior does and how this change affects it. The detail view places **Before / After** next to the graph and includes involved files, findings, invariants, and verification notes.
 

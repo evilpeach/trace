@@ -161,6 +161,24 @@
       },
       "minItems": 0
     },
+    "mainJourney": {
+      "description": "Explicit designation of the comparison's central end-to-end journey, independent of finding severity and flow order.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "flowId": {
+          "$ref": "#/$defs/id"
+        },
+        "why": {
+          "$ref": "#/$defs/text",
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "flowId",
+        "why"
+      ]
+    },
     "findings": {
       "type": "array",
       "items": {

@@ -48,7 +48,7 @@ export const shortcutDefinitions: readonly ShortcutDefinition[] = [
   {
     id: "search",
     label: "Search review",
-    description: "Find files, flows, and findings",
+    description: "Find files, user journeys, and findings",
     defaultBinding: "Mod+k",
   },
   {
@@ -66,7 +66,7 @@ export const shortcutDefinitions: readonly ShortcutDefinition[] = [
   {
     id: "overview",
     label: "Show overview",
-    description: "Summary and main journey",
+    description: "Summary and user journeys",
     defaultBinding: "Mod+1",
   },
   {
@@ -77,7 +77,7 @@ export const shortcutDefinitions: readonly ShortcutDefinition[] = [
   },
   {
     id: "flows",
-    label: "Show flows",
+    label: "Show user journeys",
     description: "Follow the behavior of the change",
     defaultBinding: "Mod+3",
   },

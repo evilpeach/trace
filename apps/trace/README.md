@@ -127,8 +127,23 @@ Opening a different snapshot reconciles its selections and clears restrictive
 filters and scroll offsets so new changes are visible. Organization and sessions
 persist in local WebView storage; decisions and checkpoints remain in SQLite.
 
-Save a checkpoint before leaving a review. **Since your last review → View
-changes** compares the open report with that exact saved snapshot, listing new,
+The compact review header keeps the title, branch direction, section tabs, and
+personal **Mark done** action visible. **Review actions** contains report updates,
+checkpoint saving, and repository selection. **Details** shows the full title,
+branches, commit IDs, file counts, and report date.
+
+**User journeys** shows the report’s documented behaviors across source files;
+the tab count is the number of journeys, not a severity or issue count. Reports
+can explicitly designate their central end-to-end behavior with
+`mainJourney: { flowId, why }`. Trace places it first, labels it **Main journey**,
+and shows **Why this matters**. A different selected journey keeps its own label.
+Older reports remain readable and show that a main journey has not been identified;
+the app never infers importance from array order. Valid saved selections are preserved.
+Priority and risk remain in linked findings, separate from the main designation.
+
+Save a checkpoint before leaving a review. The checkpoint status control beside
+the tabs opens **Since your last review**, comparing the open report with that
+exact saved snapshot and listing new,
 updated, and removed files, flows, and findings. A disappeared finding is labeled
 **No longer reported**, which does not claim it was fixed. Unchanged reviewed
 files retain their marks when their source and review guidance still match.

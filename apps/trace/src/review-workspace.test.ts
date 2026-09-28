@@ -197,6 +197,22 @@ describe("resume context", () => {
     expect(restored.notice).toContain("different report snapshot");
     expect(original.scrollY).toBe(840);
   });
+  it("starts with the designated journey but preserves an existing selection", () => {
+    const main = { ...exampleReport.flows[0], id: "designated-main" };
+    const report = {
+      ...exampleReport,
+      flows: [...exampleReport.flows, main],
+      mainJourney: { flowId: main.id, why: "The PR's central outcome." },
+    };
+    expect(
+      reconcileReviewSession(report, undefined).session.position.flowId,
+    ).toBe(main.id);
+    const previous = session();
+    expect(
+      reconcileReviewSession(report, previous).session.position.flowId,
+    ).toBe(previous.position.flowId);
+  });
+
   it("reconciles removed files, flows, findings and anchors without dangling selections", () => {
     const original = session();
     original.position = {

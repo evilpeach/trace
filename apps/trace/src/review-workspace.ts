@@ -401,7 +401,10 @@ export function reconcileReviewSession(
   if (!files.some((file) => file.id === session.position.fileId))
     session.position.fileId = report.files[0]?.id ?? "";
   if (!report.flows.some((flow) => flow.id === session.position.flowId))
-    session.position.flowId = report.flows[0]?.id ?? "";
+    session.position.flowId =
+      report.flows.find((flow) => flow.id === report.mainJourney?.flowId)?.id ??
+      report.flows[0]?.id ??
+      "";
   if (
     !report.findings.some(
       (finding) => finding.id === session.position.findingId,

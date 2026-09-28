@@ -49,8 +49,15 @@ portable report.
   labels state the actual condition. Connect behavioral nodes to exact source
   evidence on that snapshot's side. Show relevant error, empty, loading and
   permission paths only when supported by source. Do not invent UI states.
-  Put the main end-to-end journey first in `flows`; Trace features the first
-  authored journey on Overview. Keep it within the comparison’s actual scope.
+- Identify the PR's central end-to-end user or system journey within the
+  comparison's actual scope. Set root `mainJourney` to `{ "flowId": "<existing
+  flow id>", "why": "<why this journey is central to the change>" }`. Choose it
+  by the change's purpose and the behavior it connects; explain that choice
+  independently of finding severity. The selected journey can have no findings.
+  Flow order does not designate importance. If the reviewed evidence cannot
+  support a central journey, omit `mainJourney` and explain the limitation in
+  `coverage.note`; always omit it when `flows` is empty. Older reports without
+  this field remain valid and have no explicitly designated main journey.
 - Use `coverage.flowAnalysis` and its note to distinguish complete coverage,
   partial analysis and no analysis. A change with no behavioral flow can have an
   empty `flows` array and a concrete explanation. A risk-ordered reading list is
@@ -75,6 +82,10 @@ when their conceptual identity persists; severity changes do not change finding
 identity. Never reuse a retired id for a different issue. Update exact commits
 and recheck all source ranges and affected prose. A removed finding is not proof
 that a human marked it fixed.
+
+Reassess `mainJourney` and its reason against the updated comparison. Keep its
+`flowId` when the same central behavior persists; if the selected flow is removed,
+choose another supported journey with a new reason or omit the designation.
 
 Do not create or modify Trace's app-owned state, old `.prnav.triage.json` files,
 checkpoints, reviewed marks or finding dispositions. Do not apply patches, send

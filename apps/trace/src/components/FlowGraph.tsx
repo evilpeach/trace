@@ -295,7 +295,7 @@ function GraphCanvas({
       <div
         className="trace-flow-canvas"
         role="region"
-        aria-label="Interactive flow diagram. Use arrow keys to pan, plus or minus to zoom, zero for 100 percent, F to fit. Tab through steps to inspect evidence."
+        aria-label="Interactive journey diagram. Use arrow keys to pan, plus or minus to zoom, zero for 100 percent, F to fit. Tab through steps to inspect evidence."
         tabIndex={0}
         onKeyDown={(event) => {
           if (
@@ -385,7 +385,7 @@ export function FlowGraph({
       </ReactFlowProvider>
       <details className="flow-transcript trace-flow-transcript">
         <summary>
-          Read the complete flow as text
+          Read the complete journey as text
           <span>
             {graph.nodes.length} steps · {graph.edges.length} transitions
           </span>

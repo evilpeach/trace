@@ -99,6 +99,11 @@ export interface Flow {
   after: FlowSnapshot;
 }
 
+export interface MainJourney {
+  flowId: string;
+  why: string;
+}
+
 export interface FindingBlock {
   label: string;
   tldr: string;
@@ -177,6 +182,7 @@ export interface TraceReport {
   contextFiles: ContextFile[];
   evidence: Evidence[];
   flows: Flow[];
+  mainJourney?: MainJourney;
   findings: Finding[];
   domainPrimer?: { term: string; definition: string }[];
   valueDerivations?: ValueDerivation[];

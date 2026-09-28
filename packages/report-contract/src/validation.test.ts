@@ -34,6 +34,62 @@ describe('Trace report contract', () => {
     expect(validateReport(input).ok).toBe(true);
   });
 
+  it('accepts older reports without inferring a main journey from flow order', () => {
+    const input = report();
+    delete input.mainJourney;
+    const result = validateReport(input);
+    expect(result).toEqual({ ok: true, report: input });
+    expect(input).not.toHaveProperty('mainJourney');
+    if (result.ok) expect(result.report).not.toHaveProperty('mainJourney');
+  });
+
+  it('accepts an explicit main journey regardless of flow order or findings', () => {
+    const input = report();
+    const centralFlow = input.flows[0];
+    input.flows.unshift({ ...structuredClone(centralFlow), id: 'flow-supporting' });
+    input.mainJourney = {
+      flowId: centralFlow.id,
+      why: 'Checkout connects the changed account guard, session request and navigation.',
+    };
+    input.findings = [];
+    input.summary.outcome = 'no-blockers-found';
+    expect(validateReport(input)).toEqual({ ok: true, report: input });
+    expect(input.mainJourney.flowId).not.toBe(input.flows[0].id);
+  });
+
+  it('rejects a main journey that references a missing flow', () => {
+    const input = report();
+    input.mainJourney = { flowId: 'missing-flow', why: 'Central to the changed behavior.' };
+    rejected(input, 'mainJourney.flowId: unknown reference missing-flow');
+  });
+
+  it.each(['', ' ', '\t\n', '\u00a0'])('rejects a blank main journey reason %j', why => {
+    const input = report();
+    input.mainJourney = { flowId: input.flows[0].id, why };
+    rejected(input, '/mainJourney/why');
+  });
+
+  it.each([
+    null,
+    { flowId: 'flow-checkout' },
+    { why: 'Central to the changed behavior.' },
+    { flowId: 'flow-checkout', why: 'Central to the changed behavior.', priority: 'P1' },
+  ])('rejects a malformed main journey designation %j', mainJourney => {
+    rejected({ ...report(), mainJourney }, '/mainJourney');
+  });
+
+  it('requires main journey omission when there are no authored flows', () => {
+    const input = report();
+    input.flows = [];
+    input.findings = [];
+    input.coverage.flowAnalysis = 'not-assessed';
+    input.coverage.note = 'Behavioral flows have not been assessed.';
+    input.summary.outcome = 'incomplete';
+    rejected(input, 'mainJourney.flowId: unknown reference flow-checkout');
+    delete input.mainJourney;
+    expect(validateReport(input).ok).toBe(true);
+  });
+
   it('accepts a no-change comparison without artificial rounds or flows', () => {
     const input = report();
     input.comparison.head = { ...input.comparison.base };
@@ -42,6 +98,7 @@ describe('Trace report contract', () => {
     input.contextFiles = [];
     input.evidence = [];
     input.flows = [];
+    delete input.mainJourney;
     input.findings = [];
     input.coverage.note = 'The two snapshots have identical trees.';
     input.summary.outcome = 'no-blockers-found';

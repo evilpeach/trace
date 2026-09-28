@@ -70,6 +70,9 @@ def semantic_errors(data: dict) -> list[str]:
     index(data["findings"], "findings")
     index(data.get("valueDerivations", []), "valueDerivations")
 
+    if "mainJourney" in data:
+        refs([data["mainJourney"]["flowId"]], flows, "mainJourney.flowId")
+
     paths = set()
     for file in files.values():
         path_check(file["path"], f"file {file['id']}")

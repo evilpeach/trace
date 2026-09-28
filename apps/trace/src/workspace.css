@@ -533,7 +533,6 @@
   margin-top: 8px;
 }
 .review-surface.is-code-focused > .review-header,
-.review-surface.is-code-focused > .review-changes-bar,
 .review-surface.is-code-focused .file-explorer {
   display: none;
 }

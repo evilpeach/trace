@@ -35,6 +35,12 @@ python3 docs/trace/skills/trace-report/scripts/validate.py \
 The synthetic example exercises the format, not a real repository comparison.
 Schema validation does not establish the truth of review prose.
 
+## Header design decision
+
+[Compact review header](HEADER-DESIGN.md): accepted variant A, its information
+hierarchy, and implementation validation. The exploration is now implemented in
+the native app; the temporary five-variant preview has been retired from source.
+
 ## Historical interactive prototypes
 
 These self-contained HTML artifacts preserve the design exploration. They are

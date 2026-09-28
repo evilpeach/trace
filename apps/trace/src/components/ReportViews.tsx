@@ -20,6 +20,7 @@ import { SafeMarkdown } from "./SafeMarkdown";
 import { SeverityBadge } from "./SeverityBadge";
 import { SEVERITIES, sortFindingsBySeverity } from "./finding-severity";
 import { FlowCodePanel, FlowCodeWorkspace } from "./FlowCodePanel";
+import { journeyContext } from "../journeys";
 import {
   nodeForEvidence,
   resolveFlowSelection,
@@ -77,18 +78,23 @@ function MainJourney({
   const [selectedId, setSelectedId] = useState("");
   const [revision, setRevision] = useState<"before" | "after">("after");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const flow =
-    report.flows.find((item) => item.id === selectedId) ?? report.flows[0];
+  const {
+    journeys,
+    selected: flow,
+    mainId,
+    isMain,
+    whyMain,
+  } = journeyContext(report, selectedId);
   if (!flow)
     return (
       <section className="main-journey journey-unavailable">
         <div className="journey-heading">
-          <span className="eyebrow sage">MAIN JOURNEY</span>
+          <span className="eyebrow sage">USER JOURNEYS</span>
           <h2>The end-to-end story is not available yet.</h2>
         </div>
         <p>
           {report.coverage.flowAnalysis === "not-assessed"
-            ? "The report has not assessed behavioral flows. File explanations and findings remain available below."
+            ? "The report has not assessed user journeys. File explanations and findings remain available below."
             : "No user journey was authored for this comparison."}
         </p>
         <p className="journey-coverage">{report.coverage.note}</p>
@@ -105,12 +111,15 @@ function MainJourney({
   ).length;
   const contextCount = flow.fileIds.length - changedCount;
   return (
-    <section className="main-journey" aria-label="Main user journey">
+    <section
+      className="main-journey"
+      aria-label={isMain ? "Main user journey" : "Selected user journey"}
+    >
       <div className="journey-heading-row">
         <div className="journey-heading">
           <span className="eyebrow sage">
             <GitBranch size={16} />
-            MAIN JOURNEY · START HERE
+            {isMain ? "MAIN JOURNEY · START HERE" : "SELECTED JOURNEY"}
           </span>
           <h2>{flow.title}</h2>
         </div>
@@ -120,6 +129,16 @@ function MainJourney({
         </button>
       </div>
       <p className="journey-tldr">{flow.tldr}</p>
+      {whyMain ? (
+        <p className="journey-importance">
+          <strong>Why this matters</strong> {whyMain}
+        </p>
+      ) : !mainId ? (
+        <p className="journey-designation-note">
+          This report hasn’t identified a main journey. You can explore each
+          journey below.
+        </p>
+      ) : null}
       <div className="journey-boundaries">
         <div>
           <span>Who</span>
@@ -145,8 +164,9 @@ function MainJourney({
                 setSelectedNodeId(null);
               }}
             >
-              {report.flows.map((item) => (
+              {journeys.map((item) => (
                 <option key={item.id} value={item.id}>
+                  {item.id === mainId ? "Main journey · " : ""}
                   {item.title}
                 </option>
               ))}
@@ -160,7 +180,7 @@ function MainJourney({
               : ""}
           </span>
         )}
-        <div className="segmented" aria-label="Main journey revision">
+        <div className="segmented" aria-label="Journey revision">
           <button
             aria-pressed={revision === "before"}
             onClick={() => {
@@ -225,7 +245,7 @@ function MainJourney({
         </div>
       ) : null}
       <p className="journey-coverage">
-        This is an authored journey from the report. Flow analysis:{" "}
+        This is an authored journey from the report. Journey analysis:{" "}
         <strong>{report.coverage.flowAnalysis.replaceAll("-", " ")}</strong>.{" "}
         {report.coverage.note}
       </p>
@@ -249,6 +269,7 @@ export function Overview({
   onEvidence?: (id: string) => void;
 }) {
   const report = loaded.report;
+  const { journeys, mainId } = journeyContext(report);
   const supported = sortFindingsBySeverity(
     report.findings.filter((f) => f.assessment === "supported"),
   );
@@ -312,7 +333,7 @@ export function Overview({
         <div>
           <strong>{String(report.flows.length).padStart(2, "0")}</strong>
           <span>
-            flows · {report.coverage.flowAnalysis.replaceAll("-", " ")}
+            user journeys · {report.coverage.flowAnalysis.replaceAll("-", " ")}
           </span>
         </div>
         <div>
@@ -331,7 +352,7 @@ export function Overview({
             The stories behind the change
           </h3>
           {report.flows.length ? (
-            report.flows.map((flow, index) => (
+            journeys.map((flow, index) => (
               <button
                 className="story-row"
                 key={flow.id}
@@ -342,6 +363,9 @@ export function Overview({
                 </span>
                 <span>
                   <strong>{flow.title}</strong>
+                  {flow.id === mainId ? (
+                    <span className="main-journey-badge">Main journey</span>
+                  ) : null}
                   <p>{flow.tldr}</p>
                 </span>
                 <ArrowUpRight size={16} />
@@ -350,8 +374,8 @@ export function Overview({
           ) : (
             <p className="empty-note">
               {report.coverage.flowAnalysis === "not-assessed"
-                ? "Flow analysis has not been performed."
-                : "No flows are authored in this report."}
+                ? "User journeys have not been assessed."
+                : "No user journeys are authored in this report."}
             </p>
           )}
         </section>
@@ -479,17 +503,22 @@ export function FlowsView({
     onSelectionChange?.(next);
   }
   const report = loaded.report;
-  const flow =
-    report.flows.find((item) => item.id === selectedId) ?? report.flows[0];
+  const {
+    journeys,
+    selected: flow,
+    mainId,
+    isMain,
+    whyMain,
+  } = journeyContext(report, selectedId);
   if (!flow)
     return (
       <div className="view-empty">
         <GitBranch size={32} />
-        <h2>No flow stories yet</h2>
+        <h2>No user journeys yet</h2>
         <p>
           {report.coverage.flowAnalysis === "not-assessed"
-            ? "The author has not assessed behavioral flows."
-            : "This report contains no authored flow graphs."}
+            ? "The author has not assessed user journeys."
+            : "This report contains no authored journey diagrams."}
         </p>
         <p>{report.coverage.note}</p>
       </div>
@@ -537,8 +566,11 @@ export function FlowsView({
     <div className="flows-view page-scroll">
       <div className="section-intro">
         <div>
-          <h2>Follow the behavior across files.</h2>
-          <p>Select a step to read its code alongside the journey.</p>
+          <h2>Follow the user journey across files.</h2>
+          <p>
+            From the starting action to the result. Compare before and after,
+            then select a step to inspect its code.
+          </p>
         </div>
         <div className="row">
           <DecisionBadge value={decision} />
@@ -556,15 +588,16 @@ export function FlowsView({
           >
             <Check size={14} />
             {decision?.decision === "reviewed" && !decision.stale
-              ? "Unmark flow"
-              : "Mark flow reviewed"}
+              ? "Unmark journey"
+              : "Mark journey reviewed"}
           </button>
         </div>
       </div>
       <div className="flow-tabs">
-        {report.flows.map((item, index) => (
+        {journeys.map((item, index) => (
           <button
             className={flow.id === item.id ? "selected" : ""}
+            aria-pressed={flow.id === item.id}
             key={item.id}
             onClick={() => {
               onSelect(item.id);
@@ -573,16 +606,30 @@ export function FlowsView({
           >
             <span>{String(index + 1).padStart(2, "0")}</span>
             {item.title}
+            {item.id === mainId ? (
+              <span className="main-journey-badge">Main journey</span>
+            ) : null}
           </button>
         ))}
       </div>
+      {!mainId ? (
+        <p className="journey-designation-note">
+          This report hasn’t identified a main journey. These journeys are shown
+          in the author’s order.
+        </p>
+      ) : null}
       <div className="flow-summary">
         <div className="eyebrow sage">
           <Sparkles size={13} />
-          FLOW TLDR{" "}
+          {isMain ? "MAIN JOURNEY" : "JOURNEY TLDR"}{" "}
           <span className="pill">{flow.fileIds.length} source files</span>
         </div>
         <h3>{flow.tldr}</h3>
+        {whyMain ? (
+          <p className="journey-importance">
+            <strong>Why this matters</strong> {whyMain}
+          </p>
+        ) : null}
         <p>{flow.whyChanged}</p>
         <div className="flow-context">
           <span>
@@ -700,7 +747,7 @@ export function FlowsView({
           <GitBranch size={24} />
           <h3>
             {snapshot.status === "not-applicable"
-              ? "This flow did not apply at this revision"
+              ? "This journey did not apply at this revision"
               : "This snapshot is unavailable"}
           </h3>
           <p>{snapshot.reason}</p>
@@ -710,7 +757,7 @@ export function FlowsView({
         <section className="related-findings">
           <h3 className="section-heading">
             <Flag size={15} />
-            Findings in this flow
+            Findings in this journey
           </h3>
           {relatedFindings.map((finding) => (
             <button

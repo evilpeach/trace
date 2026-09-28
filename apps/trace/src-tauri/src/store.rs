@@ -433,10 +433,15 @@ impl Store {
                 .iter()
                 .filter(|e| items(flow, "fileIds").contains(&e["fileId"]))
                 .collect();
-            result.insert(
-                format!("flow:{}", text(flow, "id")),
-                digest(&json!({"version":1,"entity":flow,"code":files,"evidence":evidence})),
-            );
+            let mut guidance = json!({"version":1,"entity":flow,"code":files,"evidence":evidence});
+            if let Some(main_journey) = report
+                .get("mainJourney")
+                .filter(|main| main["flowId"] == flow["id"])
+            {
+                // Omit this key for legacy reports to preserve saved fingerprints.
+                guidance["mainJourney"] = main_journey.clone();
+            }
+            result.insert(format!("flow:{}", text(flow, "id")), digest(&guidance));
         }
         for finding in items(report, "findings") {
             let mut evidence_ids = vec![text(finding, "primaryEvidenceId")];

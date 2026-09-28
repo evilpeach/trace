@@ -6,6 +6,7 @@ import { initializePreferences } from "./preferences";
 import { initializeReviewWorkspace } from "./review-workspace";
 import "./styles.css";
 import "./workspace.css";
+import "./components/review-header.css";
 initializeTheme();
 initializePreferences();
 initializeReviewWorkspace();

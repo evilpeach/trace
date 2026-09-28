@@ -52,7 +52,7 @@ export function FlowCodeWorkspace({
           <div
             className="flow-code-resize"
             role="separator"
-            aria-label="Resize flow and code panels"
+            aria-label="Resize journey and code panels"
             aria-orientation="vertical"
             aria-controls={inspectorId}
             aria-valuemin={30}
@@ -115,7 +115,7 @@ export function FlowCodeWorkspace({
           <aside
             id={inspectorId}
             className="flow-code-inspector"
-            aria-label="Selected flow step and source"
+            aria-label="Selected journey step and source"
           >
             {inspector}
           </aside>

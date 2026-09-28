@@ -158,6 +158,92 @@ describe("browser report reader boundaries", () => {
     );
     await expect(client.chooseRepository()).rejects.toThrow("desktop app");
   });
+  it("preserves the legacy journey fingerprint when designation is absent", async () => {
+    const client = createBrowserClient();
+    const report = structuredClone(exampleReport);
+    delete report.mainJourney;
+    const first = await importFixture(client, report);
+    const state = await client.setDecision(
+      first.handle,
+      "flow",
+      "flow-checkout",
+      "reviewed",
+      first.state.revision,
+    );
+    // Historical browser example fingerprint, before mainJourney existed.
+    expect(state.flows["flow-checkout"].fingerprint).toBe(
+      "6101ec056998d689e08815981c200ae64c5d4308f0ffe4d62372fc8f0762789e",
+    );
+  });
+  it.each(["added", "rationale", "removed", "reassigned"] as const)(
+    "marks affected guidance stale when mainJourney is %s without rewriting decisions",
+    async (change) => {
+      const client = createBrowserClient();
+      const report = structuredClone(exampleReport);
+      const original = {
+        flowId: "flow-checkout",
+        why: "Connects account selection to checkout.",
+      };
+      delete report.mainJourney;
+      report.flows.push(
+        { ...structuredClone(report.flows[0]), id: "flow-secondary" },
+        { ...structuredClone(report.flows[0]), id: "flow-unrelated" },
+      );
+      if (change !== "added") report.mainJourney = original;
+      const first = await importFixture(client, report);
+      let state = first.state;
+      for (const [kind, id, decision] of [
+        ["file", "file-session", "reviewed"],
+        ["flow", "flow-checkout", "reviewed"],
+        ["flow", "flow-secondary", "reviewed"],
+        ["flow", "flow-unrelated", "reviewed"],
+        ["finding", "finding-account-race", "confirmed"],
+      ] as const) {
+        state = await client.setDecision(
+          first.handle,
+          kind,
+          id,
+          decision,
+          state.revision,
+          "Human review note",
+        );
+      }
+      const saved = await client.saveCheckpoint(first.handle, state.revision);
+      if (change === "removed") delete report.mainJourney;
+      else
+        report.mainJourney = {
+          flowId: change === "reassigned" ? "flow-secondary" : original.flowId,
+          why:
+            change === "rationale"
+              ? "Covers the central account-switching journey."
+              : original.why,
+        };
+      const next = await importFixture(client, report);
+      const affected =
+        change === "reassigned"
+          ? ["flow-checkout", "flow-secondary"]
+          : ["flow-checkout"];
+      for (const id of ["flow-checkout", "flow-secondary", "flow-unrelated"]) {
+        expect(next.state.flows[id]).toEqual({
+          ...saved.flows[id],
+          stale: affected.includes(id),
+        });
+      }
+      expect(next.state.files["file-session"].stale).toBe(false);
+      expect(next.state.findings["finding-account-race"].stale).toBe(true);
+      expect(next.state.checkpoint).toEqual(saved.checkpoint);
+      const changes = await client.getReviewChanges(next.handle);
+      expect(changes.flows.changed.map((item) => item.id)).toEqual(affected);
+      expect(changes.flows.unchanged).toBe(3 - affected.length);
+      expect(changes.files.changed).toEqual([]);
+      expect(changes.findings.changed.map((item) => item.id)).toEqual([
+        "finding-account-race",
+      ]);
+      expect((await client.openReport(next.handle)).state.revision).toBe(
+        next.state.revision,
+      );
+    },
+  );
   it("compares against the saved checkpoint without opening it or changing progress", async () => {
     const client = createBrowserClient();
     const first = await client.loadExample();

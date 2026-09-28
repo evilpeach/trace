@@ -1,25 +1,58 @@
-.review-changes-bar {
-  display: flex;
+.checkpoint-control {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 9px 30px;
+  justify-content: center;
+  gap: 7px;
+  min-height: 32px;
+  max-width: 17rem;
+  padding: 5px 9px;
   flex: 0 0 auto;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface-inset, #f8f8f7);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  background: var(--surface-raised);
   font-size: 0.8667rem;
+  line-height: 1.35;
 }
-.review-changes-bar > div {
-  flex: 1;
+.checkpoint-control > svg {
+  flex-shrink: 0;
+}
+.checkpoint-control-label {
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.checkpoint-control-count {
+  display: none;
+  font-variant-numeric: tabular-nums;
+}
+.checkpoint-control.is-saved {
+  color: var(--text-success);
+  background: var(--surface-success);
+  border-color: var(--border-success);
+}
+.checkpoint-control.is-warning {
+  color: var(--text-warning);
+  background: var(--surface-warning);
+  border-color: var(--border-warning);
+}
+.checkpoint-control.is-error {
+  color: var(--text-danger);
+  background: var(--surface-danger);
+  border-color: var(--border-danger);
+}
+.checkpoint-control:hover:not(:disabled) {
+  border-color: currentColor;
+}
+.checkpoint-control:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.changes-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px 12px;
-}
-.review-changes-bar span {
-  color: var(--muted);
-}
-.review-changes-bar .button {
-  flex-shrink: 0;
+  gap: 10px;
 }
 .changes-summary {
   display: flex;
@@ -98,7 +131,10 @@
   flex-shrink: 0;
 }
 @media (max-width: 1100px) {
-  .review-changes-bar {
-    padding-inline: 20px;
+  .checkpoint-control-label {
+    display: none;
+  }
+  .checkpoint-control-count {
+    display: inline;
   }
 }

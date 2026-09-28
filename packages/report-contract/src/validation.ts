@@ -168,6 +168,10 @@ export function validateReport(input: unknown): ReportValidationResult {
   index(report.findings, 'findings');
   index(report.valueDerivations ?? [], 'valueDerivations');
 
+  if (report.mainJourney) {
+    refs([report.mainJourney.flowId], flows, 'mainJourney.flowId');
+  }
+
   const paths = new Set<string>();
   for (const file of files.values()) {
     pathCheck(file.path, `file ${file.id}`);

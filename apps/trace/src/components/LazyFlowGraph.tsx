@@ -8,7 +8,7 @@ export function FlowGraph(props: ComponentProps<typeof GraphComponent>) {
     <Suspense
       fallback={
         <div className="diagram-loading" role="status">
-          Preparing the flow diagram…
+          Preparing the journey diagram…
         </div>
       }
     >

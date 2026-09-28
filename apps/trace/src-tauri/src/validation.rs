@@ -180,6 +180,15 @@ pub fn validate(data: &Value) -> Result<(), String> {
     let rounds = index(array(data, "rounds").iter(), "rounds")?;
     let evidence = index(array(data, "evidence").iter(), "evidence")?;
     let flows = index(array(data, "flows").iter(), "flows")?;
+    if let Some(main_journey) = data.get("mainJourney") {
+        let flow_id = string(main_journey, "flowId");
+        if !flows.contains_key(flow_id) {
+            return Err(format!("mainJourney.flowId: unknown flow {flow_id}"));
+        }
+        if string(main_journey, "why").trim().is_empty() {
+            return Err("mainJourney.why: must explain the main journey designation".into());
+        }
+    }
     index(array(data, "findings").iter(), "findings")?;
     if let Some(values) = data["valueDerivations"].as_array() {
         index(values.iter(), "valueDerivations")?;
@@ -413,6 +422,25 @@ mod tests {
         validate(&d).unwrap();
         d["findings"] = serde_json::json!([]);
         validate(&d).unwrap();
+    }
+    #[test]
+    fn validates_optional_main_journey_designation() {
+        let mut d = fixture();
+        d.as_object_mut().unwrap().remove("mainJourney");
+        validate(&d).unwrap();
+        d["mainJourney"] = serde_json::json!({
+            "flowId": d["flows"][0]["id"],
+            "why": "This journey connects the changed account selection to checkout."
+        });
+        validate(&d).unwrap();
+        d["mainJourney"]["flowId"] = "unknown-flow".into();
+        assert!(validate(&d).unwrap_err().contains("mainJourney.flowId"));
+        d["mainJourney"]["flowId"] = d["flows"][0]["id"].clone();
+        d["mainJourney"]["why"] = " \n\t ".into();
+        assert!(validate(&d).is_err());
+        d["mainJourney"]["why"] = "This journey explains the central behavior.".into();
+        d["flows"] = serde_json::json!([]);
+        assert!(validate(&d).unwrap_err().contains("mainJourney.flowId"));
     }
     #[test]
     fn rejects_traversal_and_absolute_paths() {

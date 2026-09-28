@@ -141,6 +141,10 @@
       "note": "API result includes the account captured by the request."
     }
   ],
+  "mainJourney": {
+    "flowId": "flow-checkout",
+    "why": "Starting checkout connects the customer action, account selection, session request and navigation that this fictional comparison changes."
+  },
   "flows": [
     {
       "id": "flow-checkout",

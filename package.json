@@ -21,7 +21,7 @@
     "check": "npm run check-types --workspace @trace/report-contract && npm run check --workspace @trace/desktop",
     "test": "npm run test --workspace @trace/desktop",
     "test:native": "npm run native:test --workspace @trace/desktop",
-    "test:contract": "python3 docs/trace/skills/trace-report/scripts/validate.py docs/trace/skills/trace-report/references/example.trace.json",
+    "test:contract": "python3 -m unittest discover -s docs/trace/skills/trace-report/scripts -p 'test_*.py' && python3 docs/trace/skills/trace-report/scripts/validate.py docs/trace/skills/trace-report/references/example.trace.json",
     "trace:dev": "npm run dev",
     "trace:web": "npm run dev:web",
     "trace:build": "npm run build",
