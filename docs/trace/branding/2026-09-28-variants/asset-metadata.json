@@ -1,0 +1,42 @@
+[
+  {
+    "file": "01-trace-path.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "bytes": 1202573,
+    "hasTransparency": true
+  },
+  {
+    "file": "02-dual-horizon.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "bytes": 948746,
+    "hasTransparency": true
+  },
+  {
+    "file": "03-focus-aperture.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "bytes": 1105145,
+    "hasTransparency": true
+  },
+  {
+    "file": "04-folded-blueprint.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "bytes": 1148432,
+    "hasTransparency": true
+  },
+  {
+    "file": "05-connected-steps.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "bytes": 1118623,
+    "hasTransparency": true
+  }
+]

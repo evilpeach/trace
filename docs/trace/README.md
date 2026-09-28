@@ -17,6 +17,10 @@ keyboard shortcuts, and current limits.
   when preparing a review request; global skill installation is optional.
 - [Appearance research](APPEARANCE-RESEARCH.md) and
   [diagram library research](DIAGRAM-RESEARCH.md): design rationale and references.
+- [Branding guide](branding/README.md): the selected Folded Blueprint identity
+  and app-icon exports.
+- [Design-system proposal](DESIGN-SYSTEM-PROPOSAL.md): shared foundations,
+  component states, and diagram language for reviews and the proposed Planner.
 
 Validate the bundled example from the repository root:
 

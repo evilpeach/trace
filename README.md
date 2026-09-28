@@ -1,9 +1,24 @@
+<img src="apps/trace/public/trace-icon.png" alt="Trace — Folded Blueprint app icon" width="112" height="112" />
+
 # Trace
 
 Trace is a standalone macOS app for understanding and reviewing code changes.
 It combines file TLDRs, the PR’s main end-to-end journey, interactive behavior
 flows, findings, and wide Git diffs in one workspace. Built with Tauri 2, React,
 TypeScript, and Rust.
+
+## Design direction
+
+Trace uses **Folded Blueprint**: a cobalt-blue and violet folded **T** on a
+porcelain tile, representing a plan becoming an implementation. The same icon
+appears in the macOS app bundle, the workspace, and the browser preview.
+
+The [design-system proposal](docs/trace/DESIGN-SYSTEM-PROPOSAL.md) defines a shared
+visual language for reviews and the proposed **Planner** workflow: neutral
+surfaces, blue actions, readable code, and explicit observed/proposed/evidence
+states. Planner remains a design proposal; the review features below describe
+the current app. See the [branding guide](docs/trace/branding/README.md) for the
+selected artwork and icon exports.
 
 ## Start the app
 

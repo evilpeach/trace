@@ -450,7 +450,9 @@ summary {
 .trace-mark {
   width: 29px;
   height: 29px;
-  color: var(--accent);
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 .version-badge {
   font-size: 0.8rem;
