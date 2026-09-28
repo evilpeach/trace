@@ -1,0 +1,46 @@
+{
+  "generator": "Built-in image_gen tool",
+  "context": {
+    "product": "Trace",
+    "scope": "Logo exploration for existing review workspace and proposed Planner workflow",
+    "sources": [
+      "README.md",
+      "docs/trace/SPEC.md",
+      "apps/trace/src/styles.css",
+      "apps/trace/src-tauri/icons/icon.png",
+      "Codex chat 01a0e760-24f3-7fc3-a7a1-d960a592963b: Draft Trace planner workflow"
+    ]
+  },
+  "variants": [
+    {
+      "id": "01-trace-path",
+      "name": "Trace Path",
+      "idea": "A continuous route that forms a T; continuity with the existing copper identity.",
+      "prompt": "Use case: logo-brand.\nAsset type: premium macOS app icon concept for Trace.\nProduct context: Trace helps developers understand code changes through causal flows and exact evidence; a proposed Planner workflow connects motivation, future behavior, implementation steps, and verification. The identity must cover planning AND review.\nPrimary request: create one distinctive, beautifully resolved app icon named concept 'Trace Path'. A single bold continuous copper route forms an unmistakable abstract capital T: horizontal top bar, central descending stem with one graceful architectural bend, with substantial rounded terminals. It should evoke following a thought from origin to outcome. NOT the letter S, not a number, not a maze. Design it as a memorable custom symbol with optical precision, quiet confidence, generous negative space, silhouette readable at small sizes.\nColor palette: luminous warm copper / peach #ebb085 symbol on deep neutral charcoal #191b20 rounded-square tile. The existing app uses a copper path icon; this concept evolves that heritage.\nStyle: precise vector-like geometry with very subtle satin material and restrained edge illumination; nearly flat. Front-on orthographic view. One centered macOS rounded-square tile, equal margin around all sides, tile occupies about 86 percent of a square 1024x1024 canvas. Mark occupies 58 percent of tile. Transparent outside tile.\nConstraints: one icon only, no labels, no words, no wordmark, no letters except the T-shaped symbol, no watermark, no mockup scene, no extra badges, no microscopic lines, no arrows, no sparkles, no magnifier, no checkmark, no dramatic shadows. A polished original identity exploration."
+    },
+    {
+      "id": "02-dual-horizon",
+      "name": "Dual Horizon",
+      "idea": "Two related states connected across a change: current evidence and proposed behavior.",
+      "prompt": "Use case: logo-brand.\nAsset type: premium macOS app icon concept for Trace, a developer workspace combining code review and planning.\nPrimary request: create one sophisticated original app icon, concept 'Dual Horizon'. Design a bold abstract emblem from TWO offset open rectangular frames, one slightly upper-left and one slightly lower-right, cleverly joined by a shared horizontal bridge so the silhouette reads as a single coherent symbol of a current state becoming a future state. Frames must have thick strokes, gently rounded corners and large open counters, with an interesting balanced negative-space junction. The visual idea is before/after perspectives linked by traceable change. Aim for a simple distinctive compact glyph, not chain-link branding, not infinity, not a generic stack of documents.\nPalette: cobalt blue #315cd6 on one half, clear violet #7142be on the other, subtle luminous transition at shared bridge, set into a deep ink #15161b rounded-square macOS tile.\nStyle: polished precise vector-like shapes, mostly flat with a restrained satin finish. Front-on orthographic view. One centered rounded-square tile occupying 86 percent of a square 1024x1024 canvas, balanced equal margins. Symbol fills 60 percent of tile. Transparent canvas outside tile.\nConstraints: no text or wordmark, one icon only, no labels, no watermark, no mockup scene, no tiny details, no sparkles, no checkmarks, no magnifying glass, no arrows, no gradient background beyond tile. Recognizable at 32 pixels and meaningful for both planning and reviewing."
+    },
+    {
+      "id": "03-focus-aperture",
+      "name": "Focus Aperture",
+      "idea": "Move between the whole system and the precise evidence at its center.",
+      "prompt": "Use case: logo-brand.\nAsset type: macOS app icon for Trace, a developer workspace for understanding, planning and reviewing changes.\nPrimary request: create one beautiful original app icon, concept 'Focus Aperture'. Bold near-circular geometric emblem made from THREE broad separated arc segments around a single small square core. Arcs taper subtly toward intentional gaps and form a controlled spiral inward; the central core is an aligned rounded square, not a pupil. The symbol expresses moving from the big picture to exact evidence, an ordered focused trace. It must feel like a confident professional software identity, not a camera shutter or eye. Strong single silhouette, optical balance and generous negative space.\nPalette: off-white porcelain #f2f2f0 arc forms, vivid periwinkle-blue #94b5ff small square core, deep charcoal #15161b rounded-square tile.\nStyle: refined almost-flat vector-like symbol, subtle carved ceramic edge definition, crisp geometry, no visible surface grain. One centered icon in a straight-on orthographic square 1024x1024 composition. Rounded-square macOS tile occupies 86 percent of canvas, emblem occupies 60 percent of tile. Transparent area outside tile.\nConstraints: no wordmark, text, labels, watermarks, extra icons, mockup scene, arrows, magnifiers, checkmarks, stars, or thin technical diagram lines. No photorealistic lens. Keep the shape simple enough for a small dock icon."
+    },
+    {
+      "id": "04-folded-blueprint",
+      "name": "Folded Blueprint",
+      "idea": "Turn a proposed structure into a concrete implementation.",
+      "prompt": "Use case: logo-brand.\nAsset type: macOS app icon for Trace; planning and code review as one connected workspace.\nPrimary request: design one original premium app icon, concept 'Folded Blueprint'. A sculptural monogram capital T made from ONE broad folded ribbon of cobalt-blue material. Top horizontal beam and downward stem have intelligent origami folds with exactly two or three broad visible planes. A small violet return fold reveals the underside and suggests current versus proposed views. This is an abstract architectural plan becoming a concrete structure. Memorable clear T silhouette; avoid generic document/paper icons.\nPalette: saturated cobalt #315cd6 top faces, darker blue folded faces, subtle violet #7142be underside. Warm neutral porcelain #f3f3f1 rounded-square macOS tile.\nStyle: minimalist dimensional icon with restrained, believable soft shading and crisp edges, no glossy plastic, no heavy glass effect. Mark is viewed almost straight-on; the tile is perfectly front-facing with no perspective tilt. One rounded-square tile at 86 percent of square 1024x1024 canvas, equal outer margins. Large central symbol fills 58 percent of tile. Background outside tile transparent.\nConstraints: one icon only, no wording, no text labels, no watermark, no context scene, no blueprint grid, no fine print, no little document lines, no checkmarks, no generic arrows, no sparkles. Broad planes and strong silhouette suitable for 32px."
+    },
+    {
+      "id": "05-connected-steps",
+      "name": "Connected Steps",
+      "idea": "Connect the problem, plan, and verification in one compact mark.",
+      "prompt": "Use case: logo-brand.\nAsset type: distinctive macOS app icon exploration for Trace, a developer workspace linking problems to plans, implementation, evidence, and review.\nPrimary request: create one original emblem, concept 'Connected Steps'. Three solid rounded-square nodes arranged in a clean ascending stepped diagonal from lower-left through center to upper-right, connected by two short thick orthogonal bridges. The connections are integral parts of the symbol; the result is one compact geometric staircase or purposeful path, with interesting open negative spaces, clear visual rhythm, and gently softened corners. The motif represents connected stages and a navigable system. It must feel like a crafted standalone logo, not an actual flowchart or generic git branch icon.\nPalette: bright porcelain-white symbol on a rich saturated cobalt #315cd6 rounded-square macOS tile; a restrained blue-violet #7142be tonal shift on the tile gives depth without becoming a rainbow gradient.\nStyle: striking minimal graphic design, bold near-flat silhouette with tiny amounts of soft embossed depth. One centered front-on icon, no perspective. Rounded-square tile takes 86 percent of a square 1024x1024 canvas, equal exterior margin, symbol 60 percent of tile, transparent outside tile.\nConstraints: exactly three large nodes connected into one emblem, no small terminal dots, no text, wordmarks, labels, watermark, decorative grid, extra badge, arrows, sparkles, magnifiers, checkmarks or mockup scene. Excellent optical balance and a readable small-size silhouette."
+    }
+  ]
+}

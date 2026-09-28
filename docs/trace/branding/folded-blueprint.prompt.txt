@@ -1,0 +1,8 @@
+Generator: built-in image_gen tool
+Edit source: 2026-09-28-variants/04-folded-blueprint.png
+
+Use case: precise-object-edit. Production app-icon finishing of the attached approved Folded Blueprint logo. Keep the exact folded cobalt-blue and violet T and its ivory rounded-square tile. Preserve their design, internal shadows, geometry, placement, scale, and colors. Completely replace the rough irregular cutout silhouette with a geometrically smooth, crisp, antialiased rounded square; produce a single isolated icon with no stray pixels. All exterior pixels must have alpha 0, including every detached white speck above, below, and beside the tile. No outer shadow or exterior glow. The tile is solid ivory and smoothly rounded; its silhouette is not weathered or textured. Transparent outside, opaque inside. Do not add or redraw details on the T. No text. Same square composition. Deliver clean production-ready app icon artwork.
+
+Output was inspected before use. The prompt describes the requested treatment;
+the output remains raster art with minor full-resolution edge artifacts, as
+documented in README.md.
