@@ -1,0 +1,104 @@
+.review-changes-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 30px;
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-inset, #f8f8f7);
+  font-size: 0.8667rem;
+}
+.review-changes-bar > div {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+}
+.review-changes-bar span {
+  color: var(--muted);
+}
+.review-changes-bar .button {
+  flex-shrink: 0;
+}
+.changes-summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px;
+  background: var(--surface-tint, #f4f4f2);
+  border-radius: 7px;
+}
+.changes-group {
+  margin: 24px 0;
+}
+.changes-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 1rem;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.changes-group h3 > span {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.8667rem;
+  font-weight: 400;
+}
+.change-entity {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  font-size: 0.9333rem;
+}
+.change-entity > span:last-child {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.change-entity > button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.change-entity > button:hover {
+  text-decoration: underline;
+}
+.change-kind {
+  flex: 0 0 130px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.change-kind.added {
+  color: var(--text-success, #426637);
+}
+.change-kind.changed {
+  color: var(--text-warning, #846227);
+}
+.changes-footnote {
+  margin-top: 22px;
+}
+.review-update-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 30px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-tint, #f4f4f2);
+  font-size: 0.8667rem;
+  flex-shrink: 0;
+}
+.review-update-notice > span {
+  flex: 1;
+}
+.review-update-notice button {
+  flex-shrink: 0;
+}
+@media (max-width: 1100px) {
+  .review-changes-bar {
+    padding-inline: 20px;
+  }
+}

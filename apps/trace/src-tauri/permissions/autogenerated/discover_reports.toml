@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-discover-reports"
+description = "Enables the discover_reports command without any pre-configured scope."
+commands.allow = ["discover_reports"]
+
+[[permission]]
+identifier = "deny-discover-reports"
+description = "Denies the discover_reports command without any pre-configured scope."
+commands.deny = ["discover_reports"]

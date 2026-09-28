@@ -1,0 +1,187 @@
+.flow-code-workspace {
+  min-width: 0;
+  margin-bottom: 20px;
+}
+.flow-code-workspace.inspector-open {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 12px minmax(
+      0,
+      var(--flow-inspector-width, 44%)
+    );
+  align-items: start;
+}
+.flow-code-diagram,
+.flow-code-inspector {
+  min-width: 0;
+}
+.flow-code-inspector {
+  border: 1px solid var(--line);
+  border-radius: 0 0 9px 9px;
+  background: var(--surface-raised, #fffefa);
+  overflow: hidden;
+}
+.flow-code-resize {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  min-height: 280px;
+  color: var(--muted);
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  outline-offset: -2px;
+}
+.flow-code-resize:hover,
+.flow-code-resize:focus-visible {
+  background: var(--surface-hover, #e9eddf);
+  color: var(--text-strong, #35442e);
+}
+.flow-code-resize:focus-visible {
+  outline: 2px solid var(--focus-ring, #759160);
+}
+.flow-code-panel-heading {
+  padding: 12px 15px 15px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-subtle, #f5f8ef);
+}
+.flow-code-panel-heading h3 {
+  color: var(--text-strong, #35442e);
+  font-size: 1rem;
+  line-height: 1.55;
+  font-weight: 550;
+  margin: 7px 0 16px;
+  overflow-wrap: anywhere;
+}
+.flow-code-panel-heading h3:focus-visible {
+  outline: 2px solid var(--focus-ring, #759160);
+  outline-offset: 3px;
+}
+.flow-code-step-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+.flow-code-step-navigation > .muted {
+  text-align: center;
+}
+.flow-code-step-navigation > button {
+  flex-shrink: 0;
+}
+.flow-code-evidence-picker {
+  padding: 14px 15px 0;
+  display: grid;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+.flow-code-evidence-picker select {
+  min-width: 0;
+  width: 100%;
+  min-height: 35px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  background: var(--surface-inset, #f7f8f2);
+  padding: 7px 9px;
+  font: 0.8rem var(--mono);
+}
+.flow-code-source-heading {
+  padding: 13px 15px 15px;
+  display: grid;
+  gap: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+.flow-code-source-heading > code {
+  font-size: 0.8rem;
+  color: var(--text-strong, #35442e);
+  overflow-wrap: anywhere;
+}
+.flow-code-source-heading p {
+  margin: 0;
+  color: var(--text-secondary, #53654a);
+}
+.flow-code-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+.flow-code-actions .text-button {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  font-size: 0.8125rem;
+}
+.flow-code-source .diff-view {
+  border-radius: 0;
+  border-right: 0;
+  border-left: 0;
+  border-bottom: 0;
+}
+.flow-code-source .diff-scroll {
+  max-height: clamp(290px, 43vh, 560px);
+  min-height: 240px;
+  overscroll-behavior: contain;
+}
+.flow-code-source .diff-rows {
+  min-width: 0;
+}
+.flow-code-source .diff-paging {
+  flex-wrap: wrap;
+}
+.flow-code-empty {
+  padding: 28px 19px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  color: var(--text-secondary, #53654a);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.flow-code-empty strong {
+  color: var(--text-strong, #35442e);
+}
+.flow-code-empty p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.flow-code-line-notice {
+  padding: 10px 15px;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #53654a);
+  background: var(--surface-subtle, #f5f8ef);
+  line-height: 1.6;
+}
+.flow-code-workspace.inspector-open .trace-flow-navigation {
+  flex-wrap: wrap;
+}
+.flow-code-workspace.inspector-open .trace-flow-transcript > summary {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.flow-inspector-toggle {
+  white-space: nowrap;
+}
+@media (max-width: 900px) {
+  .flow-code-workspace.inspector-open {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .flow-code-workspace.inspector-open > * {
+    width: 100%;
+  }
+  .flow-code-resize {
+    display: none;
+  }
+  .flow-code-inspector {
+    border-radius: 9px;
+  }
+}

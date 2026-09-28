@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-check-review-request"
+description = "Enables the check_review_request command without any pre-configured scope."
+commands.allow = ["check_review_request"]
+
+[[permission]]
+identifier = "deny-check-review-request"
+description = "Denies the check_review_request command without any pre-configured scope."
+commands.deny = ["check_review_request"]

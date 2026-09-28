@@ -1,0 +1,122 @@
+.keyboard-shortcuts-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.settings-panel .keyboard-shortcuts-heading h3 {
+  margin: 0;
+}
+
+.keyboard-shortcuts-hint {
+  margin: 12px 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.keyboard-shortcut-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 20px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+
+.keyboard-shortcut-description strong,
+.keyboard-shortcut-description small {
+  display: block;
+}
+
+.keyboard-shortcut-description strong {
+  font-size: 1rem;
+  font-weight: 550;
+}
+
+.keyboard-shortcut-description small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.keyboard-shortcut-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.keyboard-shortcut-recorder {
+  min-width: 124px;
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface-inset);
+  color: var(--ink);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.keyboard-shortcut-recorder kbd {
+  font: inherit;
+  white-space: nowrap;
+}
+
+.keyboard-shortcut-recorder:hover {
+  background: var(--surface-hover);
+}
+
+.keyboard-shortcut-recorder.is-recording {
+  border-color: var(--text-accent);
+  background: var(--surface-selected);
+  color: var(--text-accent);
+}
+
+.keyboard-shortcut-recorder:focus-visible,
+.keyboard-shortcut-text-button:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 3px;
+}
+
+.keyboard-shortcut-text-button {
+  min-height: 34px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.keyboard-shortcut-text-button:hover:not(:disabled) {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.keyboard-shortcut-text-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.keyboard-shortcut-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--text-danger);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 680px) {
+  .keyboard-shortcut-row {
+    grid-template-columns: 1fr;
+  }
+
+  .keyboard-shortcut-controls {
+    gap: 16px;
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "trace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A standalone macOS workspace for understanding code reviews",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/evilpeach/trace.git"
+  },
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
+  },
+  "workspaces": [
+    "apps/trace",
+    "packages/report-contract"
+  ],
+  "scripts": {
+    "dev": "npm run tauri:dev --workspace @trace/desktop",
+    "dev:web": "npm run dev --workspace @trace/desktop",
+    "build": "npm run tauri:build --workspace @trace/desktop",
+    "check": "npm run check-types --workspace @trace/report-contract && npm run check --workspace @trace/desktop",
+    "test": "npm run test --workspace @trace/desktop",
+    "test:native": "npm run native:test --workspace @trace/desktop",
+    "test:contract": "python3 docs/trace/skills/trace-report/scripts/validate.py docs/trace/skills/trace-report/references/example.trace.json",
+    "trace:dev": "npm run dev",
+    "trace:web": "npm run dev:web",
+    "trace:build": "npm run build",
+    "trace:check": "npm run check",
+    "trace:test": "npm test"
+  }
+}

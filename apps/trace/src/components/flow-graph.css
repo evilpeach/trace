@@ -1,0 +1,161 @@
+.trace-flow-viewer {
+  border: 1px solid var(--border, #dfe8d4);
+  border-top: 0;
+  border-radius: 0 0 9px 9px;
+  overflow: hidden;
+}
+.trace-flow-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface-inset, #f7f8f2);
+  color: var(--text-muted, #69765e);
+  border-bottom: 1px solid var(--border, #dfe8d4);
+  font-size: 0.8125rem;
+}
+.trace-flow-navigation > div {
+  display: flex;
+  gap: 3px;
+}
+.trace-flow-navigation button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 34px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-primary, #35442e);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.trace-flow-navigation button:hover {
+  background: var(--surface-hover, #e9eddf);
+}
+.trace-flow-navigation button:focus-visible,
+.trace-flow-canvas:focus-visible {
+  outline: 2px solid var(--focus-ring, #759160);
+  outline-offset: -2px;
+}
+.trace-flow-navigation button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.trace-flow-navigation .trace-flow-zoom {
+  min-width: 58px;
+  font-variant-numeric: tabular-nums;
+}
+.trace-flow-navigation .trace-flow-fit {
+  padding: 0 9px;
+  border-color: var(--border, #dfe8d4);
+}
+.trace-flow-canvas {
+  height: clamp(380px, 57vh, 720px);
+  min-width: 0;
+  background: var(--graph-canvas, #f7faf1);
+}
+.trace-flow-canvas .react-flow {
+  --xy-background-color: var(--graph-canvas, #f7faf1);
+  --xy-edge-stroke: var(--graph-line, #859578);
+  --xy-edge-stroke-width: 1.6;
+  --xy-attribution-background-color: var(--surface-inset, #f7f8f2);
+}
+.trace-flow-canvas .react-flow__node-step {
+  border-radius: 9px;
+}
+.trace-flow-card {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 17px 18px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 124px;
+  border: 1px solid var(--border, #d4e0c5);
+  border-radius: 9px;
+  background: var(--surface-raised, #fffefa);
+  box-shadow: 0 3px 12px var(--shadow-soft, #2a43200a);
+}
+.trace-flow-card .react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}
+.trace-flow-card .trace-flow-kind {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-muted, #69765e);
+  font: 0.75rem/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+.trace-flow-card strong {
+  color: var(--text-strong, #35442e);
+  font-size: 0.9375rem;
+  font-weight: 550;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.trace-flow-card small {
+  color: var(--text-muted, #69765e);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+/* Branches describe choices, not warnings or successful outcomes. */
+.trace-flow-card.entry {
+  border-color: var(--border-primary);
+}
+.trace-flow-card.entry .trace-flow-kind {
+  color: var(--text-accent);
+}
+.trace-flow-card.decision {
+  background: var(--surface-secondary);
+  border-color: var(--border-secondary);
+}
+.trace-flow-card.decision .trace-flow-kind {
+  color: var(--accent-secondary);
+}
+.trace-flow-canvas .react-flow__node-step.selected .trace-flow-card,
+.trace-flow-canvas .react-flow__node-step:focus-visible .trace-flow-card {
+  border-color: var(--border-selected, #81946a);
+  box-shadow: 0 0 0 3px var(--focus-halo, #9ab47e40);
+}
+.trace-flow-canvas .react-flow__node-step:focus-visible {
+  outline: none;
+}
+.trace-flow-edge-label {
+  font-size: 13px;
+  fill: var(--text-secondary, #53654a);
+  paint-order: stroke;
+  stroke: var(--graph-canvas, #f7faf1);
+  stroke-width: 7px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.trace-flow-canvas .react-flow__attribution {
+  font-size: 10px;
+}
+.trace-flow-canvas .react-flow__attribution a {
+  color: var(--text-muted, #69765e);
+}
+.trace-flow-transcript.flow-transcript,
+.trace-flow-transcript.flow-transcript > summary,
+.trace-flow-transcript.flow-transcript .inline-link {
+  font-size: 0.875rem;
+}
+.trace-flow-transcript.flow-transcript > summary > span {
+  font-size: 0.8125rem;
+}
+@media (max-width: 700px) {
+  .trace-flow-navigation {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .trace-flow-canvas {
+    height: 400px;
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@trace/report-contract",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "scripts": {
+    "generate-validator": "node scripts/generate-validator.mjs",
+    "check-generated": "node scripts/generate-validator.mjs --check",
+    "test": "npm run check-generated && vitest run src/validation.test.ts",
+    "check-types": "npm run check-generated && tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.x",
+    "esbuild": "^0.28.1",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.1"
+  }
+}

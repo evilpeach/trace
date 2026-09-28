@@ -1,0 +1,43 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "Only the bundled review window can invoke the bounded Trace API.",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "allow-get-review-setup",
+    "allow-resolve-review-comparison",
+    "allow-prepare-review-request",
+    "allow-list-review-requests",
+    "allow-check-review-request",
+    "allow-cancel-review-request",
+    "allow-import-review-request",
+    "allow-import-review-request-path",
+    "core:default",
+    "core:app:allow-set-app-theme",
+    "allow-list-reports",
+    "allow-list-projects",
+    "allow-discover-reports",
+    "allow-add-project",
+    "allow-add-project-path",
+    "allow-import-report",
+    "allow-open-report",
+    "allow-import-report-path",
+    "allow-choose-repository-path",
+    "allow-load-example",
+    "allow-choose-repository",
+    "allow-attach-repository",
+    "allow-read-diff",
+    "allow-get-review-changes",
+    "allow-set-decision",
+    "allow-save-checkpoint",
+    "allow-open-source",
+    "allow-open-file-source",
+    "allow-discover-review-stack",
+    "allow-resolve-review-stack",
+    "allow-get-review-agents",
+    "allow-launch-review-agent",
+    "allow-list-review-agent-launches"
+  ]
+}

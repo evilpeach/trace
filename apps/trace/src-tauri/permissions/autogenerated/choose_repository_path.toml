@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-choose-repository-path"
+description = "Enables the choose_repository_path command without any pre-configured scope."
+commands.allow = ["choose_repository_path"]
+
+[[permission]]
+identifier = "deny-choose-repository-path"
+description = "Denies the choose_repository_path command without any pre-configured scope."
+commands.deny = ["choose_repository_path"]

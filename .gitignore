@@ -1,0 +1,22 @@
+node_modules/
+dist/
+target/
+.superpowers/
+.claude/scheduled_tasks.lock
+.DS_Store
+*.vsix
+
+# Local review reports, reviewer state, and development credentials.
+/.trace/
+/.pr-review/
+.env
+.env.*
+!.env.example
+
+# Python validator caches and local environments.
+__pycache__/
+*.py[cod]
+.venv/
+
+# Local compatibility alias for previously installed report skills.
+/.claude/skills/review-navigator-data

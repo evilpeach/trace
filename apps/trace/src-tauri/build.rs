@@ -1,0 +1,38 @@
+fn main() {
+    tauri_build::try_build(tauri_build::Attributes::new().app_manifest(
+        tauri_build::AppManifest::new().commands(&[
+            "discover_review_stack",
+            "resolve_review_stack",
+            "get_review_agents",
+            "launch_review_agent",
+            "list_review_agent_launches",
+            "get_review_setup",
+            "resolve_review_comparison",
+            "prepare_review_request",
+            "list_review_requests",
+            "check_review_request",
+            "cancel_review_request",
+            "import_review_request",
+            "import_review_request_path",
+            "list_reports",
+            "list_projects",
+            "discover_reports",
+            "add_project",
+            "add_project_path",
+            "import_report",
+            "import_report_path",
+            "open_report",
+            "load_example",
+            "choose_repository",
+            "choose_repository_path",
+            "attach_repository",
+            "read_diff",
+            "get_review_changes",
+            "set_decision",
+            "save_checkpoint",
+            "open_source",
+            "open_file_source",
+        ]),
+    ))
+    .expect("build Trace capabilities");
+}

@@ -1,0 +1,1875 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Trace — full product & technical specification</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 30px;
+      }
+      body {
+        margin: 0;
+        background: #f7f8f3;
+        color: #3d4837;
+        font:
+          15px/1.8 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+      .layout {
+        max-width: 1440px;
+        margin: auto;
+        display: grid;
+        grid-template-columns: 250px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+      aside {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: auto;
+        padding: 36px 22px 35px 25px;
+        border-right: 1px solid #dfe5d7;
+        background: #eef1e7;
+      }
+      .brand {
+        font-size: 27px;
+        font-weight: 600;
+        letter-spacing: -1px;
+        color: #3c4933;
+        text-decoration: none;
+      }
+      .brand em {
+        font-size: 12px;
+        color: #b7633c;
+        font-weight: 450;
+        letter-spacing: 0.04em;
+        font-style: normal;
+        margin-left: 10px;
+      }
+      .nav-label {
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.13em;
+        color: #97a389;
+        margin: 25px 0 13px;
+      }
+      aside nav a {
+        display: block;
+        color: #77886a;
+        text-decoration: none;
+        font-size: 11px;
+        padding: 7px 9px;
+        border-radius: 5px;
+        line-height: 1.65;
+      }
+      aside nav a:hover {
+        background: #e3e9da;
+        color: #405332;
+      }
+      main {
+        min-width: 0;
+        padding: 45px 60px 80px;
+      }
+      h1 {
+        font-size: 40px;
+        font-weight: 500;
+        letter-spacing: -1.5px;
+        line-height: 1.2;
+        margin: 20px 0 25px;
+        color: #34452b;
+      }
+      h2 {
+        font-size: 25px;
+        font-weight: 550;
+        letter-spacing: -0.6px;
+        margin: 55px 0 19px;
+        padding-top: 20px;
+        border-top: 1px solid #dce4d2;
+        color: #425437;
+      }
+      h3 {
+        font-size: 17px;
+        font-weight: 600;
+        margin: 27px 0 12px;
+      }
+      p {
+        margin: 13px 0;
+      }
+      strong {
+        font-weight: 600;
+      }
+      a {
+        color: #8b6d48;
+        text-underline-offset: 3px;
+      }
+      li {
+        margin: 7px 0;
+      }
+      ul,
+      ol {
+        padding-left: 24px;
+      }
+      code {
+        font:
+          12px/1.7 "SFMono-Regular",
+          Consolas,
+          monospace;
+        padding: 2px 5px;
+        background: #eef2e6;
+        border-radius: 4px;
+        overflow-wrap: anywhere;
+      }
+      pre {
+        padding: 18px 21px;
+        border: 1px solid #dce5d1;
+        border-radius: 8px;
+        background: #edf2e5;
+        overflow: auto;
+      }
+      pre code {
+        padding: 0;
+        font-size: 12px;
+        background: none;
+        overflow-wrap: normal;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        line-height: 1.8;
+        margin: 22px 0;
+        background: #fcfdf8;
+      }
+      th {
+        text-align: left;
+        background: #e9eedf;
+        color: #677958;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      th,
+      td {
+        padding: 12px 14px;
+        border: 1px solid #dfe6d5;
+        vertical-align: top;
+      }
+      td code {
+        font-size: 10px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 26px;
+      }
+      .status {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #8c9b7e;
+      }
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 9px 15px;
+        border-radius: 6px;
+        color: #fff;
+        background: #455b36;
+        text-decoration: none;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .architecture {
+        border: 1px solid #d6e0c9;
+        border-radius: 8px;
+        padding: 25px;
+        background: #eff4e7;
+      }
+      .arch-primary {
+        padding: 17px;
+        text-align: center;
+        border: 1px solid #b9cba8;
+        border-radius: 6px;
+        background: #fff;
+        font-weight: 550;
+      }
+      .architecture span {
+        display: block;
+        font-size: 11px;
+        font-weight: 400;
+        color: #8e9f7e;
+      }
+      .arch-line {
+        text-align: center;
+        padding: 15px;
+        color: #91a27e;
+        font-size: 11px;
+      }
+      .arch-services {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      .arch-services > div {
+        padding: 15px;
+        border: 1px solid #d2dfc3;
+        background: #fbfdf7;
+        border-radius: 5px;
+        font-size: 12px;
+      }
+      .bottom {
+        margin-top: 55px;
+        padding-top: 25px;
+        border-top: 1px solid #dce5d2;
+        font-size: 11px;
+        color: #91a17f;
+      }
+      .prototype-link {
+        display: block;
+        margin-top: 22px;
+        padding: 12px;
+        border: 1px solid #cbd8bb;
+        border-radius: 6px;
+        font-size: 11px;
+        color: #6c825b;
+        text-decoration: none;
+      }
+      .print {
+        font-size: 11px;
+        background: transparent;
+        border: 1px solid #d6e0ca;
+        border-radius: 5px;
+        padding: 8px;
+        color: #788b64;
+        cursor: pointer;
+      }
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid #b86d44;
+        outline-offset: 3px;
+      }
+      @media (max-width: 1050px) {
+        main {
+          padding: 35px 30px;
+        }
+        .layout {
+          grid-template-columns: 205px 1fr;
+        }
+        aside {
+          padding: 25px 14px;
+        }
+        h1 {
+          font-size: 32px;
+        }
+      }
+      @media (max-width: 750px) {
+        .layout {
+          display: block;
+        }
+        aside {
+          position: relative;
+          height: auto;
+          padding: 20px;
+        }
+        aside nav,
+        .nav-label {
+          display: none;
+        }
+        .prototype-link {
+          display: inline-block;
+          margin: 0 0 0 20px;
+        }
+        main {
+          padding: 20px;
+        }
+        table {
+          display: block;
+          overflow: auto;
+        }
+        .arch-services {
+          grid-template-columns: 1fr 1fr;
+        }
+        .topbar {
+          align-items: flex-start;
+        }
+      }
+      @media print {
+        aside,
+        .topbar {
+          display: none;
+        }
+        .layout {
+          display: block;
+        }
+        main {
+          padding: 0;
+          font-size: 10pt;
+        }
+        h1 {
+          font-size: 24pt;
+        }
+        h2 {
+          font-size: 17pt;
+          break-after: avoid;
+        }
+        tr,
+        pre,
+        .architecture {
+          break-inside: avoid;
+        }
+        a {
+          color: inherit;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside>
+        <a href="#" class="brand">Trace <em>SPEC / 01</em></a>
+        <div class="nav-label">The complete plan</div>
+        <nav aria-label="Specification contents">
+          <a href="#1-product-intent">1. Product intent</a
+          ><a href="#2-scope-and-success-criteria"
+            >2. Scope and success criteria</a
+          ><a href="#3-trace-feature-and-design-decisions"
+            >3. Trace feature and design decisions</a
+          ><a href="#4-information-architecture-and-window-design"
+            >4. Information architecture and window design</a
+          ><a href="#5-first-run-and-review-lifecycle"
+            >5. First-run and review lifecycle</a
+          ><a href="#6-overview-understanding-before-inspection"
+            >6. Overview: understanding before inspection</a
+          ><a href="#7-files-tldr-and-full-diff-together"
+            >7. Files: TLDR and full diff together</a
+          ><a href="#8-flows-behavior-across-files"
+            >8. Flows: behavior across files</a
+          ><a href="#9-findings-and-proposed-fixes"
+            >9. Findings and proposed fixes</a
+          ><a href="#10-review-state-regeneration-and-checkpoints"
+            >10. Review state, regeneration, and checkpoints</a
+          ><a href="#11-agent-report-workflow">11. Agent report workflow</a
+          ><a href="#12-native-review-jobs">12. Native review jobs</a
+          ><a href="#13-architecture-and-trust-boundaries"
+            >13. Architecture and trust boundaries</a
+          ><a href="#14-error-accessibility-and-operational-requirements"
+            >14. Error, accessibility, and operational requirements</a
+          ><a href="#15-macos-packaging-and-distribution"
+            >15. macOS packaging and distribution</a
+          ><a href="#16-delivery-phases-and-acceptance-gates"
+            >16. Delivery phases and acceptance gates</a
+          ><a href="#17-decisions-and-remaining-risks"
+            >17. Decisions and remaining risks</a
+          ><a href="#accepted-onboarding-increment"
+            >Accepted onboarding increment</a
+          >
+        </nav>
+        <a class="prototype-link" href="prototypes/trace-prototype.html"
+          >Open interactive prototype ↗</a
+        ><a class="prototype-link" href="skills/trace-report/SKILL.md"
+          >Agent report skill ↗</a
+        >
+      </aside>
+      <main>
+        <div class="topbar">
+          <span class="status">Product target · September 28, 2026</span>
+          <div style="display: flex; gap: 8px">
+            <button class="print" onclick="window.print()">
+              Print / save PDF</button
+            ><a class="cta" href="prototypes/trace-prototype.html"
+              >Explore the prototype ↗</a
+            >
+          </div>
+        </div>
+        <h1 id="trace-macos-review-workspace">
+          Trace — macOS review workspace
+        </h1>
+        <p>
+          Status:
+          <strong>Product target and implementation specification</strong>,
+          updated 28 September 2026. This document describes the broader product
+          target and acceptance gates, not a checklist of shipped features. The
+          current Trace app and its limitations are documented in the
+          <a href="../../apps/trace/README.md">app guide</a>.
+        </p>
+        <p>
+          The app currently provides report preparation and external CLI
+          handoff. Native process supervision, streamed agent logs, in-app
+          cancellation, GitHub Viewed synchronization, and signed release
+          distribution remain future work. Sections describing those
+          capabilities are requirements for later milestones. The accepted
+          onboarding increment below records the implemented handoff boundary.
+        </p>
+        <p>
+          Companion artifacts:
+          <a href="prototypes/trace-prototype.html"
+            >interactive HTML prototype</a
+          >, <a href="REPORT-CONTRACT.md">report contract</a>, and
+          <a href="skills/trace-report/SKILL.md">agent report skill</a>. The
+          contract is authoritative for field names, required data, validation,
+          and examples; this document specifies product behavior.
+        </p>
+        <h2 id="1-product-intent">1. Product intent</h2>
+        <p>
+          Trace helps a developer understand an entire change before deciding
+          whether its findings and behavior are correct. It is a standalone Mac
+          app with enough room for source comparisons, explanations, and
+          cross-file stories in one window.
+        </p>
+        <p>
+          The core loop is
+          <strong
+            >understand the change → trace its behavior → inspect exact code →
+            record a decision → revisit only what changed</strong
+          >. A source link opens VS Code at a local file and line. Reading and
+          reviewing happen in Trace; opening an editor is optional.
+        </p>
+        <p>
+          Primary user: an individual developer reviewing an AI-produced report
+          for a local Git branch or GitHub PR. Secondary user: an author
+          checking their own change before requesting review. Trace is initially
+          a local review workspace, without team accounts or hosted report
+          storage.
+        </p>
+        <p>
+          The user should be able to answer these questions without reading
+          every line first:
+        </p>
+        <ul>
+          <li>
+            What does this PR change for a user or caller, and what remains
+            uncertain?
+          </li>
+          <li>
+            What changed in each file, why does it matter, and which behavior
+            uses it?
+          </li>
+          <li>
+            Which files cooperate in each flow, including failure, retry, and
+            cancellation paths?
+          </li>
+          <li>
+            What evidence supports a finding, and what has actually been tested?
+          </li>
+          <li>
+            What did I already review, and what became stale after regeneration?
+          </li>
+        </ul>
+        <h2 id="2-scope-and-success-criteria">2. Scope and success criteria</h2>
+        <h3 id="v1-target">V1 target</h3>
+        <ul>
+          <li>
+            A macOS Tauri 2 shell, React/TypeScript interface, and native
+            repository selection.
+          </li>
+          <li>
+            Local repository registration and import of a validated Trace
+            report.
+          </li>
+          <li>
+            Reviews of immutable Git base/head snapshots for a branch or PR.
+          </li>
+          <li>
+            Overview, Files, Flows, and Findings, with a project primer and
+            optional value derivations.
+          </li>
+          <li>
+            A TLDR for every changed file and every authored flow; explicit
+            coverage gaps.
+          </li>
+          <li>
+            GitHub-style side-by-side and unified diffs inside Trace, including
+            a multi-file stack.
+          </li>
+          <li>
+            Source evidence linked to snapshot, path, side, and line; VS Code
+            handoff for local source.
+          </li>
+          <li>
+            File review marks, finding dispositions, flow review marks,
+            checkpoints, and stale-state handling.
+          </li>
+          <li>
+            A portable agent skill and validator; manual generation works
+            without agent integration.
+          </li>
+          <li>
+            One supervised local CLI review job per repository, with logs,
+            cancellation, and recoverable errors.
+          </li>
+          <li>
+            Optional, separately enabled GitHub Viewed synchronization for a
+            verified PR/head.
+          </li>
+          <li>Read-only proposed fixes and comment/context copying.</li>
+        </ul>
+        <h3 id="outside-v1">Outside V1</h3>
+        <p>
+          Working-tree or staged-change review; applying fixes; commits, pushes,
+          merges, or PR comment publication; a built-in code editor; cloud agent
+          execution; hosted collaboration; Windows/Linux; a permanent system
+          daemon; arbitrary plugin execution; repository-wide call-graph
+          indexing; automatic approval decisions; and an automatic updater.
+        </p>
+        <p>
+          A flow diagram represents an authored, evidence-backed explanation. It
+          is not a claim that Trace statically analyzed every possible execution
+          path.
+        </p>
+        <h3 id="release-goals">Release goals</h3>
+        <p>
+          On an agreed Apple Silicon reference machine, a
+          100-file/10,000-line-change fixture opens its overview within 2
+          seconds after validation; a cached file diff appears within 150 ms.
+          These are proposed test targets, not measured claims. Large files
+          render on demand, so opening a review does not load all blobs into the
+          WebView.
+        </p>
+        <p>
+          The primary usability gate is practical: a reviewer can explain the
+          main change, inspect a flow across at least three files, triage a
+          finding, open a source line in VS Code, and resume a regenerated
+          report without losing valid progress.
+        </p>
+        <h2 id="3-trace-feature-and-design-decisions">
+          3. Trace feature and design decisions
+        </h2>
+        <p>
+          Trace separates report explanation, immutable source evidence, and
+          reviewer-owned decisions. The following decisions guide the product
+          target; the app guide remains the authority for current availability.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Product decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Explanation and evidence</td>
+              <td>
+                Lead with a file or finding TLDR, a concrete example, and a
+                causal sequence. Keep exact snapshot evidence beside the
+                reasoning.
+              </td>
+            </tr>
+            <tr>
+              <td>Stable identities and decisions</td>
+              <td>
+                Keep file, flow, and finding IDs stable across regenerated
+                reports. Store reviewer dispositions independently from authored
+                content and priority.
+              </td>
+            </tr>
+            <tr>
+              <td>Dependency rounds</td>
+              <td>
+                Offer a reading order with file-specific focus and exit
+                questions. Give every changed file its own change TLDR; focus
+                alone does not explain the change.
+              </td>
+            </tr>
+            <tr>
+              <td>Exact source comparisons</td>
+              <td>
+                Read immutable Git base/head blobs through the native backend
+                and render split/unified diffs in React. Account for additions,
+                deletions, and renames explicitly.
+              </td>
+            </tr>
+            <tr>
+              <td>Review continuity</td>
+              <td>
+                Use application-owned state, versioned fingerprints, and saved
+                checkpoints to distinguish changed code, changed guidance, and
+                changed flow evidence.
+              </td>
+            </tr>
+            <tr>
+              <td>Cross-file behavior</td>
+              <td>
+                Explain before/after stories with meaningful steps, named
+                branches, and source references. Keep suggested reading order
+                distinct from execution order.
+              </td>
+            </tr>
+            <tr>
+              <td>Optional project context</td>
+              <td>
+                Include project-specific terms, invariants, and value
+                derivations when supplied. Preserve formulas, units, source
+                chains, consumer surfaces, and edge cases; hide absent content.
+              </td>
+            </tr>
+            <tr>
+              <td>Proposed fixes</td>
+              <td>
+                Keep proposals read-only and distinct from committed code. Show
+                whether validation was performed; a suggested check is not a
+                passed test.
+              </td>
+            </tr>
+            <tr>
+              <td>Report creation</td>
+              <td>
+                Prepare exact comparison requests, use job-specific output
+                paths, and validate completed artifacts. External CLI handoff is
+                the current boundary; supervised jobs are a later target.
+              </td>
+            </tr>
+            <tr>
+              <td>Precise context sharing</td>
+              <td>
+                Copy useful comment or agent context with exact snapshot
+                references. Sending or publishing requires an explicit user
+                action through a supported integration.
+              </td>
+            </tr>
+            <tr>
+              <td>Optional GitHub Viewed sync</td>
+              <td>
+                A future, separately enabled integration must verify PR identity
+                and head and report sync failures independently from local
+                progress.
+              </td>
+            </tr>
+            <tr>
+              <td>Native workspace</td>
+              <td>
+                Use a resizable app window, app search, editable settings and
+                shortcuts, and typed IPC. Editor handoff remains an optional
+                source action.
+              </td>
+            </tr>
+            <tr>
+              <td>Versioned report compatibility</td>
+              <td>
+                Read supported formats without rewriting the original artifact.
+                Expose missing coverage or ambiguous evidence instead of
+                inventing content; unsupported versions remain explicit.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          A valid report with <code>0 findings</code> must still show complete
+          change coverage and authored flows. Trace must distinguish a
+          successful zero-finding review from an empty, incomplete, or invalid
+          report. Optional context remains visible only when the report supplies
+          valid data.
+        </p>
+        <h2 id="4-information-architecture-and-window-design">
+          4. Information architecture and window design
+        </h2>
+        <p>
+          Trace opens a review in a native resizable window. The header shows
+          repository, review title, exact snapshot pair, generation time, and
+          report status. Review navigation is distinct from the file tree:
+          <strong>Overview / Files / Flows / Findings</strong>.
+        </p>
+        <p>
+          The recommended <strong>Workbench</strong> layout has a collapsible
+          240–280 px navigation pane, a flexible main canvas, and an optional
+          300–360 px evidence inspector. At smaller widths the inspector becomes
+          a drawer. A 1,440 px window should comfortably show two code columns;
+          at approximately 1,000 px Trace offers unified diff instead of
+          compressing both columns beyond readability.
+        </p>
+        <p>
+          The prototype also explores <strong>Story canvas</strong> (flow first,
+          with source beneath) and <strong>Brief</strong> (editorial overview,
+          with drill-down). These are structural alternatives for selection; V1
+          should ship one coherent default rather than maintain three
+          independent products.
+        </p>
+        <p>
+          Hierarchy: change TLDR first, behavior and evidence second, detailed
+          source on demand. Commit IDs and report provenance remain accessible
+          without occupying every content row. Color indicates
+          additions/deletions and status, accompanied by text and icons.
+        </p>
+        <p>
+          Global command search finds files, flow names, finding IDs, and
+          commands. Search results retain their type and breadcrumb.
+          Back/forward restores the prior tab, selection, inspector, and scroll
+          position.
+        </p>
+        <h2 id="5-first-run-and-review-lifecycle">
+          5. First-run and review lifecycle
+        </h2>
+        <ol>
+          <li>
+            <strong>Choose repository</strong> through the native folder dialog,
+            or <strong>Import report</strong> to read explanations before
+            connecting a checkout.
+          </li>
+          <li>
+            Trace validates the directory as a Git repository and registers its
+            canonical root. A monorepo remains one repository; optional display
+            grouping does not change path semantics.
+          </li>
+          <li>
+            Choose a branch comparison or supply a GitHub PR. Trace displays
+            proposed base/head, comparison policy, and changed-file count before
+            generation.
+          </li>
+          <li>
+            For branch review, resolve the selected refs and their merge base
+            once; for PR review, resolve the PR base/head metadata and local
+            objects. Record the effective comparison snapshots in the report.
+            Moving refs never silently change an open review.
+          </li>
+          <li>
+            Generate externally with the skill or run a configured local CLI
+            agent. The selected provider, working repository, snapshot pair, and
+            output destination are shown before launch.
+          </li>
+          <li>
+            A valid completed report opens on Overview. A partially written
+            artifact, invalid report, cancelled job, or failed generation never
+            replaces the last valid report. A structurally valid report with
+            explicitly incomplete coverage can be imported and is labeled
+            incomplete.
+          </li>
+          <li>
+            Review by story, file order, or finding priority. Mark progress
+            explicitly and save a checkpoint when useful.
+          </li>
+          <li>
+            Regenerate for a new head. Trace validates the new version,
+            reconciles stable identities, and shows exactly what requires
+            another look.
+          </li>
+        </ol>
+        <p>
+          An imported report does not automatically run commands, open links,
+          fetch a repository, or install a skill. Unknown newer contract
+          versions show a readable version error and retain the original file
+          for a compatible app.
+        </p>
+        <h3 id="report-selection-and-persistence">
+          Report selection and persistence
+        </h3>
+        <p>
+          The library groups reviews by repository identity and stable review
+          identity, with dated report generations beneath them. It does not
+          silently pick the newest JSON whenever a folder changes. A new valid
+          generation produces an update action; when a user-initiated job
+          completes for the active review, Trace may activate it while
+          preserving navigation.
+        </p>
+        <p>
+          Reports are portable, agent-authored artifacts. App state stores local
+          checkout mapping, progress, preferences, job metadata, and checkpoints
+          in the user's Trace application-support directory. A report cannot set
+          an absolute checkout path or overwrite user state. Exporting a report
+          excludes local paths, credentials, logs, and progress unless a future
+          explicit export format includes them.
+        </p>
+        <h2 id="6-overview-understanding-before-inspection">
+          6. Overview: understanding before inspection
+        </h2>
+        <p>
+          The overview contains a plain-language PR TLDR, intended outcome,
+          before/after behavior, risk summary, and a suggested reading order. A
+          coverage strip shows changed files explained, flows authored, verified
+          findings, and validation evidence. Render the author's
+          <code>summary.outcome</code> as <code>changes-requested</code>,
+          <code>no-blockers-found</code>, or <code>incomplete</code>, with its
+          explanation; it is not an app-generated approval. “No verified
+          findings” is not presented as “safe to merge.”
+        </p>
+        <p>
+          Each highlighted change links to a flow or file. Each risk links to
+          evidence or a finding. Executed checks use
+          <code>provenance.checks</code> with <code>passed</code>,
+          <code>failed</code>, or <code>not-run</code>; proposed checks remain
+          separate in repair guidance. A generated report must not imply that
+          narrative confidence equals test execution.
+        </p>
+        <p>
+          The primer explains project purpose, actors, key terms, invariants,
+          and boundaries. Optional value derivations show a named value,
+          consumer surfaces, formula, source chain, units, and edge cases. Every
+          source-chain step can open the exact evidence in Trace and, if
+          available, the local source in VS Code.
+        </p>
+        <h2 id="7-files-tldr-and-full-diff-together">
+          7. Files: TLDR and full diff together
+        </h2>
+        <p>
+          Every changed-file row includes path, status, additions/deletions
+          where known, a one-sentence TLDR of at most 280 characters, linked
+          flows/findings, and review state. Binary and generated files remain in
+          coverage. A missing explanation says “TLDR missing”; it never inherits
+          a generic PR summary. Inventory coverage, per-file
+          <code>analysis.status</code>, flow coverage, and human progress are
+          separate counts.
+        </p>
+        <p>
+          Selecting a file opens its TLDR above the full base/head diff. A
+          compact detail area explains responsibility, specific behavior
+          changed, why it matters, and what to verify. Dependency rounds provide
+          a recommended order, reason, and exit question; directory order is
+          also available.
+        </p>
+        <p>
+          The main canvas supports single-file inspection and a multi-file
+          stack, filtered by flow, round, or selection. Each stacked file
+          retains a sticky path/TLDR header, collapse control, finding anchors,
+          and review mark. Expanding one file must not jump another file's
+          scroll position.
+        </p>
+        <p>Diff requirements:</p>
+        <ul>
+          <li>
+            Side-by-side old/new lines with independently correct line numbers;
+            unified mode as an alternative.
+          </li>
+          <li>
+            Expand unchanged context, wrap/no-wrap control, synchronized
+            vertical scrolling, and clear hunk boundaries.
+          </li>
+          <li>
+            Selecting an evidence reference highlights its side and line range
+            without hiding surrounding code.
+          </li>
+          <li>
+            Added/deleted files show an intentional empty opposite side; renamed
+            files show both paths and actual content change.
+          </li>
+          <li>
+            Binary, oversized, symlink, submodule, and unsupported encoding
+            changes get explicit metadata views with object identity. Do not
+            manufacture text or treat unreadable content as unchanged.
+          </li>
+          <li>
+            Report snippets are excerpts; committed Git blobs are the authority
+            for the full diff. A mismatch becomes an evidence warning.
+          </li>
+          <li>
+            “Mark reviewed” is manual. Scrolling through a file or opening it is
+            not proof of review.
+          </li>
+        </ul>
+        <p>
+          V1 uses bounded, lazy blob reads and virtualized diff rows. The
+          renderer must benchmark long lines, a 10,000-line hunk, and a large
+          file list before selecting a production diff component.
+        </p>
+        <h2 id="8-flows-behavior-across-files">
+          8. Flows: behavior across files
+        </h2>
+        <p>
+          A flow is a named behavior with an actor/trigger, starting conditions,
+          intended outcome, a change TLDR, and structured before/after graph
+          snapshots. A linear graph may be rendered as an ordered trace.
+          Examples include “submit an order,” “restore a session,” or “cancel a
+          pending request.” It may cross changed and unchanged source files. The
+          contract's separate <code>contextFiles</code> inventory anchors
+          unchanged supporting code without adding it to changed-file counts or
+          progress.
+        </p>
+        <p>
+          Every flow card starts with its own TLDR: what the behavior does and
+          how this change affects it. The detail view places
+          <strong>Before / After</strong> next to the graph and includes
+          involved files, findings, invariants, and verification notes.
+        </p>
+        <p>
+          Nodes represent meaningful steps or decisions, not every function
+          call. Edges have conditions when conditional. Changed steps are
+          distinguished from supporting unchanged code. A decision exposes named
+          branches such as success/failure, authenticated/expired, or
+          cancel/continue; loops have a visible exit condition.
+        </p>
+        <p>
+          Selecting a node opens its explanation and source references in the
+          inspector. Selecting its file opens the corresponding diff without
+          losing the flow selection. A linear accessible transcript contains the
+          same node, edge, and branch information as the visual diagram.
+        </p>
+        <p>
+          Flow content must distinguish observed code behavior from inference
+          and proposal. Missing evidence is visible. A confidence label never
+          substitutes for source references. Flows unaffected by the change do
+          not need to be exhaustively documented; every affected behavior the
+          report claims to explain does.
+        </p>
+        <p>
+          If a file is outside authored flows, its analysis or coverage note
+          must state why, such as documentation, generated output, or standalone
+          utility change. A flow with no detected bug is still useful and must
+          remain visible when the findings queue is empty. Empty flows with
+          <code>flowAnalysis:not-assessed</code> mean “Flows not assessed”; an
+          established absence of behavioral changes uses
+          <code>complete</code> plus an explanation. A new flow's before
+          snapshot can be <code>not-applicable</code>; unavailable snapshots
+          remain explicit and make flow coverage partial.
+        </p>
+        <h2 id="9-findings-and-proposed-fixes">
+          9. Findings and proposed fixes
+        </h2>
+        <p>
+          The queue sorts by explicit review priority <code>P0</code> through
+          <code>P3</code>, then report order, with filters for file, flow,
+          assessment, disposition, and staleness. Unclassified legacy findings
+          have null priority and appear in a labeled unclassified group.
+          Selecting a finding opens its primary defect anchor and presents:
+          concise claim, concrete trigger, expected versus actual behavior,
+          causal steps, impact, evidence, and suggested remedy.
+        </p>
+        <p>
+          V1 has no separate severity field. Impact belongs in the explanation;
+          legacy severity must not be guessed into priority. Stable identity
+          does not change when priority changes. Agent
+          <code>assessment</code> is <code>supported</code>,
+          <code>needs-verification</code>, or <code>refuted</code>; it is
+          distinct from reviewer disposition. Refuted hypotheses do not inflate
+          the active-finding count, and needs-verification items do not count as
+          verified findings.
+        </p>
+        <p>
+          Dispositions are <strong>Confirmed</strong>, <strong>Fixed</strong>,
+          <strong>Disputed</strong>, and <strong>Needs test</strong>, with
+          optional reviewer notes. “Fixed” records the reviewer's decision; it
+          does not mean Trace applied a change or independently proved the fix.
+        </p>
+        <p>
+          Proposed fixes contain an optional standard unified patch against
+          <code>comparison.head.oid</code>. Trace can preview current/proposed
+          sides only after resolving that head and checking patch context in
+          memory; otherwise it displays the inert patch and explains why a
+          contextual preview is unavailable.
+          <code>proposedFix.validation</code> lists proposed checks, not
+          executed results; actual results belong in provenance. Illustrative
+          fragments remain prose/code with <code>patch:null</code>. No apply
+          button is present in V1.
+        </p>
+        <p>
+          Copy comment produces useful Markdown containing identity, claim,
+          location, reproduction/impact, and suggestion. Copy context includes
+          the selected finding/flow and exact snapshot references for another
+          agent. Neither action sends a message or posts a review.
+        </p>
+        <h2 id="10-review-state-regeneration-and-checkpoints">
+          10. Review state, regeneration, and checkpoints
+        </h2>
+        <p>
+          Report content and reviewer state have separate owners. Agents author
+          the report; Trace writes reviewer state. The app validates and
+          fingerprints the report before reconciling state in a single
+          transaction. Evidence fingerprints include referenced unchanged
+          context files as well as changed files; a dependency change can
+          invalidate a conclusion even when its primary file stays the same.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Required behavior</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Same identity and same code/guidance</td>
+              <td>Retain reviewed/disposition state.</td>
+            </tr>
+            <tr>
+              <td>File code changes</td>
+              <td>Retain history; mark code stale.</td>
+            </tr>
+            <tr>
+              <td>File guidance changes but code does not</td>
+              <td>Mark guidance changed; do not call the code new.</td>
+            </tr>
+            <tr>
+              <td>Flow graph, explanation, or evidence changes</td>
+              <td>Mark flow stale with the changed category.</td>
+            </tr>
+            <tr>
+              <td>Finding evidence, causal chain, or recommendation changes</td>
+              <td>
+                Retain previous disposition as history; require reconfirmation.
+              </td>
+            </tr>
+            <tr>
+              <td>New finding/file/flow</td>
+              <td>Start unreviewed.</td>
+            </tr>
+            <tr>
+              <td>Removed finding/file/flow</td>
+              <td>Retain historical decision outside active counts.</td>
+            </tr>
+            <tr>
+              <td>Confirmed rename</td>
+              <td>
+                Carry eligible history through the explicit mapping; recheck
+                fingerprints.
+              </td>
+            </tr>
+            <tr>
+              <td>Uncertain identity match</td>
+              <td>
+                Show migration ambiguity; do not silently transfer a decision.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          A checkpoint captures the active report generation, exact head, and
+          file fingerprints. “Changed since checkpoint” compares against that
+          checkpoint, not an inferred branch name. A new report does not
+          overwrite the saved checkpoint. Saving a new one is explicit.
+        </p>
+        <p>
+          Progress counts eligible items and identifies missing coverage. A
+          previously reviewed but stale file counts as needing attention. Reset
+          progress is reversible during the current session or requires a
+          confirmation naming the affected review; it never deletes reports.
+        </p>
+        <p>
+          State writes use a native single-writer service with atomic
+          transactions. A second window observes updates. The design must not
+          rely on independent read/merge/write operations that can race on the
+          same item.
+        </p>
+        <h3 id="proposed-state-persistence">Proposed state persistence</h3>
+        <p>
+          Use a private SQLite database, <code>trace.sqlite3</code>, in the
+          native app's resolved application-support directory. It contains no
+          agent credentials. Migration runs transactionally before writes; an
+          unsupported newer database version opens a recovery message and is
+          never overwritten. The original database is backed up before a
+          destructive migration. Imported report generations remain immutable
+          JSON files in app-managed storage, with their digest and location
+          indexed in SQLite.
+        </p>
+        <p>
+          The stable review key is <code>(repository.id, reportId)</code>. An
+          immutable generation key is SHA-256 of canonical parsed report JSON:
+          recursively sorted object keys, array order preserved, encoded as
+          UTF-8. Filename and <code>generatedAt</code> alone are not identities.
+          A local <code>checkoutId</code> maps repository identity to a
+          canonical root and is kept separate from the review key, so selecting
+          another valid clone does not reset progress.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Private record</th>
+              <th>Key and stored content</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Review</td>
+              <td>
+                Review key; active generation digest; review revision; selected
+                checkout ID.
+              </td>
+            </tr>
+            <tr>
+              <td>Entity decision</td>
+              <td>
+                Review key + kind (<code>file</code>, <code>flow</code>,
+                <code>finding</code>) + stable entity ID; reviewed flag or
+                disposition; note; last accepted code/guidance fingerprints;
+                generation digest; timestamp; item revision.
+              </td>
+            </tr>
+            <tr>
+              <td>Decision history</td>
+              <td>
+                Append-only prior decisions and invalidation reasons; removed
+                entities remain historical.
+              </td>
+            </tr>
+            <tr>
+              <td>Checkpoint</td>
+              <td>
+                Review key; generation digest; base/head OIDs; file
+                ID/path/fingerprint map; timestamp.
+              </td>
+            </tr>
+            <tr>
+              <td>Local integration</td>
+              <td>
+                Checkout roots, configured provider IDs, and per-PR Viewed sync
+                preference/status.
+              </td>
+            </tr>
+            <tr>
+              <td>Job</td>
+              <td>
+                Job ID, review key, checkout ID, comparison, status, log/staging
+                paths, and process ownership metadata; stale running records
+                become interrupted on restart.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Native code computes fingerprints, never trusting report-supplied
+          hashes. Code fingerprints include status, side-specific path, mode,
+          and blob IDs; guidance fingerprints include entity explanations and
+          relevant round/flow content; evidence fingerprints cover referenced
+          blobs and ranges. Use a versioned canonical encoding so an algorithm
+          change triggers an explicit reconciliation migration rather than
+          silently losing decisions.
+        </p>
+        <p>
+          Writes carry <code>expectedItemRevision</code> (zero for a new
+          decision); the single writer compares and increments it in one
+          transaction. Different-item writes both succeed. A same-item conflict
+          returns the current value for deliberate retry instead of silently
+          overwriting another window. Checkpoint replacement uses the equivalent
+          review revision. Publish state events only after commit; a failed
+          write remains visibly unsaved.
+        </p>
+        <p>
+          GitHub Viewed is off by default. When enabled, Trace records the local
+          mark immediately, verifies the repository/PR/head mapping, then syncs
+          remotely. A head mismatch pauses synchronization; network/auth
+          failures leave local progress intact and expose a retry. It does not
+          post comments or change PR approval state.
+        </p>
+        <h2 id="11-agent-report-workflow">11. Agent report workflow</h2>
+        <p>
+          The <a href="skills/trace-report/SKILL.md">Trace skill</a> is a
+          repository-local deliverable in this proposal; it is not installed
+          into the user's global skills automatically. It must work with an
+          agent that can inspect a Git checkout and write JSON, without
+          depending on a particular chat product.
+        </p>
+        <p>
+          The workflow is: read the contract → resolve exact snapshots and
+          mechanically collect change inventory → inspect code/callers → author
+          all file TLDRs and affected flows → verify findings → preserve stable
+          identities from the prior generation → validate → publish one
+          completed artifact atomically.
+        </p>
+        <p>
+          The agent must not invent findings to populate the UI, claim unrun
+          tests passed, omit unchanged source needed to explain a flow, or
+          modify review progress. All unknowns and coverage omissions remain
+          explicit. Validation checks structure and consistency; it cannot prove
+          that an AI explanation is correct.
+        </p>
+        <p>
+          Manual flow is first-class: generate a report externally, validate it,
+          then import it. The native runner adds convenience using the same
+          output contract. It does not create a second report dialect.
+        </p>
+        <p>
+          Future report-format adapters must preserve supported findings, file
+          groups, primer content, derivations, and proposals without rewriting
+          original artifacts. Reading guidance must not become a claimed
+          behavior graph. Missing per-file TLDRs or structured flows remain
+          incomplete coverage; adapters must never synthesize factual
+          explanations from short focus text. Missing comparison commits or
+          ambiguous evidence require resolution instead of guessed source
+          anchors. The current app accepts the Trace report contract.
+        </p>
+        <h2 id="12-native-review-jobs">12. Native review jobs</h2>
+        <p>
+          Each job has a unique ID, captured repository mapping, immutable
+          snapshots, provider/executable identity, output destination, start/end
+          times, structured status, and a bounded log. One running job per
+          repository is sufficient for V1; other requests queue or show the
+          existing job.
+        </p>
+        <p>
+          Lifecycle:
+          <strong>preflight → queued → running → validating → completed</strong
+          >, with <strong>cancelling → cancelled</strong>,
+          <strong>failed</strong>, and <strong>interrupted</strong> exits.
+          Status never changes to completed merely because some JSON appeared on
+          disk.
+        </p>
+        <p>
+          Preflight checks Git objects, writable output, available executable,
+          provider configuration, and a supported read-only review mode. Source
+          changes are outside the review job's scope. Provider-specific
+          filesystem/network permissions must be documented and displayed; a
+          prompt asking an agent to be read-only is not enforcement.
+        </p>
+        <p>
+          The runner passes argument arrays to an explicitly configured
+          executable, with a fixed working directory and bounded environment.
+          Report text cannot become a shell command. Output is written to a
+          job-specific temporary artifact; completion requires process success,
+          complete contract validation, matching review/snapshot identity, and
+          atomic promotion to the final artifact. Job ownership is checked
+          through native staging metadata, not a new field in the portable
+          report schema.
+        </p>
+        <p>
+          Cancellation signals the owned process group, waits briefly, then
+          escalates termination if needed. Keep bounded diagnostic logs and any
+          incomplete artifact separate from the valid report. Late process
+          events or files from a cancelled job cannot activate a report. App
+          quit with an active job offers keep-open or cancel-and-quit;
+          background operation after quit is deferred.
+        </p>
+        <p>
+          Authentication remains with the selected CLI and its normal credential
+          store. Trace never embeds credentials in reports, prompts, browser
+          state, or logs. Missing/expired auth opens clear setup instructions
+          and an explicit retry; importing and reading reports continues to work
+          offline.
+        </p>
+        <p>
+          Local agents are not automatically sandboxed by Tauri. Tauri
+          permissions constrain WebView access to native APIs; they do not
+          provide a sandbox around arbitrary child processes. Before shipping a
+          provider adapter, verify its real sandbox/read-only behavior,
+          cancellation, auth, and output lifecycle on macOS.
+        </p>
+        <h2 id="13-architecture-and-trust-boundaries">
+          13. Architecture and trust boundaries
+        </h2>
+        <div class="architecture">
+          <div class="arch-primary">
+            React workspace
+            <span>Rendering · navigation · transient state</span>
+          </div>
+          <div class="arch-line">↓ typed, scoped IPC ↓</div>
+          <div class="arch-services">
+            <div>Reports<span>Validate · immutable generations</span></div>
+            <div>Git snapshots<span>Read exact objects · diff</span></div>
+            <div>Review state<span>SQLite · atomic judgments</span></div>
+            <div>Agent jobs<span>Supervise · cancel · validate</span></div>
+            <div>VS Code opener<span>Resolve · verify · deep link</span></div>
+          </div>
+        </div>
+        <p>
+          Proposed package boundaries: <code>apps/trace</code> for React and
+          Tauri, <code>packages/report-contract</code> for
+          schema/types/fixtures, <code>packages/review-core</code> for pure
+          identity/fingerprint/state logic, and
+          <code>skills/trace-report</code> for the distributable skill. These
+          are target implementation locations, not directories created by this
+          spec.
+        </p>
+        <p>
+          React owns rendering, navigation, keyboard actions, and transient UI
+          state. Rust owns repository handles, Git/process access, native
+          dialogs/openers, persistent state, and validation at the privilege
+          boundary. Reuse pure TypeScript helpers where sound; extract their
+          behavior into shared fixtures rather than copying VS Code imports.
+        </p>
+        <p>
+          IPC exposes operations such as register repository, import report,
+          list changed files, read a blob/diff, start/cancel a known job, set a
+          disposition, save a checkpoint, and open a validated source reference.
+          It does not expose arbitrary shell commands, unrestricted filesystem
+          reads, arbitrary URL opening, or a renderer-selected executable.
+        </p>
+        <h3 id="proposed-internal-ipc-contract">
+          Proposed internal IPC contract
+        </h3>
+        <p>
+          These request/response shapes are private app APIs, separate from
+          <code>.trace.json</code>. Handles are opaque, issued by native code,
+          and scoped to the caller's registered repository/report. A
+          <code>reportHandle</code> binds one immutable generation; the frontend
+          cannot replace its OIDs or paths. Objects below show request and
+          successful response payloads; names are proposed implementation
+          interfaces.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Command</th>
+              <th>Request → success response</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>choose_repository</code></td>
+              <td>
+                <code>{}</code> →
+                <code>{checkoutId, repositoryId, displayPath}</code> from a
+                native dialog and verified registration.
+              </td>
+            </tr>
+            <tr>
+              <td><code>import_report</code></td>
+              <td>
+                <code>{checkoutId?: string}</code> →
+                <code>{reportHandle, generationDigest, coverage, warnings}</code
+                >; native dialog supplies the path, then structural/semantic
+                validation precedes import.
+              </td>
+            </tr>
+            <tr>
+              <td><code>list_refs</code></td>
+              <td>
+                <code>{checkoutId}</code> →
+                <code>{refs:[{refHandle,label,oid}]}</code>; handles are issued
+                after native Git resolution.
+              </td>
+            </tr>
+            <tr>
+              <td><code>resolve_comparison</code></td>
+              <td>
+                `{checkoutId, baseRefHandle, headRefHandle,
+                policy:&quot;merge-base&quot;
+              </td>
+            </tr>
+            <tr>
+              <td><code>resolve_pull_request</code></td>
+              <td>
+                <code>{checkoutId,prUrl}</code> →
+                <code
+                  >{comparisonHandle,repositoryId,prNumber,baseOid,headOid}</code
+                >
+                after explicit URL/repository validation and authenticated
+                metadata access; missing local objects require a separate
+                user-initiated fetch.
+              </td>
+            </tr>
+            <tr>
+              <td><code>read_diff</code></td>
+              <td>
+                <code
+                  >{reportHandle,fileId,contextLines,cursor?:
+                  string,requestId}</code
+                >
+                →
+                <code>{requestId,base,head,hunks,nextCursor?,limitations}</code>
+                with bounded native-derived sides.
+              </td>
+            </tr>
+            <tr>
+              <td><code>read_evidence</code></td>
+              <td>
+                <code>{reportHandle,evidenceId,requestId}</code> →
+                <code
+                  >{requestId,side,oid,path,startLine,lines,verification}</code
+                >.
+              </td>
+            </tr>
+            <tr>
+              <td><code>set_decision</code></td>
+              <td>
+                <code
+                  >{reportHandle,kind,entityId,decision,note?,expectedItemRevision}</code
+                >
+                → <code>{itemRevision,reviewRevision,persistedDecision}</code>;
+                validate allowed decisions against the entity kind.
+              </td>
+            </tr>
+            <tr>
+              <td><code>save_checkpoint</code></td>
+              <td>
+                <code>{reportHandle,expectedReviewRevision}</code> →
+                <code>{checkpointId,reviewRevision}</code>; native code computes
+                the fingerprint map.
+              </td>
+            </tr>
+            <tr>
+              <td><code>start_review</code></td>
+              <td>
+                <code>{checkoutId,comparisonHandle,providerId,reportId}</code> →
+                <code>{jobId,status}</code>; provider ID selects a preconfigured
+                adapter/executable, and native code selects staging paths.
+              </td>
+            </tr>
+            <tr>
+              <td><code>cancel_job</code></td>
+              <td>
+                <code>{jobId}</code> → <code>{jobId,status}</code>; idempotent,
+                restricted to a job owned by this app.
+              </td>
+            </tr>
+            <tr>
+              <td><code>open_source</code></td>
+              <td>
+                <code>{reportHandle,evidenceId,checkoutId}</code> →
+                <code>{opened:boolean,reason?: string}</code> after
+                snapshot-to-working-tree verification and native URL
+                construction.
+              </td>
+            </tr>
+            <tr>
+              <td><code>cancel_request</code></td>
+              <td>
+                <code>{requestId}</code> → <code>{cancelled:boolean}</code> for
+                an owned outstanding read.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <code>set_decision.decision</code> is <code>reviewed</code> or
+          <code>unreviewed</code> for files/flows, and <code>confirmed</code>,
+          <code>fixed</code>, <code>disputed</code>, <code>needs-test</code>, or
+          null (clear disposition) for findings. <code>contextLines</code> is an
+          integer from 0 to 200; larger context is paged with a native-issued
+          cursor. Native command schemas reject unknown properties and
+          cross-report entity IDs. The renderer never supplies source text,
+          fingerprints, SQL, process arguments, or persistence paths.
+        </p>
+        <p>
+          Responses use a discriminated envelope, <code>{ok:true,data}</code> or
+          <code>{ok:false,error:{code,message,retryable,field?,details?}}</code
+          >. Initial error codes cover <code>INVALID_REPORT</code>,
+          <code>UNSUPPORTED_VERSION</code>, <code>UNMAPPED_REPOSITORY</code>,
+          <code>MISSING_OBJECT</code>, <code>STALE_GENERATION</code>,
+          <code>STATE_CONFLICT</code>, <code>LIMIT_EXCEEDED</code>,
+          <code>AUTH_REQUIRED</code>, <code>PROVIDER_UNAVAILABLE</code>,
+          <code>CANCELLED</code>, and <code>IO_ERROR</code>. Details contain
+          bounded diagnostics, never credentials or unrestricted process output.
+        </p>
+        <p>
+          Events carry
+          <code
+            >{eventId,sequence,kind,jobId?,reviewKey?,generationDigest?,payload}</code
+          >. Job events are sequenced per job; state events carry committed
+          revisions. The UI ignores superseded read request IDs and reloads a
+          snapshot after an event gap or restart. Outdated generation handles
+          cannot mutate the active generation's decisions; native code returns
+          <code>STALE_GENERATION</code> and lets the user reopen the matching
+          history item or refresh.
+        </p>
+        <p>
+          Each command validates its arguments and authorization against
+          app-owned repository/report handles. Object IDs must resolve to the
+          expected type; repository paths must remain within the registered root
+          after canonicalization. Symlink source links cannot escape that
+          boundary. Resource reads have byte/time limits and cancellation.
+        </p>
+        <p>
+          Use a bundled local WebView, restrictive content security policy, no
+          remote scripts/fonts, escaped text, and sanitized supported Markdown.
+          Disable raw report HTML and executable diagram definitions. Reports
+          and repository content are untrusted data. Explicit Tauri capabilities
+          and custom-command scoping must match the small IPC surface;
+          permissive Rust commands would defeat frontend restrictions.
+          <a href="https://v2.tauri.app/security/capabilities/"
+            >Tauri capabilities</a
+          >.
+        </p>
+        <p>
+          V1 uses the Rust process supervisor directly; a persistent daemon is
+          unnecessary. If a later bounded helper is bundled as a sidecar,
+          package its architecture-specific binary, define its allowed
+          arguments, and supervise its lifecycle. The official sidecar mechanism
+          supports this packaging model.
+          <a href="https://v2.tauri.app/develop/sidecar/">Tauri sidecars</a>.
+        </p>
+        <h3 id="git-snapshots-and-local-checkout-mapping">
+          Git snapshots and local checkout mapping
+        </h3>
+        <p>
+          Store portable repository identity and relative paths in the report.
+          Store this Mac's absolute checkout root only in app state. Two clones
+          can map to the same logical repository, but Trace requires the user to
+          choose which checkout opens in the editor.
+        </p>
+        <p>
+          Read exact blobs from the recorded Git objects, using argument arrays
+          and no external diff/textconv execution. Use structured/NUL-delimited
+          Git output for paths. Never run repository hooks or evaluate
+          filenames. Missing objects produce a recoverable “snapshot
+          unavailable” state; a fetch is an explicit action showing remote and
+          requested refs.
+        </p>
+        <p>
+          A local checkout may be on a different commit or contain uncommitted
+          changes. The snapshot diff stays unchanged. Open a working-tree
+          evidence line only when its path and blob match the evidence snapshot
+          or a verified line mapping exists. Otherwise explain the mismatch and
+          keep the committed source in Trace. Deleted/base-only references
+          without a verified mapping offer a snapshot path/line copy; a warning
+          alone is insufficient to call an unverified editor jump exact.
+        </p>
+        <h3 id="vs-code-deep-links">VS Code deep links</h3>
+        <p>
+          For a validated local source reference, construct
+          <code>vscode://file/{absolute path}:{line}</code> using URL-safe path
+          encoding and a positive integer line. The slash preceding an absolute
+          macOS path must be normalized correctly; spaces, <code>#</code>,
+          <code>%</code>, Unicode, and colon-containing filenames need fixture
+          tests. Never trust a report-provided absolute path or custom URL.
+        </p>
+        <p>
+          The user-facing action is <strong>Open in VS Code</strong>. Native
+          code checks the selected mapping and local file before asking macOS to
+          open the generated URL through the opener integration. If VS Code is
+          absent or the OS rejects the link, show a copy-path fallback. Browser
+          preview cannot verify OS handoff. The URL scheme and optional
+          line/column form are documented by
+          <a
+            href="https://code.visualstudio.com/docs/configure/command-line#_opening-vs-code-with-urls"
+            >VS Code</a
+          >; opening URLs from Tauri uses its
+          <a href="https://v2.tauri.app/plugin/opener/">opener plugin</a> with
+          explicit scope for this scheme.
+        </p>
+        <h2 id="14-error-accessibility-and-operational-requirements">
+          14. Error, accessibility, and operational requirements
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>State</th>
+              <th>What the user sees and can do</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>No repository/report</td>
+              <td>
+                Choose repository, import report, or read generation
+                instructions.
+              </td>
+            </tr>
+            <tr>
+              <td>Valid zero-finding report</td>
+              <td>
+                Show its actual coverage and “No verified findings”; an empty
+                finding list does not establish complete analysis.
+              </td>
+            </tr>
+            <tr>
+              <td>Invalid/unsupported report</td>
+              <td>
+                Precise field/version error; retain current report; choose
+                another file.
+              </td>
+            </tr>
+            <tr>
+              <td>Partial coverage</td>
+              <td>
+                Counts and explicit missing explanations; request regeneration.
+              </td>
+            </tr>
+            <tr>
+              <td>Unmapped/moved checkout</td>
+              <td>Explanations remain readable; reconnect local repository.</td>
+            </tr>
+            <tr>
+              <td>Missing snapshot</td>
+              <td>
+                Explain affected diff; fetch explicitly or select a suitable
+                clone.
+              </td>
+            </tr>
+            <tr>
+              <td>Corrupt/mismatched evidence</td>
+              <td>
+                Flag reference and keep source view honest; no silent
+                substitution.
+              </td>
+            </tr>
+            <tr>
+              <td>CLI unavailable/auth required</td>
+              <td>Provider setup and retry; manual import still available.</td>
+            </tr>
+            <tr>
+              <td>Job failed/cancelled/interrupted</td>
+              <td>
+                Status, useful log tail, preserved prior report, retry as a new
+                job.
+              </td>
+            </tr>
+            <tr>
+              <td>State storage failure</td>
+              <td>
+                Visible unsaved mark and retry; never display a persisted
+                success.
+              </td>
+            </tr>
+            <tr>
+              <td>GitHub sync failure</td>
+              <td>Local progress preserved; remote status and retry.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          All controls have accessible names and visible focus. Keyboard
+          navigation works without global single-letter shortcuts while typing.
+          Proposed commands: ⌘O import, ⌘K search, ⌘1–4 sections, arrow
+          navigation within focused lists, Escape close inspector/dialog. Final
+          macOS menu bindings must avoid native text-navigation conflicts.
+        </p>
+        <p>
+          Respect text scaling and reduced motion; code can scroll horizontally.
+          Diagrams have equivalent text. Status uses labels in addition to
+          color. Test light/dark themes, a small laptop viewport, and VoiceOver
+          for the primary loop.
+        </p>
+        <p>
+          Logs rotate locally with a documented retention limit and a
+          user-visible clear action. Diagnostic export is deliberate and
+          previews included material. No telemetry or report upload is enabled
+          in V1.
+        </p>
+        <h2 id="15-macos-packaging-and-distribution">
+          15. macOS packaging and distribution
+        </h2>
+        <p>
+          Use a development <code>.app</code> for native spikes, then a signed
+          and notarized direct-distribution app/DMG for V1. Tauri documents the
+          Developer ID and notarization route for macOS distribution.
+          <a href="https://v2.tauri.app/distribute/sign/macos/"
+            >Tauri macOS signing</a
+          >.
+        </p>
+        <p>
+          Apple Silicon is the initial validation target. Intel support and
+          minimum macOS version remain release decisions after testing the
+          chosen Tauri/WebKit features and provider binaries. Do not promise
+          compatibility before a real build matrix passes. Avoid a Mac App Store
+          commitment until the CLI execution model is evaluated against its
+          distribution constraints.
+        </p>
+        <p>
+          Release checklist: stable bundle identifier, Trace icon/name,
+          versioned contract migration, signed app and any bundled executables,
+          notarization/stapling validation, clean-machine launch, report
+          import/file association, permission and quarantine behavior, deep
+          links, job termination, and rollback-safe state migration. Manual
+          download/install handles updates in V1.
+        </p>
+        <h2 id="16-delivery-phases-and-acceptance-gates">
+          16. Delivery phases and acceptance gates
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Deliverable</th>
+              <th>Gate before proceeding</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0 — Product proof</td>
+              <td>This spec, contract/skill, working HTML directions</td>
+              <td>
+                Inspect all primary views and simulated interactions; select a
+                layout.
+              </td>
+            </tr>
+            <tr>
+              <td>1 — Contract/core</td>
+              <td>Versioned schema, import adapter, identity/state logic</td>
+              <td>
+                Positive/negative fixtures cover empty findings, all
+                paths/statuses, missing coverage, invalid references, and
+                regeneration.
+              </td>
+            </tr>
+            <tr>
+              <td>2 — Native vertical slice</td>
+              <td>Repository picker, exact diff, VS Code link</td>
+              <td>
+                Signed development app reads a real base/head comparison and
+                opens the expected file/line on macOS.
+              </td>
+            </tr>
+            <tr>
+              <td>3 — Review workspace</td>
+              <td>Overview, Files, Flows, Findings, progress</td>
+              <td>
+                Complete a three-file flow and finding decision; restart and
+                recover state; regenerate and see correct staleness.
+              </td>
+            </tr>
+            <tr>
+              <td>4 — Runner and optional sync</td>
+              <td>Supervised CLI adapter, cancellation, GitHub Viewed</td>
+              <td>
+                Exercise success, invalid output, nonzero exit, auth expiry,
+                cancellation with descendants, stale PR head, and offline
+                recovery.
+              </td>
+            </tr>
+            <tr>
+              <td>5 — Distribution</td>
+              <td>Signed/notarized release candidate</td>
+              <td>
+                Clean-machine install and main-loop accessibility/performance
+                gates pass.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Detailed acceptance scenarios:</p>
+        <ol>
+          <li>
+            A valid report with no findings still lists every changed file and
+            authored flow.
+          </li>
+          <li>
+            Each file and flow has a distinct factual TLDR; missing legacy
+            content is identified rather than invented.
+          </li>
+          <li>
+            A flow branch navigates to the correct before/after source side
+            across three files and back without losing context.
+          </li>
+          <li>
+            Diff contents remain identical after switching the local checkout to
+            another branch or editing a local file.
+          </li>
+          <li>
+            Added, deleted, renamed, binary, large, symlink, and
+            Unicode/space-containing paths render truthful states.
+          </li>
+          <li>
+            Import rejects traversal paths, unsupported schema versions,
+            dangling references, and executable report content without affecting
+            the last valid report.
+          </li>
+          <li>
+            Same-generation replay preserves marks; changed code, guidance, and
+            flow evidence produce the intended separate stale states.
+          </li>
+          <li>
+            Two windows updating different items preserve both decisions; a
+            same-item update has deterministic conflict behavior.
+          </li>
+          <li>
+            Cancellation terminates owned descendants and prevents late
+            artifacts from becoming a completed report.
+          </li>
+          <li>
+            A provider exit code of zero plus invalid/partial JSON fails
+            validation; valid-looking JSON plus a failed job does not
+            auto-complete.
+          </li>
+          <li>
+            VS Code handoff works with encoded paths; deleted/base-only
+            references offer an honest fallback; a mismatched checkout is
+            visible.
+          </li>
+          <li>
+            A failed GitHub Viewed request does not revert local progress or
+            change PR review status.
+          </li>
+          <li>
+            Keyboard and VoiceOver users can select a file, inspect evidence,
+            make a disposition, and return to the overview.
+          </li>
+          <li>
+            A proposed fix cannot edit the repository through any UI or IPC
+            path.
+          </li>
+        </ol>
+        <p>
+          The HTML prototype proves layout, navigation, filtering, sample diff
+          presentation, and simulated review interactions. It does
+          <strong>not</strong> prove native file access, Rust IPC, Git accuracy,
+          process isolation/cancellation, agent authentication, GitHub
+          synchronization, signing, or OS deep-link behavior. Those require the
+          native gates above.
+        </p>
+        <h2 id="17-decisions-and-remaining-risks">
+          17. Decisions and remaining risks
+        </h2>
+        <p>
+          Recommended defaults are Workbench, local-first report files,
+          application-owned reviewer state, explicit immutable comparison
+          snapshots, read-only review, manual import before runner integration,
+          and direct macOS distribution.
+        </p>
+        <p>
+          Open implementation decisions: final bundle identifier; minimum macOS
+          and Intel support; diff rendering library after
+          performance/accessibility spike; SQLite binding and migration tooling;
+          first supported CLI provider and its actual sandbox controls; legacy
+          identity migration policy; and exact report size limits established by
+          fixtures.
+        </p>
+        <p>
+          Main product risk: attractive diagrams can overstate what an agent
+          proved. Address it with visible evidence, authored-versus-verified
+          distinctions, coverage reporting, and exact snapshot navigation. Main
+          engineering risks are large-diff performance, process lifecycle
+          correctness, schema migration, and confusing local editor state with
+          the reviewed snapshot. Each has an explicit acceptance gate above.
+        </p>
+        <h2 id="accepted-onboarding-increment">
+          Accepted onboarding increment — 27 September 2026
+        </h2>
+        <p>
+          The selected direction is <strong>B: Quick composer</strong>, followed
+          by persistent review activity. The current increment implements exact
+          comparison setup, exported report toolkit, and validated
+          external-agent output. It keeps report reading/navigation independent
+          from new-review creation.
+        </p>
+        <p>
+          Selecting a GitHub PR reveals its branch-linked open PR stack, with
+          all discovered PRs selected initially. Users may choose a subset. Each
+          selected PR produces its own immutable report, exact merge-base/head
+          comparison, findings, and reviewer state. Stack discovery must
+          disclose bounds/unsupported links and refuse ambiguous or cyclic
+          selections; it must never silently include unrelated branches.
+          Resolving a selection rechecks current PR metadata and local Git
+          objects without fetching or switching the checkout.
+        </p>
+        <p>
+          <strong>Run with Codex</strong> and
+          <strong>Run with Claude</strong> open the installed CLI in macOS
+          Terminal with the prepared request, using its ordinary
+          account/configuration/approval flow. The launch panel lets users
+          choose the agent, model, and supported effort before running. Model
+          and effort choices persist per agent. CLI-default selections omit
+          overrides. Codex model capabilities come from its local catalog;
+          Claude choices use documented explicit model versions with a
+          provider/account availability note. Unsupported model-effort
+          combinations are rejected by the native boundary. Handoff history
+          stores requested model/effort independently from report content. The
+          native application provides a privately stored, safely quoted
+          launcher; no executable, shell fragment, or arbitrary launch arguments
+          come from report data. A batch instructs the agent to produce the
+          separate requested reports in order. Missing CLI installations have
+          explicit unavailable states and a copy-request fallback. Trace records
+          handoff time, not inferred analysis progress. Closing or stopping
+          Trace's wait does not stop the external CLI. Native process
+          supervision, streamed logs, and in-app agent cancellation remain a
+          later milestone.
+        </p>
+        <p>
+          Each request validates repository/report identity, exact commit pair,
+          PR identity, complete changed-file inventory, and Git evidence before
+          becoming ready. It never auto-activates a received report or changes
+          human review state. All pending requests and handoff records survive
+          restarts. Failed validation exposes a repair request; manual import
+          for a request enforces the same checks. Earlier runner sections in
+          this specification describe the broader product target, not a claim
+          that this Terminal handoff provides process supervision.
+        </p>
+        <div class="bottom">
+          Product target generated from SPEC.md; availability varies by
+          milestone.
+          <a href="../../apps/trace/README.md">Current app guide</a> ·
+          <a href="SPEC.md">View Markdown source</a> ·
+          <a href="README.md">Documentation index</a>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-cancel-review-request"
+description = "Enables the cancel_review_request command without any pre-configured scope."
+commands.allow = ["cancel_review_request"]
+
+[[permission]]
+identifier = "deny-cancel-review-request"
+description = "Denies the cancel_review_request command without any pre-configured scope."
+commands.deny = ["cancel_review_request"]

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-discover-review-stack"
+description = "Enables the discover_review_stack command without any pre-configured scope."
+commands.allow = ["discover_review_stack"]
+
+[[permission]]
+identifier = "deny-discover-review-stack"
+description = "Denies the discover_review_stack command without any pre-configured scope."
+commands.deny = ["discover_review_stack"]

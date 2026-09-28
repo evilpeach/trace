@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-load-example"
+description = "Enables the load_example command without any pre-configured scope."
+commands.allow = ["load_example"]
+
+[[permission]]
+identifier = "deny-load-example"
+description = "Denies the load_example command without any pre-configured scope."
+commands.deny = ["load_example"]

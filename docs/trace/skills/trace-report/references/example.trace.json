@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 1,
+  "reportId": "example:orbit:checkout",
+  "title": "Synthetic example \u2014 account-aware checkout",
+  "generatedAt": "2026-09-23T00:00:00Z",
+  "repository": {
+    "id": "example:orbit-demo",
+    "name": "Orbit demo (fictional)"
+  },
+  "comparison": {
+    "base": {
+      "oid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "label": "fictional base"
+    },
+    "head": {
+      "oid": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "label": "fictional head"
+    }
+  },
+  "summary": {
+    "tldr": "Example: checkout rejects a missing account, but an account switch can still reuse an old session.",
+    "outcome": "changes-requested",
+    "bodyMarkdown": "This is an invented demonstration of the Trace format. Paths, commits, source ranges and the finding are illustrative; this is not a review of PR Review Navigator. The proposed repair is a read-only suggestion."
+  },
+  "coverage": {
+    "inventory": "complete",
+    "flowAnalysis": "complete",
+    "note": "Complete within this two-file fictional scenario. No real repository was inspected or tested for this fixture."
+  },
+  "rounds": [
+    {
+      "id": "round-session",
+      "title": "Establish session ownership",
+      "why": "The caller must know which account owns a session.",
+      "exitCriteria": [
+        "Session identity and account ownership are explicit."
+      ],
+      "questions": [
+        "Can the selected account change while a session request is pending?"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "round-checkout",
+      "title": "Follow the checkout caller",
+      "why": "The consumer determines whether stale session results reach navigation.",
+      "exitCriteria": [
+        "The caller only navigates with a session for the current account."
+      ],
+      "questions": [
+        "What happens if account A changes to account B during the request?"
+      ],
+      "dependsOn": [
+        "round-session"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "id": "file-session",
+      "path": "src/session.ts",
+      "status": "modified",
+      "roundId": "round-session",
+      "kind": "domain",
+      "priority": "P1",
+      "analysis": {
+        "status": "complete",
+        "tldr": "Associate each session request with the selected account.",
+        "why": "The new caller requires an account identifier before asking for a checkout session.",
+        "focus": [
+          "Follow account identity through the asynchronous response.",
+          "Check cache invalidation when the account changes."
+        ],
+        "reason": null
+      }
+    },
+    {
+      "id": "file-checkout",
+      "path": "src/startCheckout.ts",
+      "status": "modified",
+      "roundId": "round-checkout",
+      "kind": "interaction",
+      "priority": "P1",
+      "analysis": {
+        "status": "complete",
+        "tldr": "Stop checkout when no account is selected.",
+        "why": "The interface should explain missing account selection before creating a session.",
+        "focus": [
+          "Replay the missing-account branch.",
+          "Switch accounts while createSession is pending."
+        ],
+        "reason": null
+      }
+    }
+  ],
+  "contextFiles": [
+    {
+      "id": "file-api",
+      "path": "src/api.ts"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev-session-base",
+      "fileId": "file-session",
+      "side": "base",
+      "startLine": 1,
+      "endLine": 12,
+      "note": "Previous account-independent session helper."
+    },
+    {
+      "id": "ev-session-head",
+      "fileId": "file-session",
+      "side": "head",
+      "startLine": 1,
+      "endLine": 20,
+      "note": "The request captures an account id before awaiting a response."
+    },
+    {
+      "id": "ev-start-base",
+      "fileId": "file-checkout",
+      "side": "base",
+      "startLine": 10,
+      "endLine": 14,
+      "note": "Previous checkout entry path."
+    },
+    {
+      "id": "ev-start-head",
+      "fileId": "file-checkout",
+      "side": "head",
+      "startLine": 10,
+      "endLine": 18,
+      "note": "The new preflight account check and session navigation."
+    },
+    {
+      "id": "ev-api-head",
+      "fileId": "file-api",
+      "side": "head",
+      "startLine": 20,
+      "endLine": 29,
+      "note": "API result includes the account captured by the request."
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-checkout",
+      "title": "Start checkout",
+      "tldr": "A missing account is blocked; a changed account is not rechecked after the session response.",
+      "actor": "A signed-in customer",
+      "trigger": "The customer chooses Start checkout.",
+      "outcome": "Open checkout for the selected account, or show a missing-account message.",
+      "whyChanged": "The caller now prevents requests without an account id.",
+      "fileIds": [
+        "file-session",
+        "file-checkout",
+        "file-api"
+      ],
+      "before": {
+        "status": "known",
+        "reason": null,
+        "graph": {
+          "nodes": [
+            {
+              "id": "entry",
+              "kind": "entry",
+              "label": "Start checkout",
+              "evidenceIds": []
+            },
+            {
+              "id": "request",
+              "kind": "action",
+              "label": "Request a session",
+              "evidenceIds": [
+                "ev-session-base"
+              ]
+            },
+            {
+              "id": "open",
+              "kind": "outcome",
+              "label": "Open returned session",
+              "evidenceIds": [
+                "ev-start-base"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "entry",
+              "to": "request",
+              "evidenceIds": []
+            },
+            {
+              "from": "request",
+              "to": "open",
+              "evidenceIds": []
+            }
+          ]
+        }
+      },
+      "after": {
+        "status": "known",
+        "reason": null,
+        "graph": {
+          "nodes": [
+            {
+              "id": "entry",
+              "kind": "entry",
+              "label": "Start checkout",
+              "evidenceIds": []
+            },
+            {
+              "id": "selected",
+              "kind": "decision",
+              "label": "Account selected?",
+              "evidenceIds": [
+                "ev-start-head"
+              ]
+            },
+            {
+              "id": "missing",
+              "kind": "outcome",
+              "label": "Show missing-account message",
+              "evidenceIds": [
+                "ev-start-head"
+              ]
+            },
+            {
+              "id": "request",
+              "kind": "action",
+              "label": "Create session for captured account",
+              "evidenceIds": [
+                "ev-session-head",
+                "ev-api-head"
+              ]
+            },
+            {
+              "id": "open",
+              "kind": "outcome",
+              "label": "Open session without checking account again",
+              "evidenceIds": [
+                "ev-start-head"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "entry",
+              "to": "selected",
+              "evidenceIds": []
+            },
+            {
+              "from": "selected",
+              "to": "missing",
+              "evidenceIds": [],
+              "label": "No account"
+            },
+            {
+              "from": "selected",
+              "to": "request",
+              "evidenceIds": [],
+              "label": "Account selected"
+            },
+            {
+              "from": "request",
+              "to": "open",
+              "evidenceIds": [],
+              "label": "Response arrives"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "finding-account-race",
+      "priority": "P1",
+      "assessment": "supported",
+      "title": "Account switches can open a session for the previous account",
+      "tldr": "Switching accounts during the request can navigate to checkout for the old account.",
+      "category": "async-state",
+      "primaryEvidenceId": "ev-start-head",
+      "flowIds": [
+        "flow-checkout"
+      ],
+      "blocks": [
+        {
+          "label": "Context",
+          "tldr": "Checkout sessions belong to the account that starts the request.",
+          "bodyMarkdown": "In this fictional example, the session helper captures account A and the checkout caller awaits the result."
+        },
+        {
+          "label": "Scenario",
+          "tldr": "Account A starts checkout; the user switches to B before the response.",
+          "bodyMarkdown": "1. Select account A.\n2. Start checkout.\n3. Select account B while the request is pending.\n4. The response for A arrives and the caller navigates with it."
+        },
+        {
+          "label": "Expected behavior",
+          "tldr": "Only a session owned by the current account may be opened.",
+          "bodyMarkdown": "Recheck the captured account against the current account before navigation, or cancel the outdated operation."
+        }
+      ],
+      "trace": [
+        {
+          "note": "The guard only checks the account before the asynchronous boundary.",
+          "evidenceIds": [
+            "ev-start-head"
+          ]
+        },
+        {
+          "note": "The API response remains associated with the captured account.",
+          "evidenceIds": [
+            "ev-session-head",
+            "ev-api-head"
+          ]
+        },
+        {
+          "note": "The caller navigates without comparing the current selection.",
+          "evidenceIds": [
+            "ev-start-head"
+          ]
+        }
+      ],
+      "proposedFix": {
+        "summary": "Discard the session response if the selected account no longer matches the captured account.",
+        "patch": null,
+        "validation": [
+          "Delay the session response, switch A to B, then verify no navigation for A occurs.",
+          "Keep account A selected and verify normal navigation still occurs."
+        ]
+      }
+    }
+  ],
+  "domainPrimer": [
+    {
+      "term": "Session ownership",
+      "definition": "A checkout session belongs to the account captured when the request begins."
+    }
+  ],
+  "provenance": {
+    "mode": "synthetic-example",
+    "generator": "Trace specification fixture",
+    "checks": [
+      {
+        "label": "Runtime behavior",
+        "status": "not-run",
+        "detail": "Fictional demonstration; no corresponding source repository exists."
+      }
+    ],
+    "limitations": [
+      "All code paths, line numbers and commit ids are invented for this fixture.",
+      "Schema validity does not verify the correctness of its invented code claims."
+    ]
+  }
+}
