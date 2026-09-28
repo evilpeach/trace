@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  # Retry an existing tag with: gh workflow run release.yml --ref v0.0.1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Validate release tag
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Require a matching version tag on main
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          test "$REF_TYPE" = tag
+          node scripts/release-version.mjs --check "$RELEASE_TAG"
+          git merge-base --is-ancestor HEAD origin/main
+          echo "version=${RELEASE_TAG#v}" >> "$GITHUB_OUTPUT"
+
+  checks:
+    needs: version
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    name: Package ${{ matrix.arch }}
+    needs: [version, checks]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            target: aarch64-apple-darwin
+            arch: aarch64
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            arch: x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    env:
+      # No Developer ID certificate is configured yet. Ad-hoc signing ensures
+      # an intact local signature, but does not provide Apple notarization.
+      APPLE_SIGNING_IDENTITY: '-'
+      VERSION: ${{ needs.version.outputs.version }}
+      TARGET: ${{ matrix.target }}
+      ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de
+        with:
+          toolchain: '1.91.0'
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: apps/trace/src-tauri -> target
+          shared-key: release-${{ matrix.target }}
+      - run: npm ci
+      - name: Build macOS app and disk image
+        working-directory: apps/trace
+        run: npx --no-install tauri build --ci --target "$TARGET" --bundles app,dmg -- --locked
+      - name: Verify and collect downloads
+        run: |
+          BUNDLE="apps/trace/src-tauri/target/$TARGET/release/bundle"
+          APP="$BUNDLE/macos/Trace.app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Contents/Info.plist")" = "$VERSION"
+          codesign --verify --deep --strict "$APP"
+          mkdir -p dist-release
+          cp "$BUNDLE/dmg/Trace_${VERSION}_${ARCH}.dmg" dist-release/
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "dist-release/Trace_${VERSION}_${ARCH}.app.zip"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: macos-${{ matrix.arch }}
+          path: dist-release/*
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish complete release
+    needs: [version, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: ${{ github.ref_name }}
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: macos-*
+          path: dist-release
+          merge-multiple: true
+      - name: Verify complete artifact set and add checksums
+        working-directory: dist-release
+        run: |
+          for arch in aarch64 x64; do
+            test -s "Trace_${VERSION}_${arch}.dmg"
+            test -s "Trace_${VERSION}_${arch}.app.zip"
+          done
+          sha256sum ./*.dmg ./*.app.zip > SHA256SUMS.txt
+      - name: Stage assets, then publish
+        run: |
+          NOTES="docs/releases/$RELEASE_TAG.md"
+          if [ ! -f "$NOTES" ]; then NOTES=docs/releases/TEMPLATE.md; fi
+          if gh release view "$RELEASE_TAG" --json isDraft > "$RUNNER_TEMP/release.json"; then
+            # A rerun can finish a draft, but never overwrite a published release.
+            jq -e '.isDraft == true' "$RUNNER_TEMP/release.json"
+            gh release upload "$RELEASE_TAG" dist-release/* --clobber
+          else
+            gh release create "$RELEASE_TAG" dist-release/* --verify-tag --draft \
+              --title "Trace $VERSION" --notes-file "$NOTES" --generate-notes
+          fi
+          gh release edit "$RELEASE_TAG" --draft=false --latest

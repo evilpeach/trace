@@ -1,3 +1,4 @@
+import { version as appVersion } from "../package.json";
 import {
   useCallback,
   useEffect,
@@ -851,7 +852,7 @@ export default function App() {
         <div className="brand">
           <Logo />
           <span>Trace</span>
-          <span className="version-badge">0.1</span>
+          <span className="version-badge">{appVersion}</span>
         </div>
         <button className="repository-switch" onClick={() => browseProject()}>
           <span className="repository-avatar">
