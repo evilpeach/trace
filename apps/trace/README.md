@@ -109,10 +109,19 @@ is deduplicated across restarts. Invalid reports are explained in Projects.
 Subdirectories, symlinks, and special files are not followed. A scan is bounded to
 1,024 directory entries, 256 report files, and 64 MiB total.
 
-The project name in the top bar opens its reports. The adjacent selector switches
-between PRs and report snapshots in that project; the final label shows the active
-review section. The back and forward buttons navigate selections within the current report. Each
-PR number appears once in the selector; a short commit identifies its snapshot.
+The sidebar uses **Focused project** navigation: choose a project, then select a
+PR or branch review from a flat list. Search and **All / Needs review / In progress /
+Done** filters apply to that project; Needs review includes New and Updated.
+List counts describe reviews, not report snapshots. Each PR number appears once.
+
+The top bar identifies the selected PR or branch. **Reports** selects an immutable
+snapshot for that review, with the generation date and short commit identifying
+each version. Opening a review prioritizes its newest unread report or newly
+detected update, otherwise its last-visited report, otherwise its latest report.
+The back and forward buttons navigate
+selections within the current report. Global **Agent activity** is separate from
+the project list and reviewer progress; waiting for a report does not mean an
+external agent process is running.
 
 ## Review inbox and checkpoints
 
@@ -120,6 +129,8 @@ The inbox groups PRs into **New**, **Updated**, **In progress**, **Done**, and
 **Archived**. Pin important projects or PRs; archive finished work without deleting
 its reports. Newly detected snapshots surface as Updated even for a completed PR.
 Done is a personal status and does not approve a GitHub PR or mark findings fixed.
+The inbox remains available for cross-project browsing and organization while
+the sidebar focuses on one project.
 
 **Continue review** restores the selected section, file/flow/finding, source
 anchor, file filters, layout, diagram revision/step, and primary reading position.

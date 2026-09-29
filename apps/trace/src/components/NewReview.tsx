@@ -49,6 +49,7 @@ export interface NewReviewComposerProps {
   initialReport?: LoadedReport | null;
   initialProjectId?: string | null;
   onProjectAdded: (project: ProjectSummary) => void;
+  onProjectChange?: (projectId: string) => void;
   onPrepared: (
     requests: ReviewRequest[],
     launch?: AgentLaunch,
@@ -93,6 +94,7 @@ export function NewReviewComposer({
   initialReport,
   initialProjectId,
   onProjectAdded,
+  onProjectChange,
   onPrepared,
   onImport,
   onExample,
@@ -254,6 +256,7 @@ export function NewReviewComposer({
   }, [client, draft.checkoutId, draft.projectId, initialReport, setupRetry]);
 
   function updateComparison(patch: Partial<ReviewDraft>) {
+    if (patch.projectId !== undefined) onProjectChange?.(patch.projectId);
     selectionVersion.current += 1;
     operationSequence.current += 1;
     setDraft((current) => ({

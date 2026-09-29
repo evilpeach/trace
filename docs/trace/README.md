@@ -45,6 +45,15 @@ Schema validation does not establish the truth of review prose.
 hierarchy, and implementation validation. The exploration is now implemented in
 the native app; the temporary five-variant preview has been retired from source.
 
+## Sidebar design decision
+
+**B — Focused project** was selected on 29 September 2026. A project switcher,
+local review filters, and a flat PR/branch list replace the nested navigation.
+Report generations belong to the selected review's **Reports** control; global
+agent activity stays separate. The [decision notes](prototypes/trace-sidebar-prototype.NOTES.md)
+record the accepted behavior and tradeoffs. See the [app guide](../../apps/trace/README.md)
+for implemented behavior.
+
 ## Historical interactive prototypes
 
 These self-contained HTML artifacts preserve the design exploration. They are
@@ -56,12 +65,16 @@ not the native implementation and do not establish its present feature coverage.
 - [Onboarding variants](prototypes/trace-onboarding-prototype.html): alternative
   paths for creating a report; Variant B informed the implemented New review flow.
 - [Onboarding prototype notes](prototypes/trace-onboarding-prototype.NOTES.md).
+- [Sidebar variants](prototypes/trace-sidebar-prototype.html?variant=B): A — Project
+  library, B — Focused project (selected), C — Review queue, D — Project rail,
+  and E — Stack navigator. The comparison remains available as a design reference.
 
-Open either HTML file directly on macOS:
+Open an HTML file directly on macOS:
 
 ```sh
 open docs/trace/prototypes/trace-prototype.html
 open docs/trace/prototypes/trace-onboarding-prototype.html
+open docs/trace/prototypes/trace-sidebar-prototype.html
 ```
 
 Their examples are synthetic. Import, agent runs, validation, review state, and

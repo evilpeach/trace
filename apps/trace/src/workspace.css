@@ -36,106 +36,8 @@
 .repository-switch {
   display: none;
 }
-.project-section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 14px;
-}
-.project-section-heading .sidebar-label {
-  margin: 0;
-  padding: 10px 8px;
-}
-.project-tree {
-  font-size: 0.9333rem;
-  margin-bottom: 8px;
-}
-.project-tree > details {
-  margin-bottom: 8px;
-}
-.project-tree summary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  list-style: none;
-  min-height: 34px;
-  padding: 6px 8px;
-  border-radius: 5px;
-}
-.project-tree summary::-webkit-details-marker {
-  display: none;
-}
-.project-tree summary::before {
-  content: "›";
-  display: inline-block;
-  color: var(--muted);
-  transition: transform 0.1s;
-}
-.project-tree details[open] > summary::before {
-  transform: rotate(90deg);
-}
-.project-tree summary:hover {
-  background: var(--surface-hover, #e4e8de);
-}
-.project-tree summary > span {
-  overflow-wrap: anywhere;
-}
-.project-tree summary small {
-  margin-left: auto;
-  flex-shrink: 0;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-.project-pr {
-  margin-left: 16px;
-  border-left: 1px solid var(--line);
-}
-.project-overview-link {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--muted);
-  font-size: 0.8rem;
-  padding: 5px 10px 8px 35px;
-}
-.project-report {
-  display: flex;
-  gap: 8px;
-  width: calc(100% - 8px);
-  text-align: left;
-  padding: 9px 8px;
-  margin: 3px 0 3px 8px;
-  border-radius: 6px;
-  align-items: flex-start;
-}
-.project-report[aria-current="page"],
 .recent-row[aria-current="page"] {
-  background: var(--surface-selected, #dfe7d8);
-}
-.project-report svg {
-  margin-top: 3px;
-  color: var(--muted);
-}
-.project-report span {
-  min-width: 0;
-}
-.project-report strong {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.8667rem;
-}
-.project-report small {
-  display: block;
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-.project-empty {
-  padding: 4px 12px 4px 30px;
-  font-size: 0.8rem;
-  color: var(--muted);
+  background: var(--surface-selected);
 }
 .active-review {
   margin-top: 14px;
@@ -440,11 +342,6 @@
   }
   .files-layout {
     grid-template-columns: 180px minmax(0, 1fr);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .project-tree summary::before {
-    transition: none;
   }
 }
 

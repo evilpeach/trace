@@ -7,6 +7,7 @@ import { initializeReviewWorkspace } from "./review-workspace";
 import "./styles.css";
 import "./workspace.css";
 import "./components/review-header.css";
+import "./components/focused-sidebar.css";
 initializeTheme();
 initializePreferences();
 initializeReviewWorkspace();

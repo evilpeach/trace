@@ -1,0 +1,344 @@
+/* Focused project navigation: controls stay put while only reviews scroll. */
+.trace-app {
+  grid-template-columns: 286px minmax(0, 1fr);
+}
+.app-sidebar {
+  padding: 0 12px;
+  overflow: hidden;
+}
+.app-sidebar .brand {
+  padding: 12px 6px 16px;
+  font-size: 1.45rem;
+}
+.app-sidebar .brand .version-badge {
+  margin-top: 4px;
+}
+.focused-sidebar-top {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+.focused-project-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  text-align: left;
+}
+.focused-project-switch:hover {
+  border-color: var(--border-strong);
+}
+.focused-project-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: var(--surface-primary);
+  color: var(--text-accent);
+  font-size: 1rem;
+  font-weight: 650;
+}
+.focused-project-switch > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.focused-project-switch strong {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.9333rem;
+}
+.focused-project-switch small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 1px;
+}
+.focused-project-switch > svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.focused-create {
+  justify-content: flex-start;
+  width: 100%;
+  padding: 8px 10px;
+}
+.focused-create kbd {
+  margin-left: auto;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+.focused-review-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface-inset);
+  color: var(--muted);
+}
+.focused-review-search:focus-within {
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 2px var(--focus-halo);
+}
+.focused-review-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.9333rem;
+}
+.focused-review-search > svg {
+  flex-shrink: 0;
+}
+.focused-review-search .icon-button {
+  padding: 0;
+  min-width: 18px;
+  height: 20px;
+}
+.focused-review-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.focused-review-filters button {
+  text-align: left;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.focused-review-filters button:hover {
+  background: var(--surface-hover);
+}
+.focused-review-filters button[aria-pressed="true"] {
+  background: var(--surface-primary);
+  color: var(--text-accent);
+  font-weight: 600;
+}
+.app-sidebar .focused-review-list {
+  flex: 1 1 0;
+  min-height: 80px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 12px;
+  scrollbar-gutter: stable;
+}
+.focused-list-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 10px 7px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.focused-list-heading > span:first-child {
+  font-weight: 550;
+}
+.focused-review-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  padding: 11px 9px;
+  margin: 3px 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+}
+.focused-review-row:hover {
+  background: var(--surface-hover);
+}
+.focused-review-row[aria-current="page"] {
+  background: var(--surface-selected);
+  border-color: var(--border-primary);
+}
+.focused-review-copy {
+  min-width: 0;
+  flex: 1;
+}
+.focused-review-copy strong {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.9333rem;
+  font-weight: 560;
+}
+.focused-review-copy small {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.focused-review-row > svg {
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.focused-status-dot {
+  width: 6px;
+  height: 6px;
+  margin-top: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: currentColor;
+}
+.focused-status-dot.status-new,
+.focused-status.status-new {
+  color: var(--text-accent);
+}
+.focused-status-dot.status-updated,
+.focused-status.status-updated {
+  color: var(--text-warning);
+}
+.focused-status-dot.status-in-progress,
+.focused-status.status-in-progress {
+  color: var(--accent-secondary);
+}
+.focused-status-dot.status-done,
+.focused-status.status-done {
+  color: var(--text-success);
+}
+.focused-empty {
+  padding: 14px 8px;
+  color: var(--muted);
+  font-size: 0.9333rem;
+}
+.focused-filter-note {
+  padding: 8px;
+  text-align: left;
+  font-size: 0.8rem;
+  color: var(--text-accent);
+}
+.focused-sidebar-footer {
+  border-top: 1px solid var(--line);
+  padding: 9px 0 8px;
+}
+.focused-sidebar-footer .sidebar-nav {
+  padding: 7px 6px;
+  margin-bottom: 0;
+  gap: 7px;
+  font-size: 0.8667rem;
+}
+.focused-nav-hint {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.focused-nav-hint.needs-attention {
+  color: var(--text-warning);
+}
+.focused-footer-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+.focused-local-note {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.7333rem;
+  white-space: nowrap;
+}
+.focused-project-options {
+  display: grid;
+  gap: 4px;
+  margin: 14px 0;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+.focused-project-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  padding: 12px;
+}
+.focused-project-option:hover {
+  background: var(--surface-hover);
+}
+.focused-project-option[aria-current="true"] {
+  background: var(--surface-selected);
+}
+.focused-project-option > span {
+  flex: 1;
+  min-width: 0;
+}
+.focused-project-option strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.focused-project-option small {
+  display: block;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.focused-project-option > svg {
+  flex-shrink: 0;
+}
+.focused-project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+.report-history-trigger {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.breadcrumb-review-label {
+  white-space: nowrap;
+  font-size: 0.9333rem;
+}
+.report-history-list .recent-row {
+  width: 100%;
+}
+@media (max-width: 1000px) {
+  .trace-app {
+    grid-template-columns: 256px minmax(0, 1fr);
+  }
+  .focused-local-note {
+    display: none;
+  }
+  .focused-review-filters {
+    gap: 2px;
+  }
+  .focused-review-filters button {
+    padding: 5px 6px;
+  }
+}
+@media (max-height: 680px) {
+  .app-sidebar .brand {
+    padding-top: 7px;
+    padding-bottom: 10px;
+  }
+  .focused-sidebar-top {
+    gap: 8px;
+  }
+  .focused-sidebar-footer {
+    padding-top: 5px;
+  }
+}

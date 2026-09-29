@@ -26,6 +26,20 @@ Done is a personal organization state, separate from file decisions, findings,
 GitHub approval, or merge status. A newly available report can make a completed
 review require attention again.
 
+The accepted **Focused project** sidebar shows a project switcher and one flat
+row per PR/branch review. Its local search and All / Needs review / In progress /
+Done filters operate within that project; Needs review includes New and Updated.
+Sidebar counts represent reviews, while the selected review's Reports control
+counts and opens immutable report generations. The global inbox still exposes
+cross-project organization, pinning, and archived reviews. Agent activity remains
+separate and describes requests across all projects, not reviewer progress.
+
+Opening a review prioritizes its newest unread report or newly detected update,
+otherwise its last-visited report, otherwise its latest report. An explicit
+report-history selection opens that exact generation. Navigation from another
+surface reveals the selected review by switching project and clearing restrictive
+list filters as needed.
+
 Persist organization and reading sessions locally in versioned WebView storage.
 Review decisions and checkpoints remain in SQLite. Resume the selected section,
 file/flow/finding, evidence, file filters and layout, diagram revision/step, and

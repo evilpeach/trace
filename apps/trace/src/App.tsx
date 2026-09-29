@@ -25,7 +25,6 @@ import {
   Layers,
   List,
   LoaderCircle,
-  LockKeyhole,
   Maximize2,
   Minimize2,
   PanelLeftClose,
@@ -57,7 +56,10 @@ import type {
 import { Dialog } from "./components/Dialog";
 import { LocalPathForm } from "./components/LocalPathForm";
 import { SettingsPanel } from "./components/SettingsPanel";
-import { ProjectSidebar, ProjectLibrary } from "./components/Projects";
+import { ProjectLibrary } from "./components/Projects";
+import { FocusedSidebar } from "./components/FocusedSidebar";
+import { projectReviews } from "./sidebar";
+import { groupPullRequests, reportDate } from "./projects";
 import {
   NewReviewComposer,
   ReviewRequestActivity,
@@ -69,7 +71,7 @@ import {
   createNavigationHistory,
   navigationReducer,
 } from "./navigation-history";
-import { formatReportOption } from "./report-label";
+import { reportDisplayTitle } from "./report-label";
 import {
   formatShortcut,
   matchShortcut,
@@ -106,6 +108,7 @@ type Evidence = TraceReport["evidence"][number];
 type Modal =
   | "settings"
   | "report-details"
+  | "reports"
   | "add-project"
   | "import"
   | "request-import"
@@ -167,6 +170,8 @@ export default function App() {
   const [loaded, setLoaded] = useState<LoadedReport | null>(null);
   const [recent, setRecent] = useState<ReportSummary[]>([]);
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [sidebarProjectId, setSidebarProjectId] = useState<string | null>(null);
+  const [sidebarRevision, setSidebarRevision] = useState(0);
   const [requests, setRequests] = useState<ReviewRequest[]>([]);
   const [composerBusy, setComposerBusy] = useState(false);
   const [reviewAgents, setReviewAgents] = useState<ReviewAgent[]>([]);
@@ -271,8 +276,11 @@ export default function App() {
   const saveLock = useRef(false);
   const report = loaded?.report;
   const activeRequest = requests.find((request) => request.id === requestId);
-  const visibleRequestCount = requests.filter(
-    (request) => request.status !== "cancelled",
+  const waitingRequestCount = requests.filter(
+    (request) => request.status === "waiting",
+  ).length;
+  const attentionRequestCount = requests.filter(
+    (request) => request.status === "needs-attention",
   ).length;
   const evidence = report?.evidence.find(
     (item) => item.id === position.evidenceId,
@@ -400,6 +408,20 @@ export default function App() {
   const activeProject = projects.find(
     (project) => project.id === activeProjectId,
   );
+  const focusedProjectId =
+    projects.find((project) => project.id === sidebarProjectId)?.id ??
+    activeProjectId ??
+    projects.find((project) => !workspace.projects[project.id]?.archived)?.id;
+  function selectSidebarProject(id: string) {
+    if (busy || saving || composerBusy) return;
+    const target = projectReviews(recent, workspace, id)[0]?.target;
+    if (target)
+      void load(
+        () => client.openReport(target.handle),
+        "Opening project review",
+      );
+    else beginNewReview(id);
+  }
   function browseProject(id: string | null = null) {
     setProjectScope(id);
     setModal("library");
@@ -410,6 +432,7 @@ export default function App() {
   ) {
     if (busy || saving || composerBusy) return;
     resume.flush();
+    if (projectId) setSidebarProjectId(projectId);
     setDraft((current) => ({
       revision: current.revision + 1,
       projectId,
@@ -423,6 +446,9 @@ export default function App() {
     if (busy || saving || composerBusy) return;
     resume.flush();
     setRequestId(id);
+    const requestProject = requests.find((request) => request.id === id)
+      ?.comparison.repositoryId;
+    if (requestProject) setSidebarProjectId(requestProject);
     refreshAgents();
     setSurface("activity");
     setModal(null);
@@ -431,6 +457,7 @@ export default function App() {
   function returnToReview() {
     if (!loaded) return;
     resume.prepareRestore(restoreReviewSession(loaded).session.scrollY);
+    setSidebarProjectId(loaded.report.repository.id);
     setSurface("review");
   }
   async function stopWaiting(id: string) {
@@ -508,7 +535,7 @@ export default function App() {
       }
       if (action === "newReview") {
         event.preventDefault();
-        beginNewReview(activeProjectId ?? null);
+        beginNewReview(focusedProjectId ?? null);
         return;
       }
       if (!loaded || surface !== "review") return;
@@ -545,6 +572,7 @@ export default function App() {
   async function load(
     operation: () => Promise<LoadedReport | null>,
     label: string,
+    preserveSidebarFilters = false,
   ) {
     resume.flush();
     const sequence = ++loadSequence.current;
@@ -557,6 +585,8 @@ export default function App() {
         const restored = restoreReviewSession(result);
         resume.prepareRestore(restored.session.scrollY);
         setLoaded(result);
+        setSidebarProjectId(result.report.repository.id);
+        if (!preserveSidebarFilters) setSidebarRevision((value) => value + 1);
         setSurface("review");
         loadedRef.current = result;
         dispatchNavigation({
@@ -827,12 +857,16 @@ export default function App() {
     : null;
   const reviewDone =
     !!loaded && activeReview?.completedHandle === loaded.handle;
-  const currentPRReports = recent.filter(
-    (item) => reviewKey(item) === activeReviewKey,
-  );
+  const currentPRReports =
+    groupPullRequests(
+      recent.filter((item) => reviewKey(item) === activeReviewKey),
+    )[0]?.reports ?? [];
   const reviewStatus = currentPRReports.length
     ? getReviewStatus(workspace, currentPRReports)
     : "new";
+  const unreadSnapshotHandles = new Set(
+    activeReviewKey ? workspace.reviews[activeReviewKey]?.unreadHandles : [],
+  );
   const unseenUpdate = reviewStatus === "updated";
   const normalizedQuery = query.trim().toLowerCase();
   const matches = (value: string) =>
@@ -854,137 +888,92 @@ export default function App() {
           <span>Trace</span>
           <span className="version-badge">0.1</span>
         </div>
-        <button className="repository-switch" onClick={() => browseProject()}>
-          <span className="repository-avatar">
-            {(report?.repository.name ?? "T").slice(0, 1).toUpperCase()}
-          </span>
-          <span>
-            <strong>{report?.repository.name ?? "Your workspace"}</strong>
-            <small>
-              {loaded?.repository
-                ? "Local repository connected"
-                : report
-                  ? "Review report"
-                  : "Bring a change into focus"}
-            </small>
-          </span>
-          <ChevronDown size={14} />
-        </button>
-        <span className="sidebar-label">WORKSPACE</span>
-        <button
-          className={`sidebar-nav ${surface === "new-review" ? "active" : ""}`}
-          disabled={!!busy || saving}
-          title={`New review${prefs.shortcuts.newReview ? ` (${formatShortcut(prefs.shortcuts.newReview)})` : ""}`}
-          onClick={() => beginNewReview(activeProjectId ?? null)}
-        >
-          <Plus size={17} />
-          New review
-        </button>
-        <button className="sidebar-nav" onClick={() => browseProject()}>
-          <History size={17} />
-          Review inbox<span className="nav-count">{projects.length}</span>
-        </button>
-        {requests.length ? (
-          <>
-            <button
-              className={`sidebar-nav ${surface === "activity" ? "active" : ""}`}
-              onClick={() => setModal("activity")}
-            >
-              <Clock3 size={17} />
-              Review activity
-              <span className="nav-count">{visibleRequestCount}</span>
-            </button>
-            <div className="request-sidebar-list">
-              {requests
-                .filter((request) => request.status !== "cancelled")
-                .slice(0, 3)
-                .map((request) => (
-                  <button
-                    key={request.id}
-                    className="request-sidebar-item"
-                    disabled={!!busy || saving}
-                    aria-current={
-                      surface === "activity" && request.id === requestId
-                        ? "page"
-                        : undefined
-                    }
-                    onClick={() => showRequest(request.id)}
-                  >
-                    <strong>
-                      {request.comparison.pr
-                        ? `PR #${request.comparison.pr.number}`
-                        : request.comparison.head.label}
-                    </strong>
-                    <span>{request.comparison.repositoryName}</span>
-                    <small data-status={request.status}>
-                      {requestStatus[request.status]}
-                    </small>
-                  </button>
-                ))}
-            </div>
-          </>
-        ) : null}
-        <div className="project-section-heading">
-          <span className="sidebar-label">PROJECTS</span>
-          <button
-            className="icon-button"
-            aria-label="Add project"
-            title="Add project"
-            disabled={!client.native || !!busy}
-            onClick={() => setModal("add-project")}
-          >
-            <Plus size={15} />
-          </button>
-        </div>
-        <ProjectSidebar
+        <FocusedSidebar
+          key={`${focusedProjectId ?? "empty"}:${sidebarRevision}`}
           projects={projects}
           reports={recent}
+          projectId={focusedProjectId}
           activeHandle={surface === "review" ? loaded?.handle : undefined}
-          activeProject={
-            surface === "activity"
-              ? activeRequest?.comparison.repositoryId
-              : surface === "new-review"
-                ? (draft.projectId ?? undefined)
-                : activeProjectId
+          busy={!!busy || saving || composerBusy}
+          native={client.native}
+          newReviewShortcut={
+            prefs.shortcuts.newReview
+              ? formatShortcut(prefs.shortcuts.newReview)
+              : ""
           }
-          busy={!!busy || saving}
+          onProject={selectSidebarProject}
           onOpen={(handle) => {
-            void load(() => client.openReport(handle), "Opening report");
+            void load(() => client.openReport(handle), "Opening report", true);
           }}
-          onProject={browseProject}
-          onCreate={(id) => beginNewReview(id)}
+          onCreate={() => beginNewReview(focusedProjectId ?? null)}
+          onAdd={() => setModal("add-project")}
+          onManage={() => browseProject()}
+          footer={
+            <div className="focused-sidebar-footer">
+              <button className="sidebar-nav" onClick={() => browseProject()}>
+                <History size={16} /> Review inbox{" "}
+                <span className="focused-nav-hint">All projects</span>
+              </button>
+              <button
+                className={`sidebar-nav ${surface === "activity" ? "active" : ""}`}
+                onClick={() => setModal("activity")}
+                title="Review requests across all projects"
+              >
+                <Clock3 size={16} /> Agent activity
+                <span
+                  className={`focused-nav-hint ${attentionRequestCount ? "needs-attention" : ""}`}
+                >
+                  {attentionRequestCount
+                    ? `${attentionRequestCount} need attention`
+                    : waitingRequestCount
+                      ? `${waitingRequestCount} waiting`
+                      : "All projects"}
+                </span>
+              </button>
+              <div className="focused-footer-tools">
+                <button
+                  className="icon-button"
+                  aria-label="Settings"
+                  title={`Settings${prefs.shortcuts.settings ? ` (${formatShortcut(prefs.shortcuts.settings)})` : ""}`}
+                  onClick={() => setModal("settings")}
+                >
+                  <Settings size={17} />
+                </button>
+                <button
+                  className="icon-button"
+                  aria-label="How reports work"
+                  title="How reports work"
+                  onClick={() => setModal("skill")}
+                >
+                  <Terminal size={17} />
+                </button>
+                <button
+                  className="icon-button"
+                  aria-label="Import a report"
+                  title="Import a report"
+                  disabled={!!busy || saving || composerBusy}
+                  onClick={beginImport}
+                >
+                  <Upload size={17} />
+                </button>
+                {report?.domainPrimer?.length ||
+                report?.valueDerivations?.length ? (
+                  <button
+                    className="icon-button"
+                    aria-label="Project primer"
+                    title="Project primer for the open report"
+                    onClick={() => setModal("primer")}
+                  >
+                    <BookOpen size={17} />
+                  </button>
+                ) : null}
+                <span className="focused-local-note">
+                  {client.native ? "On this Mac" : "Web preview"}
+                </span>
+              </div>
+            </div>
+          }
         />
-        <div className="sidebar-bottom">
-          {report?.domainPrimer?.length || report?.valueDerivations?.length ? (
-            <button className="sidebar-nav" onClick={() => setModal("primer")}>
-              <BookOpen size={17} />
-              Project primer
-            </button>
-          ) : null}
-          <button className="sidebar-nav" onClick={() => setModal("skill")}>
-            <Terminal size={17} />
-            How reports work
-          </button>
-          <button
-            className="sidebar-nav"
-            disabled={!!busy || saving}
-            onClick={beginImport}
-          >
-            <Plus size={17} />
-            Import a report
-          </button>
-          <button className="sidebar-nav" onClick={() => setModal("settings")}>
-            <Settings size={17} />
-            Settings
-            {prefs.shortcuts.settings ? (
-              <kbd>{formatShortcut(prefs.shortcuts.settings)}</kbd>
-            ) : null}
-          </button>
-          <div className="local-note">
-            <LockKeyhole size={12} />
-            {client.native ? "Reviews stay on this Mac" : "Browser preview"}
-          </div>
-        </div>
       </aside>
       <main className="app-main">
         <header className="topbar">
@@ -1035,36 +1024,11 @@ export default function App() {
                   <ChevronDown size={12} />
                 </button>
                 <span className="slash">/</span>
-                <select
-                  className="breadcrumb-select"
-                  aria-label="Switch pull request or report"
-                  value={loaded.handle}
-                  onChange={(event) => {
-                    void load(
-                      () => client.openReport(event.target.value),
-                      "Opening report",
-                    );
-                  }}
-                  disabled={!!busy || saving}
-                >
-                  {(recent.some((item) => item.handle === loaded.handle)
-                    ? recent.filter(
-                        (item) => item.projectId === activeProjectId,
-                      )
-                    : [
-                        {
-                          handle: loaded.handle,
-                          prNumber: report!.pullRequest?.number ?? null,
-                          title: report!.title,
-                          head: report!.comparison.head.oid,
-                        },
-                      ]
-                  ).map((item) => (
-                    <option key={item.handle} value={item.handle}>
-                      {formatReportOption(item)}
-                    </option>
-                  ))}
-                </select>
+                <span className="breadcrumb-review-label">
+                  {report!.pullRequest
+                    ? `PR #${report!.pullRequest.number}`
+                    : "Branch review"}
+                </span>
                 <span className="slash breadcrumb-section">/</span>
                 <span className="breadcrumb-section" aria-current="page">
                   {viewItems.find((item) => item.id === position.view)?.label}
@@ -1096,6 +1060,18 @@ export default function App() {
             )}
           </div>
           <div className="row">
+            {loaded && surface === "review" ? (
+              <button
+                className="button small report-history-trigger"
+                aria-haspopup="dialog"
+                disabled={!!busy || saving}
+                onClick={() => setModal("reports")}
+                title="Report snapshots for this review"
+              >
+                <History size={14} /> Reports · {currentPRReports.length || 1}
+                <ChevronDown size={12} />
+              </button>
+            ) : null}
             <button
               className="icon-button topbar-settings"
               aria-label="Open settings"
@@ -1601,6 +1577,10 @@ export default function App() {
             onBusyChange={setComposerBusy}
             initialProjectId={draft.projectId}
             initialReport={draft.report}
+            onProjectChange={(id) => {
+              setSidebarProjectId(id);
+              setDraft((current) => ({ ...current, projectId: id }));
+            }}
             onProjectAdded={() => {
               void refreshLibrary().catch((reason) =>
                 setError(message(reason)),
@@ -1617,6 +1597,7 @@ export default function App() {
               refreshAgents();
               if (prepared.length && surfaceRef.current === "new-review") {
                 setRequestId(prepared[0].id);
+                setSidebarProjectId(prepared[0].comparison.repositoryId);
                 setSurface("activity");
               }
               setError(preparationError ?? "");
@@ -1704,7 +1685,10 @@ export default function App() {
                   setImportRequestId(activeRequest.id);
                   setModal("request-import");
                 }}
-                onBack={() => setSurface("new-review")}
+                onBack={() => {
+                  setSidebarProjectId(draft.projectId);
+                  setSurface("new-review");
+                }}
               />
             ) : (
               <div className="view-empty">
@@ -1728,31 +1712,33 @@ export default function App() {
       {modal ? (
         <Dialog
           title={
-            modal === "report-details"
-              ? "Report details"
-              : modal === "settings"
-                ? "Settings"
-                : modal === "add-project"
-                  ? "Add a project"
-                  : modal === "request-import"
-                    ? "Match a report to this request"
-                    : modal === "import"
-                      ? "Import a review"
-                      : modal === "search"
-                        ? "Go to anything"
-                        : modal === "library"
-                          ? "Review inbox"
-                          : modal === "activity"
-                            ? "Review activity"
-                            : modal === "primer"
-                              ? "A little context goes a long way."
-                              : modal === "skill"
-                                ? "From code to a clear review"
-                                : modal === "repository"
-                                  ? "Connect the reviewed checkout"
-                                  : modal === "copy"
-                                    ? "Copy this text"
-                                    : (source?.title ?? "Source evidence")
+            modal === "reports"
+              ? "Report history"
+              : modal === "report-details"
+                ? "Report details"
+                : modal === "settings"
+                  ? "Settings"
+                  : modal === "add-project"
+                    ? "Add a project"
+                    : modal === "request-import"
+                      ? "Match a report to this request"
+                      : modal === "import"
+                        ? "Import a review"
+                        : modal === "search"
+                          ? "Go to anything"
+                          : modal === "library"
+                            ? "Review inbox"
+                            : modal === "activity"
+                              ? "Review activity"
+                              : modal === "primer"
+                                ? "A little context goes a long way."
+                                : modal === "skill"
+                                  ? "From code to a clear review"
+                                  : modal === "repository"
+                                    ? "Connect the reviewed checkout"
+                                    : modal === "copy"
+                                      ? "Copy this text"
+                                      : (source?.title ?? "Source evidence")
           }
           onClose={() => setModal(null)}
           wide={
@@ -2054,9 +2040,66 @@ export default function App() {
                     ))}
                 </div>
               ) : (
-                <p>Open a report to search its files, user journeys, and findings.</p>
+                <p>
+                  Open a report to search its files, user journeys, and
+                  findings.
+                </p>
               )}
             </>
+          ) : null}
+          {modal === "reports" && loaded ? (
+            <div className="report-history-list">
+              <p className="dialog-lead">
+                Snapshots for{" "}
+                {report!.pullRequest
+                  ? `PR #${report!.pullRequest.number}`
+                  : "this branch review"}
+                . Each keeps its own reading position.
+              </p>
+              {(currentPRReports.length
+                ? currentPRReports
+                : [
+                    {
+                      handle: loaded.handle,
+                      title: report!.title,
+                      generatedAt: report!.generatedAt,
+                      head: report!.comparison.head.oid,
+                      prNumber: report!.pullRequest?.number ?? null,
+                    },
+                  ]
+              ).map((item) => (
+                <button
+                  key={item.handle}
+                  className="recent-row"
+                  disabled={!!busy || saving}
+                  aria-current={
+                    item.handle === loaded.handle ? "page" : undefined
+                  }
+                  onClick={() => {
+                    void load(
+                      () => client.openReport(item.handle),
+                      "Opening report snapshot",
+                    );
+                  }}
+                >
+                  <History size={18} />
+                  <span>
+                    <strong>
+                      {reportDisplayTitle(item.title, item.prNumber) ||
+                        "Report snapshot"}
+                    </strong>
+                    <small>
+                      {reportDate(item.generatedAt)}
+                      {item.handle === loaded.handle ? " · Currently open" : ""}
+                      {unreadSnapshotHandles.has(item.handle)
+                        ? " · Unread update"
+                        : ""}
+                    </small>
+                  </span>
+                  <code>{item.head.slice(0, 8)}</code>
+                </button>
+              ))}
+            </div>
           ) : null}
           {modal === "library" ? (
             <>

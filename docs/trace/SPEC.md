@@ -1,6 +1,6 @@
 # Trace — macOS review workspace
 
-Status: **Product target and implementation specification**, updated 28 September 2026. This document describes the broader product target and acceptance gates, not a checklist of shipped features. The current Trace app and its limitations are documented in the [app guide](../../apps/trace/README.md).
+Status: **Product target and implementation specification**, updated 29 September 2026. This document describes the broader product target and acceptance gates, not a checklist of shipped features. The current Trace app and its limitations are documented in the [app guide](../../apps/trace/README.md).
 
 The app currently provides report preparation and external CLI handoff. Native process supervision, streamed agent logs, in-app cancellation, GitHub Viewed synchronization, and signed release distribution remain future work. Sections describing those capabilities are requirements for later milestones. The accepted onboarding increment below records the implemented handoff boundary.
 
@@ -85,6 +85,27 @@ Hierarchy: change TLDR first, behavior and evidence second, detailed source on d
 
 Global command search finds files, flow names, finding IDs, and commands. Search results retain their type and breadcrumb. Back/forward restores the prior tab, selection, inspector, and scroll position.
 
+### Accepted sidebar: focused project
+
+Variant **B — Focused project** was selected on 29 September 2026. A project
+switcher leads into one flat list of PR/branch reviews. Each row shows one PR
+number or branch label, a title, and its personal review status. Immutable report
+generations belong in the selected review's **Reports** control, not nested
+sidebar rows or a combined PR/snapshot selector.
+
+Local search and **All / Needs review / In progress / Done** filters apply only
+to the selected project. Needs review combines New and Updated. Counts describe
+PR/branch reviews; the Reports control separately counts report generations.
+The global inbox remains the place for cross-project browsing, pinning, and
+archive management. Agent activity is a separate global destination; its request
+counts must not be confused with review progress or running processes.
+
+Opening a review retains the existing unread-report, last-visited, then latest
+targeting behavior. Navigation from another surface switches projects and reveals
+the selected review even if earlier list filters would hide it. The sidebar icon
+and editable shortcut (default **⌘B**) remain available when collapsed. See the
+[design decision](prototypes/trace-sidebar-prototype.NOTES.md) for the comparison.
+
 ## 5. First-run and review lifecycle
 
 1. **Choose repository** through the native folder dialog, or **Import report** to read explanations before connecting a checkout.
@@ -100,7 +121,12 @@ An imported report does not automatically run commands, open links, fetch a repo
 
 ### Report selection and persistence
 
-The library groups reviews by repository identity and stable review identity, with dated report generations beneath them. It does not silently pick the newest JSON whenever a folder changes. A new valid generation produces an update action; when a user-initiated job completes for the active review, Trace may activate it while preserving navigation.
+The library groups reviews by repository identity and stable review identity.
+The focused sidebar shows one row per PR/branch; dated report generations are
+selected through that review's Reports control. Trace does not silently pick the
+newest JSON whenever a folder changes. A new valid generation produces an update
+action; when a user-initiated job completes for the active review, Trace may
+activate it while preserving navigation.
 
 Reports are portable, agent-authored artifacts. App state stores local checkout mapping, progress, preferences, job metadata, and checkpoints in the user's Trace application-support directory. A report cannot set an absolute checkout path or overwrite user state. Exporting a report excludes local paths, credentials, logs, and progress unless a future explicit export format includes them.
 
