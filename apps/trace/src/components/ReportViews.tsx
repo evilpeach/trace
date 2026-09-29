@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import {
   AlertCircle,
   ArrowRight,
@@ -6,10 +6,12 @@ import {
   BookOpen,
   Check,
   Clipboard,
+  Code2,
   ExternalLink,
   Flag,
   GitBranch,
-  PanelRightOpen,
+  Maximize2,
+  Minimize2,
   Sparkles,
 } from "lucide-react";
 import type { TraceReport } from "@trace/report-contract";
@@ -466,6 +468,8 @@ export function Overview({
 export function FlowsView({
   loaded,
   selectedId,
+  expanded,
+  onExpandedChange,
   saving,
   onSelect,
   onEvidence,
@@ -477,6 +481,8 @@ export function FlowsView({
 }: {
   loaded: LoadedReport;
   selectedId: string;
+  expanded: boolean;
+  onExpandedChange: (expanded: boolean) => void;
   saving: boolean;
   onSelect: (id: string) => void;
   onEvidence: (id: string) => void;
@@ -491,10 +497,13 @@ export function FlowsView({
     nodeId: null,
     evidenceId: null,
   });
-  const [inspectorOpen, setInspectorOpen] = useState(
-    Boolean(selection?.nodeId),
+  const [mode, setMode] = useState<"diagram" | "code">(
+    selection?.nodeId ? "code" : "diagram",
   );
-  const inspectorToggle = useRef<HTMLButtonElement>(null);
+  const [diffLayout, setDiffLayout] = useState<"unified" | "split">("unified");
+  const workspace = useRef<HTMLDivElement>(null);
+  const diagramId = useId();
+  const codeId = useId();
   const inspectorHeading = useRef<HTMLHeadingElement>(null);
   const activeSelection = selection ?? localSelection;
   const { revision } = activeSelection;
@@ -540,7 +549,6 @@ export function FlowsView({
       nodeId: next.node?.id ?? null,
       evidenceId: next.anchor?.id ?? null,
     });
-    setInspectorOpen(true);
   }
   function selectEvidence(id: string) {
     if (!graph) return;
@@ -556,20 +564,32 @@ export function FlowsView({
         : nodeForEvidence(graph, id);
     if (!owner) return;
     changeSelection({ revision, nodeId: owner, evidenceId: id });
-    setInspectorOpen(true);
+    showMode("code", true);
+  }
+  function showMode(next: "diagram" | "code", focusHeading = false) {
+    setMode(next);
+    if (next === "code") {
+      requestAnimationFrame(() => {
+        workspace.current?.scrollIntoView({ block: "start" });
+        if (focusHeading)
+          inspectorHeading.current?.focus({ preventScroll: true });
+      });
+    }
   }
   const decision = loaded.state.flows[flow.id];
   const relatedFindings = sortFindingsBySeverity(
     report.findings.filter((item) => item.flowIds.includes(flow.id)),
   );
   return (
-    <div className="flows-view page-scroll">
+    <div
+      className={`flows-view page-scroll ${expanded ? "flow-expanded" : ""}`}
+    >
       <div className="section-intro">
         <div>
           <h2>Follow the user journey across files.</h2>
           <p>
-            From the starting action to the result. Compare before and after,
-            then select a step to inspect its code.
+            Follow the behavior, then switch to a full-width code diff for any
+            step.
           </p>
         </div>
         <div className="row">
@@ -630,129 +650,191 @@ export function FlowsView({
             <strong>Why this matters</strong> {whyMain}
           </p>
         ) : null}
-        <p>{flow.whyChanged}</p>
-        <div className="flow-context">
-          <span>
-            <strong>Actor</strong>
-            {flow.actor}
-          </span>
-          <span>
-            <strong>Trigger</strong>
-            {flow.trigger}
-          </span>
-          <span>
-            <strong>Intended outcome</strong>
-            {flow.outcome}
-          </span>
-        </div>
+        <details className="flow-context-details">
+          <summary>Journey context</summary>
+          <p>{flow.whyChanged}</p>
+          <div className="flow-context">
+            <span>
+              <strong>Actor</strong>
+              {flow.actor}
+            </span>
+            <span>
+              <strong>Trigger</strong>
+              {flow.trigger}
+            </span>
+            <span>
+              <strong>Intended outcome</strong>
+              {flow.outcome}
+            </span>
+          </div>
+        </details>
       </div>
-      <div className="graph-toolbar">
-        <div className="row">
-          <GitBranch size={15} />
-          <span>
-            {revision === "before" ? "BASE" : "HEAD"}{" "}
-            <code>
-              {report.comparison[
-                revision === "before" ? "base" : "head"
-              ].oid.slice(0, 8)}
-            </code>
-          </span>
-          <span className="muted">Authored behavior</span>
-        </div>
-        <div className="row">
-          {node ? (
+      <div className="flow-focus-workbench" ref={workspace}>
+        <div className="graph-toolbar">
+          <div
+            className="segmented flow-mode-switch"
+            role="group"
+            aria-label="Journey view"
+          >
             <button
-              ref={inspectorToggle}
-              className="button small flow-inspector-toggle"
-              aria-expanded={inspectorOpen}
-              onClick={() => {
-                setInspectorOpen((value) => !value);
-                if (!inspectorOpen)
-                  requestAnimationFrame(() =>
-                    inspectorHeading.current?.focus(),
-                  );
-              }}
+              aria-pressed={mode === "diagram"}
+              aria-controls={diagramId}
+              disabled={!graph}
+              onClick={() => showMode("diagram")}
             >
-              <PanelRightOpen size={14} />
-              {inspectorOpen ? "Hide code" : "Show code"}
-            </button>
-          ) : null}
-          <div className="segmented">
-            <button
-              aria-pressed={revision === "before"}
-              onClick={() => {
-                changeSelection({
-                  revision: "before",
-                  nodeId: null,
-                  evidenceId: null,
-                });
-              }}
-            >
-              Before
+              <GitBranch size={14} /> Diagram
             </button>
             <button
-              aria-pressed={revision === "after"}
+              aria-pressed={mode === "code"}
+              aria-controls={codeId}
+              disabled={!graph}
+              onClick={() => showMode("code")}
+            >
+              <Code2 size={14} /> Code diff
+            </button>
+          </div>
+          <div className="row">
+            <GitBranch size={15} />
+            <span>
+              {revision === "before" ? "BASE" : "HEAD"}{" "}
+              <code>
+                {report.comparison[
+                  revision === "before" ? "base" : "head"
+                ].oid.slice(0, 8)}
+              </code>
+            </span>
+          </div>
+          <div className="row">
+            <div className="segmented">
+              <button
+                aria-pressed={revision === "before"}
+                onClick={() => {
+                  if (revision === "before") return;
+                  changeSelection({
+                    revision: "before",
+                    nodeId: null,
+                    evidenceId: null,
+                  });
+                }}
+              >
+                Before
+              </button>
+              <button
+                aria-pressed={revision === "after"}
+                onClick={() => {
+                  if (revision === "after") return;
+                  changeSelection({
+                    revision: "after",
+                    nodeId: null,
+                    evidenceId: null,
+                  });
+                }}
+              >
+                After
+              </button>
+            </div>
+            <button
+              className="button small"
+              aria-pressed={expanded}
+              aria-label={
+                expanded
+                  ? "Restore journey workspace"
+                  : "Expand journey workspace"
+              }
               onClick={() => {
-                changeSelection({
-                  revision: "after",
-                  nodeId: null,
-                  evidenceId: null,
-                });
+                onExpandedChange(!expanded);
+                requestAnimationFrame(() =>
+                  workspace.current?.scrollIntoView({ block: "start" }),
+                );
               }}
             >
-              After
+              {expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+              {expanded ? "Restore" : "Expand"}
             </button>
           </div>
         </div>
+        {graph ? (
+          <FlowCodeWorkspace
+            key={`${loaded.digest}:${flow.id}:${revision}`}
+            mode={mode}
+            diagramId={diagramId}
+            codeId={codeId}
+            inspector={
+              node ? (
+                <>
+                  <nav
+                    className="flow-step-ribbon"
+                    aria-label="Journey steps in authored order"
+                  >
+                    {graph.nodes.map((step, index) => (
+                      <button
+                        key={step.id}
+                        aria-pressed={node.id === step.id}
+                        title={`${index + 1}. ${step.label}`}
+                        onClick={() => selectNode(step.id)}
+                      >
+                        <span>{index + 1}</span>
+                        <strong>{step.label}</strong>
+                      </button>
+                    ))}
+                  </nav>
+                  <FlowCodePanel
+                    loaded={loaded}
+                    node={node}
+                    anchors={anchors}
+                    anchor={anchor}
+                    index={graph.nodes.findIndex((item) => item.id === node.id)}
+                    count={graph.nodes.length}
+                    layout={diffLayout}
+                    onLayoutChange={setDiffLayout}
+                    onStep={(index) => {
+                      const step = graph.nodes[index];
+                      if (step) selectNode(step.id);
+                    }}
+                    onEvidence={selectEvidence}
+                    onSource={onSource}
+                    onOpenFile={onEvidence}
+                    headingRef={inspectorHeading}
+                  />
+                </>
+              ) : null
+            }
+          >
+            <FlowGraph
+              graph={graph}
+              selected={node?.id ?? null}
+              onSelect={selectNode}
+              onEvidence={selectEvidence}
+              layoutKey={expanded ? "expanded" : "regular"}
+            />
+            {node ? (
+              <div className="flow-diagram-selection">
+                <div>
+                  <span className="eyebrow">{node.kind} · selected step</span>
+                  <strong>{node.label}</strong>
+                  <span className="muted">{anchors.length} source anchors</span>
+                </div>
+                <button
+                  className="button small"
+                  onClick={() => showMode("code", true)}
+                >
+                  <Code2 size={14} /> Read code <ArrowRight size={14} />
+                </button>
+              </div>
+            ) : null}
+          </FlowCodeWorkspace>
+        ) : (
+          <div className="view-empty compact">
+            <GitBranch size={24} />
+            <h3>
+              {snapshot.status === "not-applicable"
+                ? "This journey did not apply at this revision"
+                : "This snapshot is unavailable"}
+            </h3>
+            <p>{snapshot.reason}</p>
+          </div>
+        )}
       </div>
-      {graph ? (
-        <FlowCodeWorkspace
-          open={inspectorOpen && Boolean(node)}
-          inspector={
-            node ? (
-              <FlowCodePanel
-                loaded={loaded}
-                node={node}
-                anchors={anchors}
-                anchor={anchor}
-                index={graph.nodes.findIndex((item) => item.id === node.id)}
-                count={graph.nodes.length}
-                revision={revision}
-                onStep={(index) => {
-                  const step = graph.nodes[index];
-                  if (step) selectNode(step.id);
-                }}
-                onEvidence={selectEvidence}
-                onSource={onSource}
-                onOpenFile={onEvidence}
-                onClose={() => {
-                  setInspectorOpen(false);
-                  inspectorToggle.current?.focus();
-                }}
-                headingRef={inspectorHeading}
-              />
-            ) : null
-          }
-        >
-          <FlowGraph
-            graph={graph}
-            selected={node?.id ?? null}
-            onSelect={selectNode}
-            onEvidence={selectEvidence}
-            layoutKey={inspectorOpen ? "with-code" : "diagram-only"}
-          />
-        </FlowCodeWorkspace>
-      ) : (
-        <div className="view-empty compact">
-          <GitBranch size={24} />
-          <h3>
-            {snapshot.status === "not-applicable"
-              ? "This journey did not apply at this revision"
-              : "This snapshot is unavailable"}
-          </h3>
-          <p>{snapshot.reason}</p>
-        </div>
-      )}
       {relatedFindings.length ? (
         <section className="related-findings">
           <h3 className="section-heading">

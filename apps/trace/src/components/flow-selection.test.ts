@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Evidence, Graph } from "@trace/report-contract";
 import {
-  clampInspectorWidth,
   nodeForEvidence,
   resolveFlowSelection,
   stepEvidence,
@@ -82,11 +81,5 @@ describe("flow inspector source selection", () => {
     expect(nodeForEvidence(graph, "transition")).toBe("edit");
     expect(nodeForEvidence(graph, "saved")).toBe("save");
     expect(nodeForEvidence(graph, "missing-evidence")).toBeNull();
-  });
-
-  it("keeps keyboard and pointer resizing in the same bounds", () => {
-    expect(clampInspectorWidth(-10)).toBe(30);
-    expect(clampInspectorWidth(45)).toBe(45);
-    expect(clampInspectorWidth(100)).toBe(65);
   });
 });
