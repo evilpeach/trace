@@ -1,0 +1,404 @@
+<!doctype html>
+<!-- Throwaway prototype: five ways to read a journey and its code, ?variant=A|B|C|D|E. -->
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trace · Journey & code explorations</title>
+<style>
+:root{color-scheme:dark;--bg:#111;--surface:#181818;--raised:#202020;--hover:#292929;--line:#333;--text:#ededed;--muted:#aaa;--subtle:#797979;--blue:#a4bcff;--bluebg:#202c48;--blueborder:#52699a;--purple:#c5acfa;--green:#a0d8b6;--greenbg:#172c22;--red:#efb0ba;--redbg:#362127;--dot:#2a2a2a;--shadow:#0009;--code-size:13px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+:root[data-theme=light]{color-scheme:light;--bg:#f8f9fb;--surface:#fff;--raised:#f4f5f7;--hover:#edf0f5;--line:#dfe2e8;--text:#232630;--muted:#626b79;--subtle:#737c8b;--blue:#2459c9;--bluebg:#eaf0ff;--blueborder:#8eacee;--purple:#7142be;--green:#205c3c;--greenbg:#e9f7ee;--red:#942d40;--redbg:#ffedf0;--dot:#dde1e9;--shadow:#24335222}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}button,input,select{font:inherit}button{color:inherit;border:1px solid transparent;background:none;cursor:pointer;border-radius:6px;white-space:nowrap}button:hover{background:var(--hover)}button:disabled{opacity:.35;cursor:default}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--blue);outline-offset:3px}button svg{width:15px;height:15px;flex:none}button{display:inline-flex;align-items:center;justify-content:center;gap:7px}a{color:var(--blue)}h1,h2,h3,p{margin:0}code,.mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}.muted{color:var(--muted)}.small{font-size:11px}.row{display:flex;align-items:center;gap:10px}.spacer{flex:1}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.1px;font-weight:650;color:var(--muted)}.blue{color:var(--blue)}.tag{display:inline-flex;align-items:center;gap:5px;font-size:10px;line-height:20px;padding:0 7px;background:var(--raised);border:1px solid var(--line);border-radius:4px;color:var(--muted)}.button{padding:7px 11px;border-color:var(--line);background:var(--raised);font-size:12px}.primary{background:var(--bluebg);border-color:var(--blueborder);color:var(--blue)}.icon-button{width:30px;height:30px}.segmented{display:flex;gap:2px;padding:3px;border:1px solid var(--line);background:var(--bg);border-radius:7px}.segmented button{padding:5px 11px;font-size:11px;line-height:17px}.segmented button[aria-pressed=true]{background:var(--bluebg);color:var(--blue);border-color:var(--blueborder)}
+.lab{height:36px;padding:0 22px;display:flex;align-items:center;gap:12px;background:var(--raised);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted)}.lab-label{color:var(--purple);letter-spacing:1px;font-size:9px;font-weight:700}.lab select{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:4px;font-size:11px;padding:2px 5px}.appbar{height:56px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 26px;gap:17px}.brand{font-weight:700;letter-spacing:-.5px;font-size:20px;display:flex;align-items:center;gap:9px}.brand img{height:28px;width:28px}.appbar .slash{color:var(--subtle);font-size:20px}.review-title{font-size:12px}.nav{height:43px;border-bottom:1px solid var(--line);padding:0 26px;display:flex;align-items:stretch;gap:25px}.nav-item{display:flex;gap:7px;align-items:center;font-size:12px;color:var(--muted)}.nav-item.active{color:var(--blue);border-bottom:2px solid var(--blue)}.count{background:var(--raised);border:1px solid var(--line);border-radius:4px;font-size:10px;padding:0 4px}.nav .checkpoint{margin-left:auto;display:flex;align-items:center;color:var(--green);gap:7px;font-size:11px}.page{padding:20px 26px 118px;max-width:1920px;margin:auto}.intro{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:17px}.intro h1{font-size:22px;letter-spacing:-.55px;font-weight:580;margin:4px 0}.intro p{font-size:12px;color:var(--muted)}.intro .eyebrow{color:var(--purple)}.intro-side{text-align:right;display:flex;flex-direction:column;gap:7px;align-items:flex-end}.workspace{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);height:calc(100vh - 346px);min-height:410px;display:flex;flex-direction:column}.work-toolbar{min-height:51px;flex:none;padding:9px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);background:var(--surface)}.work-toolbar .title{font-size:12px;font-weight:550;display:flex;align-items:center;gap:7px}.workspace-content{min-height:0;flex:1;display:flex;flex-direction:column}.step-ribbon{display:flex;align-items:center;padding:9px 14px;gap:3px;border-bottom:1px solid var(--line);min-height:48px;flex:none;overflow-x:auto}.step-ribbon .step{padding:5px 9px;gap:7px;font-size:11px}.step-ribbon .step[aria-pressed=true]{background:var(--bluebg);border-color:var(--blueborder);color:var(--blue)}.step-no{font:10px "SFMono-Regular",monospace;border:1px solid var(--line);background:var(--raised);border-radius:50%;width:21px;height:21px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted)}[aria-pressed=true] .step-no{color:var(--blue);border-color:var(--blueborder);background:var(--bluebg)}.chev{color:var(--subtle);font-size:14px;padding:0 2px}.step-ribbon .branch-label{font-size:9px;line-height:1;color:var(--muted);margin-left:8px}
+.step-context{min-height:58px;padding:11px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:15px;background:var(--raised);flex:none}.step-context h2{font-size:12px;font-weight:550}.step-context p{font-size:11px;color:var(--muted);margin-top:2px}.step-context .step-controls{display:flex;gap:4px;margin-left:auto}.step-context .step-index{color:var(--purple);font:10px "SFMono-Regular",monospace;white-space:nowrap}.source-tabs{display:flex;align-items:center;min-height:37px;gap:3px;padding:0 10px;border-bottom:1px solid var(--line);flex:none;overflow-x:auto}.source-tabs button{font:10px "SFMono-Regular",Consolas,monospace;padding:9px 10px;border-radius:0;align-self:stretch;gap:6px}.source-tabs button[aria-pressed=true]{color:var(--blue);border-bottom:2px solid var(--blue);background:var(--bluebg)}.source-tabs .label{font-size:10px;color:var(--muted);padding:0 7px;white-space:nowrap}.code-panel{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0;background:var(--surface)}.code-toolbar{padding:8px 14px;min-height:46px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--line);flex:none}.file-path{font:11px "SFMono-Regular",monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:70px}.file-path .dir{color:var(--muted)}.diff-stats{font:10px "SFMono-Regular",monospace;display:flex;gap:6px;white-space:nowrap}.added-text{color:var(--green)}.deleted-text{color:var(--red)}.code-toolbar .segmented button{padding:3px 7px;font-size:10px}.code-toolbar .button{padding:4px 8px;font-size:10px}.code-toolbar .icon-button{width:26px;height:26px}.diff-scroll{overflow:auto;min-height:0;flex:1;scrollbar-color:var(--line) transparent;overscroll-behavior:contain;position:relative}.diff-table{border-collapse:collapse;font:var(--code-size)/1.7 "SFMono-Regular",Consolas,"Liberation Mono",monospace;width:100%;table-layout:auto}.diff-table td{padding:0 12px;height:24px;vertical-align:top}.diff-table .ln{width:44px;min-width:44px;padding:0 8px;text-align:right;color:var(--subtle);font-size:11px;user-select:none;border-right:1px solid var(--line);background:var(--bg)}.diff-table .sign{width:22px;min-width:22px;text-align:center;padding:0 2px;color:var(--muted)}.diff-table .source{white-space:pre;min-width:500px}.diff-table .add{background:var(--greenbg);color:var(--green)}.diff-table .del{background:var(--redbg);color:var(--red)}.diff-table .anchor{box-shadow:inset 3px 0 var(--blue);background-image:linear-gradient(#7ca0ff0d,#7ca0ff0d)}.diff-table tr.anchor-start td{border-top:1px solid var(--blueborder)}.diff-table tr.anchor-end td{border-bottom:1px solid var(--blueborder)}.diff-table .kw{color:var(--purple)}.diff-table .str{color:var(--green)}.diff-table .comment{color:var(--muted)}.diff-table .num{color:#d5ae85}.diff-table .blank{background:var(--raised)}.wrap .diff-table{table-layout:fixed}.wrap .source{white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}.diff-table.split .source{width:50%;min-width:400px}.wrap .diff-table.split .source{min-width:0}.diff-heading{display:flex;min-height:27px;align-items:center;border-bottom:1px solid var(--line);color:var(--muted);background:var(--raised);font:10px "SFMono-Regular",monospace;padding:0 14px;flex:none;gap:8px}.diff-heading.split{padding:0;gap:0}.diff-heading.split span{width:50%;padding:6px 14px}.diff-heading.split span+span{border-left:1px solid var(--line)}.diff-status{height:27px;display:flex;align-items:center;padding:0 13px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);gap:8px;flex:none}.anchor-dot{height:6px;width:6px;background:var(--blue);border-radius:2px;display:inline-block}.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:30px;color:var(--muted)}.empty h3{font-size:15px;color:var(--text)}.empty p{font-size:12px;max-width:420px;text-align:center}.empty svg{width:30px;height:30px;color:var(--blue)}
+.graph-shell{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg)}.graph-meta{display:flex;align-items:center;gap:12px;padding:11px 16px;font-size:10px;color:var(--muted);flex:none}.graph-viewport{overflow:auto;flex:1;min-height:0;background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:18px 18px;display:flex;align-items:center;position:relative}.graph-stage{position:relative;width:1100px;height:260px;flex-shrink:0;margin:auto;transform-origin:center center;zoom:var(--zoom,1)}.graph-stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.graph-stage path{fill:none;stroke:var(--subtle);stroke-width:1.3}.graph-stage text{fill:var(--muted);font:9px -apple-system,sans-serif}.node{position:absolute;text-align:left;white-space:normal;width:178px;min-height:103px;background:var(--raised);border:1px solid var(--line);border-radius:7px;padding:13px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:9px;box-shadow:0 3px 8px #0001}.node:hover{border-color:var(--blueborder)}.node .kind{font:9px "SFMono-Regular",monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}.node strong{font-size:11px;font-weight:550;line-height:1.5}.node small{font-size:9px;color:var(--muted)}.node.selected{border-color:var(--blue);box-shadow:0 0 0 3px #7398fb18;background:var(--bluebg)}.node.selected .kind{color:var(--blue)}.node.decision .kind{color:var(--purple)}.node.entry{border-color:var(--blueborder)}.graph-footer{display:flex;align-items:center;gap:10px;padding:10px 15px;border-top:1px solid var(--line);font-size:11px;flex:none;background:var(--surface)}.graph-footer strong{font-weight:550}.graph-footer .button{margin-left:auto}.graph-footer .muted{font-size:10px}.fit-buttons{display:flex;align-items:center;margin-left:auto;gap:3px}.fit-buttons button{padding:2px 6px;font-size:10px}
+.layout-b{display:grid;grid-template-columns:252px minmax(0,1fr);min-height:0;flex:1}.journey-rail{background:var(--bg);border-right:1px solid var(--line);overflow:auto;padding:17px 13px}.rail-title{display:flex;align-items:center;gap:6px;margin-bottom:17px;padding:0 6px;font-size:11px}.rail-step{position:relative;width:100%;text-align:left;align-items:flex-start;justify-content:flex-start;white-space:normal;gap:11px;padding:11px 8px;margin-bottom:8px;border:1px solid transparent;border-radius:7px}.rail-step:after{position:absolute;content:"";left:19px;top:39px;height:24px;border-left:1px solid var(--line)}.rail-step:last-of-type:after{display:none}.rail-step .step-no{margin-top:1px}.rail-step div{display:flex;flex-direction:column;gap:4px}.rail-step strong{font-size:11px;font-weight:500}.rail-step small{font-size:9px;color:var(--muted)}.rail-step.selected{background:var(--bluebg);border-color:var(--blueborder)}.rail-step.selected strong{color:var(--blue)}.rail-step.branch{margin-left:17px;width:calc(100% - 17px)}.rail-note{padding:15px 8px;color:var(--muted);font-size:10px;line-height:1.8;border-top:1px solid var(--line);margin-top:10px}.layout-b.collapsed{grid-template-columns:65px minmax(0,1fr)}.layout-b.collapsed .journey-rail{padding:13px 8px}.layout-b.collapsed .rail-step{padding:8px;justify-content:center;margin-left:0;width:100%}.layout-b.collapsed .rail-step div,.layout-b.collapsed .rail-title span,.layout-b.collapsed .rail-note{display:none}.layout-b.collapsed .rail-step:after{left:24px;top:38px;height:10px}.layout-b.collapsed .rail-title{padding:0;justify-content:center}
+.layout-c{display:flex;flex-direction:column;flex:1;min-height:0}.layout-c .graph-shell{flex:none;height:var(--map-height,200px)}.layout-c .graph-meta{padding:5px 14px;min-height:29px}.layout-c .graph-stage{zoom:.78}.layout-c .graph-footer{display:none}.stack-handle{height:24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--raised);color:var(--muted);font-size:9px}.stack-handle input{width:96px;height:12px;accent-color:var(--blue);cursor:ns-resize}.layout-c .step-context{min-height:44px;padding:7px 15px}.layout-c .step-context p{display:none}.layout-c .source-tabs{min-height:29px}.layout-c .source-tabs button{padding:5px 9px}.layout-c .code-toolbar{min-height:40px;padding:5px 13px}.layout-c .code-panel{min-height:170px}
+.layout-d{display:flex;flex-direction:column;flex:1;min-height:0}.peek{margin:0 18px 18px;border:1px solid var(--blueborder);background:var(--surface);border-radius:9px;box-shadow:0 8px 30px var(--shadow);overflow:hidden;flex:none}.peek-heading{padding:12px 15px;display:flex;align-items:center;gap:12px}.peek-heading h3{font-size:12px;font-weight:550}.peek-heading p{font-size:10px;color:var(--muted);margin-top:3px}.peek-lines{padding:9px 16px;background:var(--greenbg);color:var(--green);font:11px/1.9 "SFMono-Regular",monospace;white-space:pre;overflow:auto;border-top:1px solid var(--line)}dialog{width:calc(100vw - 100px);max-width:1540px;height:calc(100vh - 106px);max-height:none;border:1px solid var(--blueborder);border-radius:12px;padding:0;background:var(--surface);color:var(--text);box-shadow:0 30px 100px #0009;overflow:hidden}dialog::backdrop{background:#080a0ddd;backdrop-filter:blur(3px)}.modal-inner{height:100%;display:flex;flex-direction:column}.modal-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex:none}.modal-head h2{font-size:13px}.modal-head .tag{color:var(--blue)}
+.layout-e{flex:1;min-height:0;overflow:auto;scroll-behavior:smooth}.story-intro{padding:23px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;align-items:center;background:var(--raised)}.story-intro h2{font-size:17px;font-weight:550;letter-spacing:-.3px;margin:4px 0}.story-intro p{font-size:12px;color:var(--muted);max-width:730px}.story-section{padding:25px 28px 29px;border-bottom:1px solid var(--line);scroll-margin-top:0}.story-section.current{background:linear-gradient(90deg,#779bff05,transparent)}.story-heading{display:flex;align-items:flex-start;gap:14px;margin-bottom:15px}.story-heading .step-no{width:28px;height:28px;font-size:11px}.story-heading h3{font-size:15px;font-weight:550;margin:3px 0 5px}.story-heading p{font-size:12px;color:var(--muted);max-width:920px}.story-heading .eyebrow{font-size:9px;color:var(--purple)}.story-section .code-panel{border:1px solid var(--line);border-radius:7px;overflow:hidden;height:300px}.story-section.expanded .code-panel{height:490px}.story-section .code-toolbar{min-height:42px}.story-section .source-tabs{min-height:31px}.story-section .source-tabs button{padding:6px 10px}.story-branch{color:var(--purple);font-size:10px;padding:8px 13px;background:var(--raised);border:1px solid var(--line);border-radius:5px;display:inline-flex;margin-bottom:12px}.story-map{height:250px;display:flex;flex-direction:column;border-bottom:1px solid var(--line)}.story-map .graph-footer{display:none}.story-map .graph-stage{zoom:.86}.story-map .graph-meta{padding:7px 14px}
+.design-note{display:flex;align-items:center;gap:9px;margin-top:11px;color:var(--muted);font-size:11px}.design-note .badge{color:var(--purple);font-weight:650;font-size:10px}.switcher{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;padding:7px;border:1px solid var(--blueborder);background:var(--raised);border-radius:13px;box-shadow:0 12px 50px var(--shadow);z-index:20}.switcher>button{height:34px;padding:0 10px;min-width:34px}.switcher .variant-option{font-size:11px;gap:7px;padding:0 11px}.switcher .variant-option[aria-pressed=true]{background:var(--bluebg);color:var(--blue);border-color:var(--blueborder)}.switcher .variant-option b{font:10px "SFMono-Regular",monospace;opacity:.7}.switcher .divider{height:24px;border-left:1px solid var(--line);margin:0 4px}.switcher .lab-key{padding:0 9px;font-size:9px;color:var(--muted);line-height:1.5;text-transform:uppercase;letter-spacing:.6px}.state-strip{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);background:var(--bg);padding:3px 9px;border-radius:5px;white-space:nowrap;z-index:19}.toast{position:fixed;bottom:118px;left:50%;transform:translateX(-50%);padding:10px 17px;background:var(--raised);border:1px solid var(--blueborder);border-radius:7px;box-shadow:0 4px 20px var(--shadow);z-index:100;font-size:12px}.toast[hidden]{display:none}
+/* Keep application chrome compact so the diff is the main reading surface. */
+.lab{height:27px}.appbar{height:43px}.nav{height:35px}.page{padding-top:12px}.intro{margin-bottom:12px}.intro h1{font-size:19px;margin:2px 0}.intro .eyebrow{font-size:9px}.intro p{font-size:11px}.intro-side{gap:4px}.workspace{height:calc(100vh - 271px);min-height:420px}.work-toolbar{min-height:43px;padding:6px 14px}.step-ribbon{min-height:37px;padding:4px 12px}.step-context{min-height:38px;padding:7px 14px}.step-context p{display:none}.source-tabs{min-height:31px}.source-tabs button{padding:6px 9px}.code-toolbar{min-height:39px;padding:5px 13px}.diff-heading{min-height:23px}.diff-status{height:24px}.diff-table td{height:23px}.layout-c .graph-meta{min-height:24px;padding:3px 13px}.layout-c .step-context{display:none}.layout-c .code-panel{min-height:120px}.design-note{font-size:10px}
+@media(min-height:950px){.workspace{height:calc(100vh - 265px)}}
+@media(max-width:1120px){.page{padding:17px 18px 118px}.intro h1{font-size:20px}.intro-side .small{display:none}.graph-stage{zoom:.8}.layout-b{grid-template-columns:220px minmax(0,1fr)}.code-toolbar{flex-wrap:wrap;gap:6px}.code-toolbar .file-path{flex:1;min-width:160px}.code-toolbar .spacer{display:none}.step-ribbon .step{padding:4px 6px;font-size:10px}.step-ribbon .branch-label{display:none}.switcher .variant-option{padding:0 8px}.switcher .lab-key{display:none}.workspace{height:calc(100vh - 271px)}.layout-c .graph-stage{zoom:.68}}
+@media(max-width:760px){.lab{padding:0 12px;font-size:9px;gap:7px}.lab .lab-description{display:none}.appbar{padding:0 14px;gap:10px;height:48px}.appbar .revision-label,.appbar .repo-name{display:none}.brand{font-size:17px}.nav{padding:0 14px;gap:16px}.nav-item{font-size:10px}.nav .checkpoint{display:none}.intro{align-items:flex-start}.intro h1{font-size:18px}.intro p{font-size:11px;max-width:420px}.intro-side{display:none}.page{padding:14px 10px 110px}.workspace{height:calc(100vh - 301px);min-height:420px}.work-toolbar{padding:8px 10px;gap:7px;flex-wrap:wrap}.work-toolbar .title{font-size:10px}.layout-b{grid-template-columns:65px minmax(0,1fr)}.layout-b .journey-rail{padding:13px 8px}.layout-b .rail-step{padding:8px;justify-content:center;margin-left:0;width:100%}.layout-b .rail-step div,.layout-b .rail-title span,.layout-b .rail-note{display:none}.layout-b .rail-step:after{left:24px;top:38px;height:10px}.layout-b .rail-title{padding:0;justify-content:center}.source-tabs .label{display:none}.step-context{gap:8px;padding:9px 11px}.step-context p{display:none}.step-context .step-index{font-size:9px}.step-context h2{font-size:11px}.code-toolbar{padding:6px 9px}.diff-table{font-size:12px}.diff-table .source{min-width:650px}.graph-stage{zoom:.77}.layout-c .graph-stage{zoom:.63}.graph-footer .muted{display:none}.graph-footer{font-size:10px}.peek{margin:0 9px 9px}.peek-lines{font-size:10px}.peek-heading{padding:10px}.peek-heading h3{font-size:11px}.peek-heading .button{font-size:10px;padding:6px}.story-section{padding:20px 13px}.story-intro{padding:17px}.story-intro .tag{display:none}.story-heading h3{font-size:13px}.story-heading p{font-size:11px}.story-heading{gap:9px}.story-heading .button{font-size:10px}.switcher{bottom:13px;gap:1px;padding:5px;max-width:calc(100vw - 16px)}.switcher .variant-option{flex-direction:column;gap:0;padding:0 8px;line-height:1.35;font-size:8px;min-width:44px;height:38px}.switcher .variant-option b{font-size:11px}.switcher>button{min-width:25px;padding:0 5px}.switcher .divider{margin:0 2px}.state-strip{bottom:69px;max-width:95vw;font-size:8px;overflow:hidden;text-overflow:ellipsis}.design-note{font-size:10px;align-items:flex-start}.design-note .badge{white-space:nowrap}dialog{width:calc(100vw - 16px);height:calc(100vh - 34px)}.modal-head{padding:9px}.modal-head h2{font-size:11px}.modal-head .tag{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+.work-toolbar .title svg,.modal-head>svg{width:15px;height:15px;flex:none}.work-toolbar .title{white-space:nowrap}.intro .design-note{margin-top:3px;display:block;max-width:1100px}.intro .design-note .badge{margin-right:8px}.intro .design-note .blue{display:none}.switcher{bottom:22px}.state-strip{bottom:3px}.maximized .lab,.maximized .appbar,.maximized .nav,.maximized .intro{display:none}.maximized .page{padding:14px 18px 90px}.maximized .workspace{height:calc(100vh - 98px);min-height:410px}.layout-c .graph-stage{height:180px}.layout-c .node{min-height:74px;padding:9px;gap:5px}.layout-c .node strong{font-size:11px}.layout-c .node small{display:none}.layout-c .graph-stage svg{height:260px}.layout-c .graph-viewport{align-items:flex-start}.layout-c .graph-stage{margin:auto;zoom:.66}
+@media(max-width:760px){.work-toolbar .title{display:none}.intro .design-note{font-size:10px}.switcher{bottom:22px}.state-strip{bottom:3px}.maximized .page{padding:8px}.layout-c .graph-stage{zoom:.62}}
+
+.layout-c .graph-stage{height:108px;zoom:var(--zoom,1)}.layout-c .node{min-height:44px;padding:6px 10px;gap:2px}.layout-c .node strong{font-size:11px}.layout-c .graph-viewport{align-items:center}.layout-c .graph-stage svg{height:260px}
+
+.diff-table.split{table-layout:fixed}.diff-table.split .source{width:calc(50% - 44px);min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}.split-wrap-control{display:none}.intro .design-note{line-height:1.65}
+
+body{height:100dvh;overflow:hidden}.page{height:calc(100dvh - 105px);display:flex;flex-direction:column;padding-bottom:80px}.intro{flex:none}.workspace{flex:1;height:auto!important;min-height:0}.maximized .page{height:100dvh;padding-bottom:84px}.maximized .workspace{min-height:0}
+@media(max-width:760px){.page{height:calc(100dvh - 110px);padding-bottom:80px}.maximized .page{height:100dvh;padding-bottom:84px}.intro .eyebrow{display:none}}
+.graph-stage{zoom:var(--zoom,1)!important}
+@media(max-height:800px){.layout-d .peek-lines{display:none}}
+</style>
+</head>
+<body>
+<div class="lab"><span class="lab-label">DESIGN EXPLORATION</span><span class="lab-description">Five ways to follow a journey into code</span><span class="spacer"></span><span>Illustrative data · interactive HTML</span><select id="theme" aria-label="Color theme"><option value="dark">Dark</option><option value="light">Light</option></select></div>
+<header class="appbar"><div class="brand"><img id="trace-icon" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAGeklEQVR42sVXW4scRRT+qvo6l73v5qqSiHgJmMtCDCpJWAJJQETFEAXxByiICPrigwTy4KtPPip5UGHxwbwYkcia5MG3yQZJiBFd3WCSzW4yyc7s9PSlqjxVPT3bMzubq2Czs91d3X3OV9/5zqlTNu5wSCkZnRge7lCcc7XaQ3sVxxw4Rd/xRBt4SABkb4r87JVkT94VwNTUlN1yLGdnZwtjY33rGbM8wKWhqJONCOnwijHXgFYqCD1v4CrZCzLbExMTSf71DoNKKYsxJoIg2MRY8gk93k/DY0rBYSz/PsuIUfmbnL3WPYvpcp7OPwZBdHRoaGgm87ECgKaJ84kkCOoHydlxzyu5UkZIkkQDU+jlDj3c5qZEjpht2+DcRbO5FJPdV3y/fCLz1Q7B5OSkpQdqtdpWujihPwrDpVBImnnOAeFgvRTB8mNqmSF6WYZJBG7Fsee6npDi+zCsb+e8fE6pSWLisGCZ6LRAms36zzTzveQ80rT7fi9FoZPlXkmSRUdLB4JmL4gNxJrVMGyc9v3S3swnyy7q9fo2z7OnkySWUjFWLABfnGTqh2mGUoGb+WQ5qfWQRYK1VZGLA/0xz0VwcRpv7vTZS4cfR6MRwba5tCzbajbjHeVyeVozr0PA9bwsC8/ZtocoSkSxCPu7X4APjwGeyyiGrR/54OSRmXP6y0JkxpUkuinmNkfj4k8YnrmMyVPPqs0bl9iWFz0EDSVd17UsK9xFX00fOnSI2bk4rtHnIrH264zCB18q1ecxFHxmHloGhHakzFkfvDV9A0QJODRrJQUWK99g3bWbeGLtTgzIPnz76aJ65/MRDG1spRLjxlelUlkGQDxY5mwxdWE2UfNViQ2jFmUBDVk6kjr8jB5rzaQzlwRGY5DEueV6mL92HUHlK6yLLDw6thN9vISyb6NOifhnJcSux4qpRBUzvsbHx5WtUaRCTNmMqZAc3C7xzPoIF6446CsRRsaJWmXCQPyhXLJALLdDob9U9X+wb/AkFh7xkdx+Ck6dqLSoSpVcOLZmT7WFK5eVvFwJM1pjodjAgIOPX2/is+N1lAuUTASYUppia0FQbl6auYGm0t8QbTbleG0eYm4aHx07gNEhH3/PLOLKpQRXzyeo/hXi+m82pbCXSxO+EoBsgdIUBwFjLz9fUgd2NFqFSEBSXtpWjLmFAPvfO48bCwv0LsWHoijIeN/IZjSFB98v4sktZTy9VSB5NUL9dogblxVGN1iIqS46ziprAc/j45oJi3G3X7muKUCGPIci5wQh/E37UOyvgUe3IMIagST1k2MtSh2iiGqeFNqig/6Bshoape9JRILY1QAyX0aEWggd9SUDYRShmMrlPWlAmXR0XFglB3axRCBonQka4G5a+9BOy/YCw5IwHWNdtaxDhJx3V7Ieq4spxfSPXtZ64EznJZHo9BFlVUgRGa2sKNVdQ3yV67seZNysSvqfxqItW15RSxfRzT8IgLy3/oUvh4A/UItjwFBaUgbIqI5w7iINUAxMeqt7aFByIbgvx+m0TbFnlgMZLiK8/jsBIQG6TocGOmLYhSkfbvtB5q8Uh2zWIZfmaOIDpAWHGElaALqagl49RE7x7Sy4Nw20tJgESAiA4/WDCiREIpZV32vmCquqMM+AuAcIqTGRUCoWqULTjYxpmVWmhGsN8js0aLlQyhVYlJA3V+svumPKTZtFGWDqO8f8LYlBP8JwmSER6XK9Qgcs31mxhTYDOrXSsFgVQ4K6c2rqFLxdl2hGCg2SsyWbeOOFJbz/ios1wx5V0JbIVE8Rcu1DyqSSpXXWkjG9eQiCWoWaxh3UksUmPDkjSqWVMKBSfPTrGk6eldg0luDdgwK7t1E47BJNgiokz9e8DiYSasmcsNk46xdK47q866LF8u14o7G4u1Aon47jpgYVEQCKrmL5QqRLoaUCNl9touRzFAo+goTKMq0BummRSrLu4qWd0wRdxykgDoI9brF4JvPJWy8JvWkoFvvPRNHSW3pB0Q0kdcfcoDRI0+aL+kUeoYThkRE4hUFE0mOuTQuX7sgIbPpm6xv6aRvalrZJLf/b2rn2le0Nem5MQmpQqT86QtPdQ8ODNMZ7tJ49JN6ZAqna1S1i+4wQOKIb0e6Nid1Fl2HCK5fP0e1r1Wp1qFCw1ppFv7UNu7+NIlWMQMzRjqiabc2Yrlirbc3ym1OWHgL/waFnrXdXvTan7P/env8Lfyns4D7INi0AAAAASUVORK5CYII=">Trace</div><span class="slash">/</span><span class="repo-name muted">strat-web-app</span><span class="slash repo-name">/</span><span class="review-title">Flexible take profit & stop loss</span><span class="spacer"></span><span class="tag revision-label mono">0ff6706 → b5fadb4</span></header>
+<nav class="nav" aria-label="Review context"><span class="nav-item">Overview</span><span class="nav-item">Files <span class="count">19</span></span><span class="nav-item active">⌘ User journeys <span class="count">2</span></span><span class="nav-item">Findings <span class="count">1</span></span><span class="checkpoint">✓ &nbsp; Local design preview</span></nav>
+<main class="page"><div class="intro"><div><div class="eyebrow">01 &nbsp; Main journey</div><h1>One trigger. Three ways to express it.</h1><p class="design-note" id="design-note"></p></div><div class="intro-side"><button class="button" data-action="review" id="review-button">✓ Mark journey reviewed</button><span class="small muted">6 steps · 3 source files</span></div></div><section class="workspace" id="workspace" aria-label="Journey review workspace"></section></main>
+<div class="state-strip" id="state-strip" role="status" aria-live="polite"></div><nav class="switcher" id="switcher" aria-label="Design variants"></nav><div class="toast" id="toast" role="status" hidden></div>
+<dialog id="code-dialog" aria-labelledby="modal-title"><div class="modal-inner" id="modal-inner"></div></dialog>
+<script>
+const icons={code:'<path d="m8 5-6 7 6 7m8-14 6 7-6 7m-3-17-2 20"/>',graph:'<rect x="2" y="2" width="6" height="6" rx="1"/><rect x="16" y="2" width="6" height="6" rx="1"/><rect x="9" y="16" width="6" height="6" rx="1"/><path d="M5 8v4h14V8m-7 4v4"/>',left:'<path d="m14 6-6 6 6 6"/>',right:'<path d="m10 6 6 6-6 6"/>',expand:'<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',file:'<path d="M14 2H5v20h14V7zM14 2v6h5M8 13h8m-8 4h8"/>',target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M1 12h4m14 0h4"/>',rail:'<rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18"/>',wrap:'<path d="M3 6h18M3 11h13a4 4 0 0 1 0 8h-4m3-3-3 3 3 3M3 16h4"/>'};
+const icon=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[n]||icons.code}</svg>`;
+const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const snippets={
+inputs:{path:'src/forms/TpSlInputs.tsx',before:`import { useState } from "react";
+import { useController, useFormContext } from "react-hook-form";
+import { NumberInput } from "../components/NumberInput";
+import { toTriggerPrice, toPercentage } from "../lib/triggers";
+
+type TpInputProps = {
+  entryPrice: number;
+  leverage: number;
+  orderType: "long" | "short";
+};
+
+export function TpInput({
+  entryPrice,
+  leverage,
+  orderType,
+}: TpInputProps) {
+  const { control, setValue } = useFormContext();
+  const { field, fieldState } = useController({ control, name: "tpPrice" });
+  const [activeField, setActiveField] = useState<"price" | "percentage" | null>(null);
+  const percentage = toPercentage(field.value, entryPrice, leverage);
+
+  function onPriceChange(value: number) {
+    field.onChange(value);
+  }
+
+  function onPercentageChange(value: number) {
+    const price = toTriggerPrice(value, entryPrice, leverage, orderType);
+    setValue("tpPrice", price, { shouldValidate: true });
+  }
+
+  return (
+    <div className="trigger-inputs">
+      <NumberInput
+        label="Take profit price"
+        value={field.value}
+        onValueChange={onPriceChange}
+        onFocus={() => setActiveField("price")}
+      />
+      <NumberInput
+        label="Return (%)"
+        value={percentage}
+        onValueChange={onPercentageChange}
+        onFocus={() => setActiveField("percentage")}
+        error={fieldState.error?.message}
+      />
+    </div>
+  );
+}`,
+after:`import { useState } from "react";
+import { useController, useFormContext } from "react-hook-form";
+import { useAtom } from "jotai";
+import { NumberInput } from "../components/NumberInput";
+import { UnitSelector } from "../components/UnitSelector";
+import { triggerUnitAtom } from "../state/preferences";
+import { fromBaseTokenUnit } from "../lib/units";
+
+type TriggerPriceInputProps = {
+  name: "tpPrice" | "slPrice";
+  trigger: "tp" | "sl";
+  entryPrice: number;
+  leverage: number;
+  initialLeverage?: number;
+  orderType: "long" | "short";
+  size: bigint;
+};
+
+export function TriggerPriceInput({
+  name,
+  trigger,
+  entryPrice,
+  leverage,
+  initialLeverage,
+  orderType,
+  size,
+}: TriggerPriceInputProps) {
+  const { control, setValue } = useFormContext();
+  const { field, fieldState } = useController({ control, name });
+  const [unit, setUnit] = useAtom(triggerUnitAtom);
+
+  const effectiveLeverage = Math.max(leverage, initialLeverage ?? leverage);
+  const assetSize = Number(fromBaseTokenUnit(size)) || 0;
+  // Gain is positive on the profitable side of entry, mirrored for shorts and stop loss.
+  const profitSide = orderType === "long" ? 1 : -1;
+  const sign = trigger === "tp" ? profitSide : -profitSide;
+  const gainLabel = trigger === "tp" ? "Gain" : "Loss";
+  const [activeField, setActiveField] = useState<"price" | "gain" | null>(null);
+
+  const priceDelta = (Number(field.value) - entryPrice) * sign;
+  const gain = unit === "usd"
+    ? priceDelta * assetSize
+    : (priceDelta / entryPrice) * effectiveLeverage * 100;
+
+  function onPriceChange(value: number) {
+    field.onChange(value);
+  }
+
+  function onGainChange(value: number) {
+    const priceDelta = unit === "usd"
+      ? assetSize > 0 ? value / assetSize : 0
+      : (value / 100 / effectiveLeverage) * entryPrice;
+    const price = entryPrice + priceDelta * sign;
+    setValue(name, price, { shouldValidate: true });
+  }
+
+  function onUnitChange(nextUnit: "percent" | "usd") {
+    // Keep the canonical trigger price while changing its display unit.
+    setUnit(nextUnit);
+  }
+
+  return (
+    <div className="trigger-inputs">
+      <NumberInput
+        label={trigger === "tp" ? "Take profit price" : "Stop loss price"}
+        value={field.value}
+        onValueChange={onPriceChange}
+        onFocus={() => setActiveField("price")}
+      />
+      <NumberInput
+        label={gainLabel}
+        value={gain}
+        onValueChange={onGainChange}
+        onFocus={() => setActiveField("gain")}
+        disabled={unit === "usd" && assetSize <= 0}
+        error={fieldState.error?.message}
+        suffix={
+          <UnitSelector value={unit} onChange={onUnitChange} />
+        }
+      />
+    </div>
+  );
+}`},
+position:{path:'src/hooks/usePendingPosition.ts',before:`import { useMemo } from "react";
+import { useOraclePrice } from "./useOraclePrice";
+import { toBaseTokenUnit } from "../lib/units";
+
+type PendingOrder = {
+  collateral: number;
+  leverage: number;
+  market: string;
+};
+
+export function usePendingPosition(order: PendingOrder) {
+  const oraclePrice = useOraclePrice(order.market);
+
+  return useMemo(() => {
+    if (!oraclePrice || order.collateral <= 0) {
+      return { size: 0n, entryPrice: 0 };
+    }
+
+    const notional = order.collateral * order.leverage;
+    const size = toBaseTokenUnit(notional / oraclePrice);
+
+    return {
+      size,
+      entryPrice: oraclePrice,
+    };
+  }, [oraclePrice, order.collateral, order.leverage]);
+}`,
+after:`import { useMemo } from "react";
+import { useOraclePrice } from "./useOraclePrice";
+import { toBaseTokenUnit } from "../lib/units";
+
+type PendingOrder = {
+  collateral: number;
+  leverage: number;
+  market: string;
+  kind: "market" | "limit" | "stop";
+  triggerPrice?: number;
+};
+
+export function usePendingPosition(order: PendingOrder) {
+  const oraclePrice = useOraclePrice(order.market);
+  const entryPrice = order.kind === "market"
+    ? oraclePrice
+    : order.triggerPrice;
+
+  return useMemo(() => {
+    if (!entryPrice || order.collateral <= 0) {
+      return { size: 0n, entryPrice: 0 };
+    }
+
+    const notional = order.collateral * order.leverage;
+    const size = toBaseTokenUnit(notional / entryPrice);
+
+    return {
+      size,
+      entryPrice,
+    };
+  }, [entryPrice, order.collateral, order.leverage]);
+}`},
+schema:{path:'src/forms/orderSchema.ts',before:`import { z } from "zod";
+import { submitOrder } from "../api/orders";
+
+export const orderSchema = z.object({
+  size: z.bigint().positive(),
+  entryPrice: z.number().positive(),
+  tpPrice: z.number().positive().optional(),
+  slPrice: z.number().positive().optional(),
+});
+
+export async function handleOrder(values: unknown) {
+  const result = orderSchema.safeParse(values);
+
+  if (!result.success) {
+    return { ok: false, errors: result.error.flatten() };
+  }
+
+  const { size, entryPrice, tpPrice, slPrice } = result.data;
+  await submitOrder({
+    size,
+    entryPrice,
+    tpPrice,
+    slPrice,
+  });
+
+  return { ok: true };
+}`,
+after:`import { z } from "zod";
+import { submitOrder } from "../api/orders";
+
+const optionalTriggerPrice = z.preprocess(
+  (value) => value === "" || value == null ? 0 : Number(value),
+  z.number().finite().nonnegative(),
+);
+
+export const orderSchema = z.object({
+  size: z.bigint().positive(),
+  entryPrice: z.number().positive(),
+  tpPrice: optionalTriggerPrice,
+  slPrice: optionalTriggerPrice,
+});
+
+export async function handleOrder(values: unknown) {
+  const result = orderSchema.safeParse(values);
+
+  if (!result.success) {
+    // Keep invalid fields in the form until the trader corrects them.
+    return { ok: false, errors: result.error.flatten() };
+  }
+
+  const { size, entryPrice, tpPrice, slPrice } = result.data;
+  await submitOrder({
+    size,
+    entryPrice,
+    tpPrice,
+    slPrice,
+  });
+
+  return { ok: true };
+}`}
+};
+const steps=[
+{short:'Enable TP/SL',kind:'Entry',label:'Enable TP/SL on the order ticket',before:'Enable separate TP/SL fields',detail:'The trader adds optional exit conditions while preparing an order. This is the user trigger, so there is no source anchor.',files:[],anchor:{}},
+{short:'Calculate size',kind:'Action',label:'Calculate the pending position size',before:'Calculate size at the oracle price',detail:'Use the oracle for market orders and the entered trigger price for limit or stop orders. Dollar targets depend on this position size.',files:['position','inputs'],anchor:{position:['  const entryPrice','  const oraclePrice'],inputs:['  const assetSize','  const percentage']}},
+{short:'Set the trigger',kind:'Action',label:'Switch units without changing the trigger price',before:'Edit price or percentage in separate fields',detail:'Price stays the source of truth. Switching from leveraged percent to dollars re-expresses the same exit, using the pending size.',files:['inputs','position','schema'],anchor:{inputs:['  const effectiveLeverage','  const [activeField'],position:['  const entryPrice','  const oraclePrice'],schema:['  tpPrice:','  tpPrice:']}},
+{short:'Validate',kind:'Decision',label:'Does the order pass the schema?',before:'Does the order pass the schema?',detail:'The schema validates the order before submission. The accepted and rejected branches lead to different outcomes.',files:['schema'],anchor:{schema:['  const result','  const result']}},
+{short:'Submit order',kind:'Outcome',label:'Submit the converted TP/SL prices',before:'Submit the entered TP/SL prices',detail:'Accepted branch: send the canonical trigger prices with the order. Empty optional triggers become zero.',files:['schema'],anchor:{schema:['  await submitOrder','  await submitOrder']}},
+{short:'Keep errors',kind:'Outcome',label:'Keep invalid fields in the form',before:'Keep invalid fields in the form',detail:'Rejected branch: keep the input values and show validation errors so the trader can correct the order.',files:['schema'],anchor:{schema:['  if (!result.success)','  if (!result.success)']}}
+];
+const variants={A:{name:'Focus modes',note:'One view at a time. Give the diff the full canvas; keep your place when switching back to the diagram.',tradeoff:'Best for uninterrupted code reading.',mode:'code'},B:{name:'Journey rail',note:'Code takes the lead. A compact vertical journey keeps every step in reach and can collapse to a thin rail.',tradeoff:'Best for moving between steps while reading.'},C:{name:'Top & bottom',note:'Keep the diagram above a full-width diff. Adjust the map height to trade context for more lines of code.',tradeoff:'Best when seeing both views matters.'},D:{name:'Code overlay',note:'Explore the diagram, then expand its code into a large overlay. Escape takes you back to the same step.',tradeoff:'Best for occasional deep inspection.'},E:{name:'Guided story',note:'Read the journey as a document. Each step pairs an explanation with evidence, with full-file reading one click away.',tradeoff:'Best for a first pass through the behavior.'}};
+const query=new URLSearchParams(location.search);
+let state={variant:variants[query.get('variant')]?query.get('variant'):'A',step:2,file:'inputs',revision:'after',format:'unified',wrap:false,scope:'full',mode:'code',collapsed:false,reviewed:false,mapHeight:150,zoom:1,storyMap:false,expanded:new Set(),modal:false,maximized:false};
+const scrolls=new Map();
+const workspace=document.getElementById('workspace');
+const dialog=document.getElementById('code-dialog');
+let lastDialogFocus=null;
+const b=(action,label,cls='button',extra='')=>`<button class="${cls}" data-action="${action}" ${extra}>${label}</button>`;
+function segmented(action,items,current){return `<div class="segmented">${items.map(([key,label])=>b(action,label,'',`data-value="${key}" aria-pressed="${current===key}"`)).join('')}</div>`}
+function revision(){return segmented('revision',[['before','Before'],['after','After']],state.revision)}
+function label(s){return state.revision==='before'?s.before:s.label}
+function detail(s){if(state.revision==='after')return s.detail;return [
+'The trader enables optional exit conditions on the order ticket. This step describes the user trigger, so there is no source anchor.',
+'Pending size uses the oracle price. A limit or stop entry price does not yet participate in this calculation.',
+'The trader edits the price or leveraged percentage in separate fields. Dollar input and a shared display-unit selector are not available.',
+'The schema validates the entered trigger prices before submission and branches on the result.',
+'Accepted branch: submit the entered trigger prices. Optional empty triggers remain undefined in this example.',
+'Rejected branch: return validation errors while keeping the order form open.'
+][steps.indexOf(s)]}
+function scrollStory(index){const article=document.getElementById('story-'+index),container=document.querySelector('.layout-e');if(article&&container)container.scrollTop+=article.getBoundingClientRect().top-container.getBoundingClientRect().top}
+function stepRibbon(){return `<div class="step-ribbon" aria-label="Journey steps">${steps.map((s,i)=>`${i?`<span class="${i===5?'branch-label':'chev'}">${i===4?'↗':i===5?'or ↘':'›'}</span>`:''}<button class="step" data-action="step" data-step="${i}" aria-pressed="${state.step===i}"><span class="step-no">${i+1}</span>${s.short}</button>`).join('')}<span class="spacer"></span></div>`}
+function stepContext(i=state.step){const s=steps[i];return `<div class="step-context"><span class="step-index">STEP ${String(i+1).padStart(2,'0')} / 06</span><div><h2>${label(s)}</h2><p>${detail(s)}</p></div><div class="step-controls">${b('previous',icon('left'),'icon-button',`aria-label="Previous step" ${i===0?'disabled':''}`)}${b('next',icon('right'),'icon-button',`aria-label="Next step" ${i===5?'disabled':''}`)}</div></div>`}
+function commonToolbar(title,leading=''){return `<div class="work-toolbar">${leading}<span class="title">${title}</span><span class="spacer"></span><span class="mono small muted">${state.revision==='after'?'HEAD b5fadb4':'BASE 0ff6706'}</span>${revision()}${b('maximize',icon('expand'),'icon-button',`aria-label="${state.maximized?'Restore workspace':'Expand workspace'}" title="${state.maximized?'Restore workspace':'Expand workspace'}"`)}</div>`}
+function diffRows(file){
+ const left=snippets[file].before.split('\n'),right=snippets[file].after.split('\n');
+ const lengths=Array.from({length:left.length+1},()=>new Uint16Array(right.length+1));
+ for(let i=left.length-1;i>=0;i--)for(let j=right.length-1;j>=0;j--)lengths[i][j]=left[i]===right[j]?lengths[i+1][j+1]+1:Math.max(lengths[i+1][j],lengths[i][j+1]);
+ const raw=[];let i=0,j=0;
+ while(i<left.length||j<right.length){if(i<left.length&&j<right.length&&left[i]===right[j]){raw.push({kind:'same',old:i+1,new:j+1,text:left[i]});i++;j++}else if(i<left.length&&(j===right.length||lengths[i+1][j]>=lengths[i][j+1])){raw.push({kind:'del',old:i+1,new:null,text:left[i++]})}else raw.push({kind:'add',old:null,new:j+1,text:right[j++]})}
+ return raw;
+}
+const diffs=Object.fromEntries(Object.keys(snippets).map(f=>[f,diffRows(f)]));
+function rangeFor(file,step=state.step){const s=steps[step];const side=state.revision;const lines=snippets[file][side].split('\n');const needle=(s.anchor[file]||['',''])[side==='after'?0:1];let start=needle?lines.findIndex(l=>l.startsWith(needle))+1:1;return {start:Math.max(1,start),end:Math.min(lines.length,Math.max(1,start)+(step===2?6:step===4?5:3))}}
+function highlight(text){return text.split(/(\/\/.*$|"[^"\n]*"|'[^'\n]*'|\b(?:const|let|return|function|export|import|from|type|if|async|await|number|string|bigint|unknown)\b|\b\d+\b)/g).map(token=>{const safe=escapeHtml(token);return token.startsWith('//')?`<span class="comment">${safe}</span>`:/^["']/.test(token)?`<span class="str">${safe}</span>`:/^(const|let|return|function|export|import|from|type|if|async|await|number|string|bigint|unknown)$/.test(token)?`<span class="kw">${safe}</span>`:/^\d+$/.test(token)?`<span class="num">${safe}</span>`:safe}).join('')}
+function inRange(row,range){const n=state.revision==='after'?row.new:row.old;return n>=range.start&&n<=range.end}
+function table(file,step,scope){const all=diffs[file],range=rangeFor(file,step);const selected=all.map((r,i)=>inRange(r,range)?i:-1).filter(i=>i>=0);let rows=all;if(scope==='step'&&selected.length)rows=all.slice(Math.max(0,selected[0]-3),Math.min(all.length,selected.at(-1)+4));
+ if(state.format==='unified')return `<table class="diff-table" aria-label="Unified code diff"><tbody>${rows.map(r=>{const anchor=inRange(r,range);const n=state.revision==='after'?r.new:r.old;return `<tr class="${r.kind} ${anchor?'anchor':''} ${n===range.start?'anchor-start':''} ${n===range.end?'anchor-end':''}" ${n===range.start?'data-anchor="true"':''}><td class="ln">${r.old||''}</td><td class="ln">${r.new||''}</td><td class="sign">${r.kind==='add'?'+':r.kind==='del'?'−':''}</td><td class="source">${highlight(r.text)||' '}</td></tr>`}).join('')}</tbody></table>`;
+ const paired=[];for(let i=0;i<rows.length;){const r=rows[i];if(r.kind==='same'){paired.push({left:r,right:r});i++;continue}const deletes=[],adds=[];while(i<rows.length&&rows[i].kind!=='same'){const q=rows[i++];(q.kind==='del'?deletes:adds).push(q)}for(let n=0;n<Math.max(deletes.length,adds.length);n++)paired.push({left:deletes[n],right:adds[n]})}
+ return `<table class="diff-table split" aria-label="Side-by-side code diff"><tbody>${paired.map(p=>{const r=state.revision==='after'?p.right:p.left;const anchor=r&&inRange(r,range);const n=r&&(state.revision==='after'?r.new:r.old);return `<tr class="${anchor?'anchor':''} ${n===range.start?'anchor-start':''} ${n===range.end?'anchor-end':''}" ${n===range.start?'data-anchor="true"':''}>${['left','right'].map(side=>{const cell=p[side];return `<td class="ln">${cell?(side==='left'?cell.old:cell.new)||'':''}</td><td class="source ${cell?cell.kind:'blank'}">${cell?highlight(cell.text)||' ':''}</td>`}).join('')}</tr>`}).join('')}</tbody></table>`;
+}
+function codePanel(step=state.step,file=state.file,scope=state.scope,story=false){
+ const s=steps[step];if(!s.files.length)return `<div class="empty">${icon('graph')}<h3>The journey starts with the trader</h3><p>${detail(s)}</p>${b('next','Continue to size calculation '+icon('right'),'button primary')}</div>`;
+ if(!s.files.includes(file))file=s.files[0];const data=snippets[file],range=rangeFor(file,step),all=diffs[file];
+ const tabs=`<div class="source-tabs"><span class="label">Evidence ${s.files.length}</span>${s.files.map(f=>b('file',icon('file')+snippets[f].path.split('/').at(-1),'',`data-value="${f}" data-step="${step}" aria-pressed="${f===file}"`)).join('')}<span class="spacer"></span><span class="small muted">${state.revision==='after'?'HEAD':'BASE'} L${range.start}–${range.end}&nbsp;</span></div>`;
+ return `<section class="code-panel" data-panel-step="${step}" data-panel-file="${file}">${tabs}<div class="code-toolbar"><span class="file-path"><span class="dir">${data.path.slice(0,data.path.lastIndexOf('/')+1)}</span>${data.path.split('/').at(-1)}</span><span class="diff-stats"><span class="added-text">+${all.filter(r=>r.kind==='add').length}</span><span class="deleted-text">−${all.filter(r=>r.kind==='del').length}</span></span><span class="spacer"></span>${!story?segmented('scope',[['full','Whole file'],['step','Step only']],scope):`<span class="tag">${scope==='step'?'Step excerpt':'Whole file'}</span>`}${segmented('format',[['unified','Unified'],['split','Split']],state.format)}${b('wrap',icon('wrap'),`icon-button ${state.format==='split'?'split-wrap-control':''}`,`aria-label="Wrap code lines" title="Wrap code lines" aria-pressed="${state.wrap}" style="${state.wrap?'background:var(--bluebg);color:var(--blue)':''}"`)}${b('jump',icon('target'),'icon-button','aria-label="Jump to evidence" title="Jump to evidence"')}</div><div class="diff-heading ${state.format==='split'?'split':''}">${state.format==='split'?'<span>BASE · 0ff6706</span><span>HEAD · b5fadb4</span>':'<span>BASE 0ff6706 → HEAD b5fadb4</span><span class="spacer"></span><span>− removed &nbsp; + added</span>'}</div><div class="diff-scroll ${state.wrap?'wrap':''}" tabindex="0" aria-label="Scrollable diff for ${data.path}" data-scroll-key="${step}-${file}-${scope}">${table(file,step,scope)}</div><div class="diff-status"><span class="anchor-dot"></span><span>${state.revision==='after'?'Head':'Base'} evidence · lines ${range.start}–${range.end}</span><span class="spacer"></span><span>${scope==='full'?`${all.length} diff rows · whole sample file`:'Step excerpt · 3 context lines'}</span></div></section>`;
+}
+function graph(footer=true){const compact=state.variant==='C';const positions=compact?[[18,29],[235,29],[452,29],[669,29],[901,0],[901,63]]:[[18,78],[235,78],[452,78],[669,78],[901,13],[901,151]];return `<div class="graph-shell"><div class="graph-meta"><span>Authored behavior</span><span>·</span><span>Select a step to follow its evidence</span><span class="fit-buttons">${b('zoom-minus','−','icon-button','aria-label="Zoom diagram out"')}<span>${Math.round(state.zoom*100)}%</span>${b('zoom-plus','+','icon-button','aria-label="Zoom diagram in"')}${b('fit','Fit','button')}</span></div><div class="graph-viewport"><div class="graph-stage" style="--zoom:${state.zoom}"><svg viewBox="0 0 1100 260" aria-hidden="true"><defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="m0 0 5 3-5 3" style="fill:var(--subtle);stroke:none"/></marker></defs><g marker-end="url(#arrow)" ${compact?'transform="translate(0,-19) scale(1,.6)"':''}><path d="M196 130H235"/><path d="M413 130H452"/><path d="M630 130H669"/><path d="M847 130H872V65H901"/><path d="M847 130H872V203H901"/></g><text x="866" y="${compact?16:40}" text-anchor="end">Accepted</text><text x="866" y="${compact?104:229}" text-anchor="end">Rejected</text></svg>${steps.map((s,i)=>`<button class="node ${s.kind.toLowerCase()} ${state.step===i?'selected':''}" data-action="step" data-step="${i}" aria-pressed="${state.step===i}" style="left:${positions[i][0]}px;top:${positions[i][1]}px"><span class="kind">0${i+1} · ${s.kind}</span><strong>${compact?s.short:label(s)}</strong><small>${s.files.length?`${s.files.length} source ${s.files.length===1?'anchor':'anchors'}`:'User trigger'}</small></button>`).join('')}</div></div>${footer?`<div class="graph-footer"><span class="step-no">${state.step+1}</span><strong>${label(steps[state.step])}</strong><span class="muted">${steps[state.step].files.length} source anchors</span>${b('open-code',icon('code')+' Read code '+icon('right'),'button primary')}</div>`:''}</div>`}
+function VariantA(){return commonToolbar('Focus on one view',segmented('mode',[['diagram',icon('graph')+' Diagram'],['code',icon('code')+' Code diff']],state.mode))+`<div class="workspace-content">${state.mode==='code'?stepRibbon()+stepContext()+codePanel():graph()}</div>`}
+function rail(){return `<aside class="journey-rail" aria-label="Journey rail"><div class="rail-title">${b('collapse',icon('rail'),'icon-button',`aria-label="${state.collapsed?'Expand':'Collapse'} journey rail"`)}<span>THE JOURNEY</span></div>${steps.map((s,i)=>`<button class="rail-step ${i===state.step?'selected':''} ${i>3?'branch':''}" data-action="step" data-step="${i}" title="${escapeHtml(label(s))}" aria-pressed="${i===state.step}"><span class="step-no">${i+1}</span><div><strong>${s.short}</strong><small>${i===4?'Accepted branch':i===5?'Rejected branch':s.kind+' · '+(s.files.length?s.files.length+' anchors':'user trigger')}</small></div></button>`).join('')}<div class="rail-note">The selected step highlights its source lines. Read the whole file without leaving the journey.</div></aside>`}
+function VariantB(){return commonToolbar(icon('code')+' Code with journey context',b('open-map',icon('graph')+' View full map','button'))+`<div class="layout-b ${state.collapsed?'collapsed':''}">${rail()}<div class="workspace-content">${stepContext()+codePanel()}</div></div>`}
+function VariantC(){return commonToolbar(icon('graph')+' Diagram + code',`<span class="tag">Shared selection</span>`)+`<div class="layout-c" style="--map-height:${state.mapHeight}px">${graph(false)}<div class="stack-handle"><span>Map height</span><input type="range" min="90" max="280" value="${state.mapHeight}" data-action="height" aria-label="Diagram height"><span>Code stays full width</span></div>${stepContext()+codePanel()}</div>`}
+function VariantD(){const s=steps[state.step];const file=s.files.includes(state.file)?state.file:s.files[0];const r=file?rangeFor(file):null;return commonToolbar(icon('graph')+' Explore the journey',`<span class="tag">Code opens above the map</span>`)+`<div class="layout-d">${graph(false)}<section class="peek"><div class="peek-heading"><span class="step-no">${state.step+1}</span><div><h3>${label(s)}</h3><p>${file?snippets[file].path+' · '+(state.revision==='after'?'Head':'Base')+' lines '+r.start+'–'+r.end:'User trigger · no source anchor'}</p></div><span class="spacer"></span>${b('open-code',icon('expand')+' Expand code','button primary')}</div>${file?`<div class="peek-lines">${snippets[file][state.revision].split('\n').slice(r.start-1,r.start+1).map((line,i)=>`<span class="muted">${r.start+i}</span>  ${escapeHtml(line.trim())}`).join('\n')}</div>`:''}</section></div>`}
+function VariantE(){return commonToolbar(icon('file')+' Read the journey as a story',b('story-map',icon('graph')+(state.storyMap?' Hide map':' Show map'),'button',`aria-expanded="${state.storyMap}"`))+stepRibbon()+`<div class="layout-e">${state.storyMap?`<div class="story-map">${graph(false)}</div>`:''}<div class="story-intro"><div class="eyebrow">From intention to implementation</div><span class="tag">6 connected steps</span></div>${steps.map((s,i)=>`<article class="story-section ${state.step===i?'current':''} ${state.expanded.has(i)?'expanded':''}" id="story-${i}">${i>3?`<div class="story-branch">${i===4?'↗ Schema accepts the values':'↘ Schema rejects the values'}</div>`:''}<div class="story-heading"><span class="step-no">${i+1}</span><div><span class="eyebrow">${s.kind}</span><h3>${label(s)}</h3><p>${detail(s)}</p></div><span class="spacer"></span>${s.files.length?b('expand-story',state.expanded.has(i)?'Step excerpt':icon('expand')+' Whole file','button',`data-step="${i}" aria-expanded="${state.expanded.has(i)}"`):''}</div>${s.files.length?codePanel(i,i===state.step?state.file:s.files[0],state.expanded.has(i)?'full':'step',true):''}</article>`).join('')}</div>`}
+function rememberScroll(){document.querySelectorAll(dialog.open?'#code-dialog .diff-scroll':'#workspace .diff-scroll').forEach(el=>scrolls.set(el.dataset.scrollKey,{top:el.scrollTop,left:el.scrollLeft}));}
+function restoreScroll(){document.querySelectorAll(dialog.open?'#code-dialog .diff-scroll':'#workspace .diff-scroll').forEach(el=>{const saved=scrolls.get(el.dataset.scrollKey);if(saved){el.scrollTop=saved.top;el.scrollLeft=saved.left}})}
+function jumpToEvidence(panel){const el=panel?.querySelector('.diff-scroll')||document.querySelector('.diff-scroll');const target=el?.querySelector('[data-anchor]');if(el&&target)el.scrollTop=target.offsetTop-46;}
+function renderSwitcher(){document.getElementById('switcher').innerHTML=`<span class="lab-key">Compare<br>layouts</span>${b('variant-prev',icon('left'),'','aria-label="Previous design variant"')}<span class="divider"></span>${Object.entries(variants).map(([key,v])=>b('variant',`<b>${key}</b> ${v.name}`,'variant-option',`data-value="${key}" aria-pressed="${state.variant===key}"`)).join('')}<span class="divider"></span>${b('variant-next',icon('right'),'','aria-label="Next design variant"')}`;document.getElementById('state-strip').textContent=`${state.variant} · ${variants[state.variant].name}  /  Step ${state.step+1} of 6  /  ${state.revision}  /  ${state.format}  /  ${state.mode==='diagram'&&state.variant==='A'?'diagram':state.file||'no source'}`}
+function render(){rememberScroll();const storyScroll=document.querySelector('.layout-e')?.scrollTop||0;workspace.innerHTML=({A:VariantA,B:VariantB,C:VariantC,D:VariantD,E:VariantE})[state.variant]();document.getElementById('design-note').innerHTML=`<span class="badge">${state.variant} · ${variants[state.variant].name}</span><span>${variants[state.variant].note} <span class="blue">${variants[state.variant].tradeoff}</span></span>`;renderSwitcher();restoreScroll();const story=document.querySelector('.layout-e');if(story)story.scrollTop=storyScroll;document.getElementById('review-button').textContent=state.reviewed?'✓ Journey reviewed':'✓ Mark journey reviewed';document.getElementById('review-button').classList.toggle('primary',state.reviewed);if(dialog.open)renderModal();}
+function renderModal(map=false){const isMap=map||dialog.dataset.kind==='map';document.getElementById('modal-inner').innerHTML=`<div class="modal-head">${icon(isMap?'graph':'code')}<h2 id="modal-title">${isMap?'Full journey map':'Code diff'}</h2><span class="tag">${steps[state.step].short}</span><span class="spacer"></span>${revision()}${b('close-modal',icon('close'),'icon-button','aria-label="Close overlay" title="Close · Escape"')}</div>${isMap?graph():stepRibbon()+stepContext()+codePanel()}`;restoreScroll()}
+function openModal(kind='code'){lastDialogFocus=document.activeElement;rememberScroll();dialog.dataset.kind=kind;renderModal(kind==='map');dialog.showModal();state.modal=true;dialog.querySelector('[data-action="close-modal"]').focus();if(kind==='code')jumpToEvidence(dialog)}
+function setStep(index,jump=true){state.step=Math.max(0,Math.min(5,index));const files=steps[state.step].files;state.file=files.includes(state.file)?state.file:files[0]||null;render();if(state.variant==='E'&&!dialog.open){scrollStory(state.step)}else if(jump){if(dialog.open)jumpToEvidence(dialog);else if(state.variant!=='A'||state.mode==='code')jumpToEvidence(workspace)}}
+function switchVariant(key){if(dialog.open)dialog.close();state.variant=key;const url=new URL(location.href);url.searchParams.set('variant',key);history.replaceState({},'',url);render();if(key==='E')scrollStory(state.step);else if(key!=='D')jumpToEvidence(workspace)}
+function cycle(delta){const keys=Object.keys(variants);switchVariant(keys[(keys.indexOf(state.variant)+delta+5)%5])}
+let toastTimer;function toast(message){const el=document.getElementById('toast');el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2600)}
+document.addEventListener('click',event=>{const el=event.target.closest('[data-action]');if(!el||el.disabled)return;const action=el.dataset.action;const value=el.dataset.value;
+ if(action==='variant'){switchVariant(value);return}if(action==='variant-prev'||action==='variant-next'){cycle(action==='variant-prev'?-1:1);return}
+ if(action==='step'){setStep(Number(el.dataset.step));return}if(action==='previous'||action==='next'){setStep(state.step+(action==='next'?1:-1));return}
+ if(action==='maximize'){state.maximized=!state.maximized;document.body.classList.toggle('maximized',state.maximized);render();return}
+ if(action==='mode'){state.mode=value;render();return}
+ if(action==='revision'){state.revision=value;render();jumpToEvidence(dialog.open?dialog:workspace);return}
+ if(action==='file'){state.step=Number(el.dataset.step);state.file=value;render();jumpToEvidence(document.querySelector(`${dialog.open?'#code-dialog':'#workspace'} .code-panel[data-panel-step="${state.step}"]`));return}
+ if(action==='scope'){state.scope=value;render();jumpToEvidence(dialog.open?dialog:workspace);return}
+ if(action==='format'){state.format=value;render();jumpToEvidence(el.closest('.code-panel')?.isConnected?el.closest('.code-panel'):(dialog.open?dialog:workspace));return}
+ if(action==='wrap'){state.wrap=!state.wrap;render();return}
+ if(action==='jump'){jumpToEvidence(el.closest('.code-panel'));return}
+ if(action==='collapse'){state.collapsed=!state.collapsed;render();return}
+ if(action==='review'){state.reviewed=!state.reviewed;render();toast(state.reviewed?'Journey marked reviewed in this preview.':'Journey review mark cleared.');return}
+ if(action==='open-code'){if(dialog.open){dialog.dataset.kind='code';renderModal();jumpToEvidence(dialog)}else if(state.variant==='A'){state.mode='code';render();jumpToEvidence(workspace)}else openModal('code');return}
+ if(action==='open-map'){openModal('map');return}
+ if(action==='close-modal'){dialog.close();return}
+ if(action==='zoom-plus'||action==='zoom-minus'||action==='fit'){state.zoom=action==='fit'?Math.min(1,Math.max(.3,((document.querySelector(dialog.open?'#code-dialog .graph-viewport':'#workspace .graph-viewport')?.clientWidth||1126)-26)/1100)):Math.max(.6,Math.min(1.6,state.zoom+(action==='zoom-plus'?.1:-.1)));render();return}
+ if(action==='story-map'){state.storyMap=!state.storyMap;render();return}
+ if(action==='expand-story'){const index=Number(el.dataset.step);state.expanded.has(index)?state.expanded.delete(index):state.expanded.add(index);state.step=index;state.file=steps[index].files[0];render();jumpToEvidence(document.querySelector(`#story-${index} .code-panel`));return}
+});
+document.addEventListener('input',event=>{if(event.target.dataset.action==='height'){state.mapHeight=Number(event.target.value);document.querySelector('.layout-c').style.setProperty('--map-height',state.mapHeight+'px')}});
+document.getElementById('theme').addEventListener('change',event=>document.documentElement.dataset.theme=event.target.value);
+dialog.addEventListener('close',()=>{rememberScroll();state.modal=false;renderSwitcher();if(lastDialogFocus?.isConnected)lastDialogFocus.focus();else workspace.querySelector('[data-action="open-code"], [data-action="open-map"]')?.focus()});
+dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
+document.addEventListener('keydown',event=>{if(event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||event.target.closest('input,textarea,select,[contenteditable],.diff-scroll'))return;if(dialog.open)return;if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();cycle(event.key==='ArrowLeft'?-1:1)}});
+window.addEventListener('popstate',()=>{const key=new URLSearchParams(location.search).get('variant');if(variants[key]){state.variant=key;render()}});
+render();requestAnimationFrame(()=>{if(state.variant==='E')scrollStory(state.step);else jumpToEvidence(workspace)});
+</script>
+</body>
+</html>

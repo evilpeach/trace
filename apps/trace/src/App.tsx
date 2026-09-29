@@ -251,6 +251,7 @@ export default function App() {
   );
   const resume = useReviewResume(loaded, session, contentRef);
   const [diffFocused, setDiffFocused] = useState(false);
+  const [journeyExpanded, setJourneyExpanded] = useState(false);
   const diffLayout = prefs.diffLayout;
   const setDiffLayout = (layout: "split" | "unified") =>
     updatePreferences({ diffLayout: layout });
@@ -1162,7 +1163,7 @@ export default function App() {
         ) : null}
         {loaded && report ? (
           <div
-            className={`review-surface ${diffFocused && position.view === "files" ? "is-code-focused" : ""}`}
+            className={`review-surface ${(diffFocused && position.view === "files") || (journeyExpanded && position.view === "flows") ? "is-code-focused" : ""}`}
             hidden={surface !== "review"}
           >
             <ReviewHeader
@@ -1270,6 +1271,8 @@ export default function App() {
                   key={`${loaded.handle}:${position.flowId}`}
                   loaded={loaded}
                   selectedId={position.flowId}
+                  expanded={journeyExpanded}
+                  onExpandedChange={setJourneyExpanded}
                   selection={flowSelection}
                   onSelectionChange={setFlowSelection}
                   onSource={openSource}

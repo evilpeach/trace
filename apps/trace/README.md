@@ -141,6 +141,15 @@ Older reports remain readable and show that a main journey has not been identifi
 the app never infers importance from array order. Valid saved selections are preserved.
 Priority and risk remain in linked findings, separate from the main designation.
 
+Journey review has two full-width modes: **Diagram** for the authored behavior and
+**Code diff** for its committed source. Select a diagram step and choose **Read
+code**, then use the step ribbon or Previous/Next to follow its evidence. Switching
+modes retains the selected step, evidence, diagram viewport, diff page, and code
+scroll position. Unified/Split controls change the diff layout. **Expand** hides
+the surrounding review context for more reading space; **Restore** brings it back.
+Before/After changes the authored snapshot and resets its step selection. The
+collapsed **Journey context** retains the actor, trigger, outcome, and rationale.
+
 Save a checkpoint before leaving a review. The checkpoint status control beside
 the tabs opens **Since your last review**, comparing the open report with that
 exact saved snapshot and listing new,

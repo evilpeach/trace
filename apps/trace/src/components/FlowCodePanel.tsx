@@ -3,7 +3,6 @@ import {
   useId,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
   type RefObject,
 } from "react";
@@ -14,113 +13,54 @@ import {
   Code2,
   ExternalLink,
   Globe,
-  GripVertical,
-  PanelRightClose,
   RefreshCw,
 } from "lucide-react";
 import type { Evidence, GraphNode } from "@trace/report-contract";
 import { client } from "../bridge";
 import type { FileDiff, LoadedReport } from "../native-types";
 import { DiffView } from "./DiffView";
-import { clampInspectorWidth } from "./flow-selection";
 import "./flow-code-panel.css";
 
 const sourceCache = new Map<string, FileDiff>();
 
+/** Keep both reading surfaces mounted: switching modes must not reset the
+ * diagram viewport, diff page, or the reader's scroll position. The inactive
+ * surface keeps its geometry so asynchronous evidence can still scroll to its
+ * anchor before it becomes visible; inert removes it from keyboard navigation. */
 export function FlowCodeWorkspace({
-  open,
+  mode,
+  diagramId,
+  codeId,
   children,
   inspector,
 }: {
-  open: boolean;
+  mode: "diagram" | "code";
+  diagramId: string;
+  codeId: string;
   children: ReactNode;
   inspector: ReactNode;
 }) {
-  const workspace = useRef<HTMLDivElement>(null);
-  const inspectorId = useId();
-  const [width, setWidth] = useState(44);
-  const dragging = useRef(false);
   return (
-    <div
-      ref={workspace}
-      className={`flow-code-workspace ${open ? "inspector-open" : ""}`}
-      style={{ "--flow-inspector-width": `${width}%` } as CSSProperties}
-    >
-      <div className="flow-code-diagram">{children}</div>
-      {open ? (
-        <>
-          <div
-            className="flow-code-resize"
-            role="separator"
-            aria-label="Resize journey and code panels"
-            aria-orientation="vertical"
-            aria-controls={inspectorId}
-            aria-valuemin={30}
-            aria-valuemax={65}
-            aria-valuenow={width}
-            aria-valuetext={`Code panel ${width} percent wide`}
-            tabIndex={0}
-            onKeyDown={(event) => {
-              if (
-                event.metaKey ||
-                event.ctrlKey ||
-                event.altKey ||
-                !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)
-              )
-                return;
-              event.preventDefault();
-              setWidth((value) =>
-                clampInspectorWidth(
-                  event.key === "Home"
-                    ? 30
-                    : event.key === "End"
-                      ? 65
-                      : value + (event.key === "ArrowLeft" ? 2 : -2),
-                ),
-              );
-            }}
-            onPointerDown={(event) => {
-              if (event.button !== 0) return;
-              event.preventDefault();
-              event.currentTarget.focus();
-              dragging.current = true;
-              event.currentTarget.setPointerCapture(event.pointerId);
-            }}
-            onPointerMove={(event) => {
-              if (!dragging.current || !workspace.current) return;
-              const bounds = workspace.current.getBoundingClientRect();
-              if (bounds.width)
-                setWidth(
-                  clampInspectorWidth(
-                    Math.round(
-                      ((bounds.right - event.clientX) / bounds.width) * 100,
-                    ),
-                  ),
-                );
-            }}
-            onPointerUp={(event) => {
-              dragging.current = false;
-              if (event.currentTarget.hasPointerCapture(event.pointerId))
-                event.currentTarget.releasePointerCapture(event.pointerId);
-            }}
-            onLostPointerCapture={() => {
-              dragging.current = false;
-            }}
-            onPointerCancel={() => {
-              dragging.current = false;
-            }}
-          >
-            <GripVertical size={13} aria-hidden="true" />
-          </div>
-          <aside
-            id={inspectorId}
-            className="flow-code-inspector"
-            aria-label="Selected journey step and source"
-          >
-            {inspector}
-          </aside>
-        </>
-      ) : null}
+    <div className="flow-code-workspace">
+      <div
+        id={diagramId}
+        className={`flow-code-diagram ${mode !== "diagram" ? "flow-surface-inactive" : ""}`}
+        role="region"
+        aria-label="Journey diagram"
+        aria-hidden={mode !== "diagram"}
+        inert={mode !== "diagram"}
+      >
+        {children}
+      </div>
+      <section
+        id={codeId}
+        className={`flow-code-inspector ${mode !== "code" ? "flow-surface-inactive" : ""}`}
+        aria-label="Journey code diff"
+        aria-hidden={mode !== "code"}
+        inert={mode !== "code"}
+      >
+        {inspector}
+      </section>
     </div>
   );
 }
@@ -145,9 +85,11 @@ function AnchoredSource({
   onEvidence,
   onSource,
   onOpenFile,
+  layout,
 }: {
   loaded: LoadedReport;
   anchor: Evidence;
+  layout: "unified" | "split";
   anchors: Evidence[];
   onEvidence: (id: string) => void;
   onSource?: (anchor: Evidence) => void;
@@ -240,14 +182,15 @@ function AnchoredSource({
     <div className="flow-code-source">
       <div className="flow-code-source-heading">
         <code>
-          {anchorPath(loaded, anchor)}:{anchor.startLine}
+          {anchor.side === "base" ? "Base" : "Head"} lines {anchor.startLine}
           {anchor.endLine !== anchor.startLine ? `–${anchor.endLine}` : ""}
         </code>
-        <span className="muted">
-          {anchor.side === "base" ? "Base" : "Head"} ·{" "}
-          {loaded.report.comparison[anchor.side].oid.slice(0, 8)}
-        </span>
-        {anchor.note ? <p>{anchor.note}</p> : null}
+        {anchor.note ? (
+          <details className="flow-code-anchor-note">
+            <summary>Evidence note</summary>
+            <p>{anchor.note}</p>
+          </details>
+        ) : null}
         <div className="flow-code-actions">
           <button
             className="button small"
@@ -294,7 +237,7 @@ function AnchoredSource({
         <>
           <DiffView
             diff={diff}
-            layout="unified"
+            layout={layout}
             evidence={anchor}
             constrainAnchorScroll
             onLine={(side, line) => {
@@ -338,12 +281,12 @@ export function FlowCodePanel({
   anchor,
   index,
   count,
-  revision,
+  layout,
+  onLayoutChange,
   onStep,
   onEvidence,
   onSource,
   onOpenFile,
-  onClose,
   headingRef,
 }: {
   loaded: LoadedReport;
@@ -352,52 +295,42 @@ export function FlowCodePanel({
   anchor?: Evidence;
   index: number;
   count: number;
-  revision: "before" | "after";
+  layout: "unified" | "split";
+  onLayoutChange: (layout: "unified" | "split") => void;
   onStep: (index: number) => void;
   onEvidence: (id: string) => void;
   onSource?: (anchor: Evidence) => void;
   onOpenFile: (id: string) => void;
-  onClose: () => void;
   headingRef: RefObject<HTMLHeadingElement | null>;
 }) {
   const evidenceSelect = useId();
   return (
     <>
       <div className="flow-code-panel-heading">
-        <div className="flow-code-step-navigation">
+        <div className="flow-code-step-title">
           <span className="eyebrow sage">
             STEP {index + 1} OF {count} · {node.kind}
           </span>
-          <button
-            className="icon-button"
-            aria-label="Hide code panel"
-            onClick={onClose}
-          >
-            <PanelRightClose size={17} />
-          </button>
+          <h3 ref={headingRef} tabIndex={-1}>
+            {node.label}
+          </h3>
         </div>
-        <h3 ref={headingRef} tabIndex={-1}>
-          {node.label}
-        </h3>
         <div className="flow-code-step-navigation">
           <button
             className="button small"
             disabled={index <= 0}
             onClick={() => onStep(index - 1)}
+            aria-label="Previous journey step"
           >
-            <ChevronLeft size={14} />
-            Previous
+            <ChevronLeft size={14} /> Previous
           </button>
-          <span className="muted">
-            {revision === "before" ? "Before" : "After"} · authored order
-          </span>
           <button
             className="button small"
             disabled={index >= count - 1}
             onClick={() => onStep(index + 1)}
+            aria-label="Next journey step"
           >
-            Next
-            <ChevronRight size={14} />
+            Next <ChevronRight size={14} />
           </button>
         </div>
       </div>
@@ -418,10 +351,29 @@ export function FlowCodePanel({
                 </option>
               ))}
             </select>
+            <div
+              className="segmented"
+              role="group"
+              aria-label="Journey diff layout"
+            >
+              <button
+                aria-pressed={layout === "unified"}
+                onClick={() => onLayoutChange("unified")}
+              >
+                Unified
+              </button>
+              <button
+                aria-pressed={layout === "split"}
+                onClick={() => onLayoutChange("split")}
+              >
+                Split
+              </button>
+            </div>
           </div>
           <AnchoredSource
             key={`${loaded.handle}:${loaded.digest}:${loaded.repository?.checkoutId ?? ""}:${anchor.fileId}:${anchor.id}`}
             loaded={loaded}
+            layout={layout}
             anchor={anchor}
             anchors={anchors}
             onEvidence={onEvidence}

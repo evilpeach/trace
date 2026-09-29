@@ -45,7 +45,3 @@ export function resolveFlowSelection(
     anchors.find((item) => item.id === selection.evidenceId) ?? anchors[0];
   return { node, anchors, anchor };
 }
-
-export function clampInspectorWidth(value: number) {
-  return Math.max(30, Math.min(65, value));
-}
