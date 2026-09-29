@@ -22,6 +22,13 @@ selected artwork and icon exports.
 
 ## Start the app
 
+Download the latest macOS build from [GitHub Releases](https://github.com/evilpeach/trace/releases/latest).
+Choose **aarch64** for Apple Silicon or **x64** for Intel; macOS 12+ is required.
+The initial builds are ad-hoc signed and not Apple-notarized. Installation notes
+are included with each release.
+
+To build from source:
+
 Install Node.js 22.12+, Rust 1.91+, and Xcode Command Line Tools, then run from the
 repository root:
 
@@ -78,9 +85,14 @@ open apps/trace/src-tauri/target/release/bundle/macos/Trace.app
 ```
 
 `test:contract` runs the portable Python validator against the bundled synthetic
-report. `build` creates a local app for the current Mac’s architecture. Signing,
+report. `build` creates a local app for the current Mac’s architecture. CI tests
+pull requests and `main`; version tags build ad-hoc-signed Apple Silicon and Intel
+downloads and publish a release after all checks pass. Developer ID signing,
 notarization, universal builds, and automatic updates are not yet configured.
 Existing `trace:*` command aliases remain available.
+
+See [testing and releases](docs/trace/RELEASING.md) for local test dependencies,
+version management, and the release process.
 
 For a browser-only preview:
 
