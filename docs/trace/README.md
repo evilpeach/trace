@@ -54,6 +54,22 @@ agent activity stays separate. The [decision notes](prototypes/trace-sidebar-pro
 record the accepted behavior and tradeoffs. See the [app guide](../../apps/trace/README.md)
 for implemented behavior.
 
+## Planner proposal
+
+Planner is a proposed peer workflow for understanding a change before implementation.
+These artifacts are design drafts, not implemented application features:
+
+- [Product and implementation plan (HTML)](planner-plan.html), with
+  [editable Markdown source](PLANNER-PLAN.md): motivation, current gaps,
+  current/proposed behavior, content ownership, implementation slices, and acceptance.
+- [Interactive UI mockup](prototypes/trace-planner-prototype.html):
+  A — Workbench, B — Storyboard, C — Blueprint, D — Change lens, and
+  E — Delivery map. D is the default; choose any layout in Settings.
+  Includes flows, a scope chart,
+  dependencies, decisions, acceptance and a handoff preview.
+- [Prototype notes](prototypes/trace-planner-prototype.NOTES.md): run instructions,
+  the design question, interaction coverage and limits.
+
 ## Historical interactive prototypes
 
 These self-contained HTML artifacts preserve the design exploration. They are
