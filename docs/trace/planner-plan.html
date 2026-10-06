@@ -1,0 +1,322 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trace Planner — draft product and implementation plan</title><style>
+:root{color-scheme:light;--ink:#232630;--muted:#626b7a;--line:#e1e4e9;--blue:#315cd6;--bg:#fff;--side:#f7f7f8;--tint:#edf2ff}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:30px}body{margin:0;font:15px/1.8 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg)}a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}.shell{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;background:var(--side);border-right:1px solid var(--line);padding:30px 20px;overflow:auto}.brand{display:flex;align-items:center;gap:9px;font-size:22px;font-weight:650;letter-spacing:-.7px;margin-bottom:30px}.brand svg{width:30px;color:var(--blue)}.kicker{font:10px ui-monospace,monospace;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:13px}.sidebar nav a{display:block;font-size:11px;color:var(--muted);padding:8px 10px;line-height:1.45;border-radius:5px}.sidebar nav a:hover{color:var(--blue);background:var(--tint);text-decoration:none}.sidebar .launch{display:block;background:var(--blue);color:white;font-size:12px;padding:11px 14px;border-radius:6px;margin:24px 0 12px;text-align:center}.sidebar small{font-size:10px;color:var(--muted)}main{padding:38px 5.5vw 100px;min-width:0;max-width:1280px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;font-size:11px;color:var(--muted)}.status{background:#f4effb;color:#7142be;padding:5px 9px;border-radius:5px}.intro{border:1px solid var(--line);border-radius:10px;background:var(--side);padding:24px;margin-bottom:36px}.intro h2{border:0;margin:0 0 18px;padding:0;font-size:21px}.journey{display:grid;grid-template-columns:repeat(4,1fr);gap:23px}.stage{position:relative;border:1px solid var(--line);border-radius:7px;padding:14px;background:var(--bg)}.stage:after{content:'→';position:absolute;right:-20px;top:24px;color:var(--muted)}.stage:last-child:after{content:''}.stage strong{font-size:13px;display:block}.stage span{font-size:10px;color:var(--muted);display:block}.stage b{font:10px ui-monospace,monospace;color:var(--blue);display:block;margin-bottom:7px}h1{font-size:45px;letter-spacing:-1.8px;line-height:1.1;margin:0 0 18px}h1+p{color:var(--blue);font-size:12px}h1+p+p{font-size:20px;line-height:1.7;max-width:900px;color:#41495a;margin:24px 0 34px}h2{font-size:25px;letter-spacing:-.65px;border-top:1px solid var(--line);padding-top:33px;margin:40px 0 18px;line-height:1.35}p{margin:0 0 18px}strong{font-weight:650}li{margin-bottom:9px}table{border-collapse:collapse;width:100%;font-size:12px;line-height:1.7;margin:24px 0;border:1px solid var(--line)}th,td{text-align:left;padding:14px 15px;border-bottom:1px solid var(--line);vertical-align:top}th{background:var(--side);font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);font-weight:550}td:first-child{font-weight:550;min-width:115px}code{font:11px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;background:var(--side);padding:2px 4px;border-radius:3px}footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}.table-scroll{overflow:auto}a:focus-visible{outline:3px solid var(--blue);outline-offset:3px}@media(max-width:1050px){.shell{grid-template-columns:210px minmax(0,1fr)}main{padding:30px}.journey{grid-template-columns:1fr 1fr}.stage:nth-child(2):after{content:''}h1{font-size:38px}}@media(max-width:730px){.shell{display:block}.sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:18px}.sidebar nav,.sidebar .kicker,.sidebar small{display:none}.brand{margin:0}.sidebar .launch{margin:15px 0 0}main{padding:25px 18px}h1{font-size:36px}h2{font-size:23px}.intro{padding:16px}.journey{gap:15px}.stage:after{right:-14px}.top{gap:10px;font-size:10px}h1+p+p{font-size:17px}}@media print{.sidebar,.top,.intro{display:none}.shell{display:block}main{max-width:none;padding:0;font-size:11px}h1{font-size:28px}h2{break-after:avoid;font-size:18px}table{font-size:9px}tr{break-inside:avoid}a{color:inherit}}
+</style></head><body><div class="shell"><aside class="sidebar"><div class="brand"><svg viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M5 5h11a5 5 0 0 1 0 10h-4a4 4 0 0 0 0 8h11M5 10V5h5M23 18v5h-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Trace</div><div class="kicker">Planner / Product proposal</div><nav aria-label="Plan contents"><a href="#1-product-decision">1. Product decision</a><a href="#2-what-is-missing-today">2. What is missing today?</a><a href="#3-entry-points-and-lifecycle">3. Entry points and lifecycle</a><a href="#4-information-architecture">4. Information architecture</a><a href="#5-overview-and-detailed-views">5. Overview and detailed views</a><a href="#6-visual-vocabulary">6. Visual vocabulary</a><a href="#7-content-model-and-ownership">7. Content model and ownership</a><a href="#8-acceptance-revision-and-staleness">8. Acceptance, revision, and staleness</a><a href="#9-delivery-plan">9. Delivery plan</a><a href="#10-acceptance-scenarios">10. Acceptance scenarios</a><a href="#11-boundaries-risks-and-rollout">11. Boundaries, risks and rollout</a><a href="#12-decisions-to-make-after-the-prototype">12. Decisions to make after the prototype</a><a href="#13-source-audit-and-prototype-limits">13. Source audit and prototype limits</a></nav><a class="launch" href="prototypes/trace-planner-prototype.html">Open interactive mockup ↗</a><small>Source-backed proposal.<br>Implementation has not started.</small></aside><main><div class="top"><span>DESIGN / PRODUCT & IMPLEMENTATION</span><span class="status">Draft · updated 5 Oct 2026</span></div><div class="intro"><h2>A plan you can follow all the way through.</h2><div class="journey"><div class="stage"><b>01</b><strong>Understand</strong><span>Why · current → proposed</span></div><div class="stage"><b>02</b><strong>Agree</strong><span>Scope · decisions · criteria</span></div><div class="stage"><b>03</b><strong>Implement</strong><span>Dependencies · work packages</span></div><div class="stage"><b>04</b><strong>Verify</strong><span>Actual review · outcome evidence</span></div></div></div><h1>Trace Planner</h1>
+<p><strong>Draft proposal · 28 September 2026 · Layout decision adopted 5 October 2026 · Not implemented</strong></p>
+<p>Understand a change before it exists. Planner turns an intention into an inspectable proposal: why it matters, what happens today, what should happen instead, which parts of the system change, and how to implement and verify the result.</p>
+<h2 id="1-product-decision">1. Product decision</h2>
+<p>Add <strong>Planner</strong> alongside <strong>Reviews</strong> inside each Trace project. Use <strong>New plan</strong> for creation and <strong>Planning</strong> for an activity status. A plan can exist before a branch, pull request, or code diff. Reviews remain the place to evaluate an actual implementation.</p>
+<p>The prototype now offers <strong>five layouts</strong>. <strong>A — Workbench</strong> carries forward Trace's project navigation and contextual inspector. <strong>B — Storyboard</strong> puts the proposal into a guided narrative. <strong>C — Blueprint</strong> puts a system map first. <strong>D — Change lens</strong> aligns current and proposed behavior, with big-picture and detailed comparisons. <strong>E — Delivery map</strong> starts from implementation dependencies and reveals each package's before/after behavior, work and exit gate. <strong>Decision adopted on 5 October 2026: retain all five layouts and use D — Change lens by default.</strong> Users select their preferred layout in <strong>Settings → Planner → Overview layout</strong>. Layouts are supported presentations of the same plan, not competing prototypes awaiting a single winner.</p>
+<p>The primary promise is: <strong>“Show me why, show me the change, then show me how.”</strong></p>
+<p>The layout preference is local to the user and applies across plans. A new installation, missing preference, or unsupported stored value falls back to D. Settings lists A–E with brief descriptions, marks D as the default, and offers Save, Cancel, and Use default (D). Saving updates the presentation without resetting plan content, selected entities, reading acknowledgments, decisions, acceptance or the active section. Detailed sections are shared; the preference changes Overview. Use the existing application preference store in the native implementation and keep it out of agent-authored plan artifacts. Remove the temporary floating variant bar and global arrow-key cycling.</p>
+<p>The HTML demonstration remembers only the layout choice in browser storage. Other demo state remains temporary. A saved preference takes precedence over legacy <code>?variant=</code> preview links; without a saved preference, a valid explicit link can preview a layout. Saving removes the legacy query when possible. If browser storage is unavailable, apply the choice for the session and explain that it could not be saved.</p>
+<h2 id="2-what-is-missing-today">2. What is missing today?</h2>
+<p>The current app starts from a PR or branch comparison. Its core sections are Overview, Files, Flows, and Findings. Reports require immutable base and head revisions; their before/after graphs describe those actual snapshots. This works for reviewing existing changes, but does not directly represent a proposal without an implementation.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Current limitation</th>
+<th>Proposed improvement</th>
+<th>How we know it works</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Creation requires an existing comparison.</td>
+<td>Start with a goal and a repository baseline; no PR required.</td>
+<td>A user creates and reads a plan with no implementation branch.</td>
+</tr>
+<tr>
+<td>Motivation can be scattered across a summary and findings.</td>
+<td>Connect each problem to an outcome, behavior change, work package, and acceptance criterion.</td>
+<td>Selecting a problem reveals the complete chain.</td>
+</tr>
+<tr>
+<td>“After” means code at the head commit.</td>
+<td>Label future behavior <strong>Proposed</strong> and keep it distinct from source evidence.</td>
+<td>No proposed node implies that code exists or tests passed.</td>
+</tr>
+<tr>
+<td>Review rounds guide reading, not implementation.</td>
+<td>Give each work package dependencies, deliverables, validation, and a completion gate.</td>
+<td>An implementer can act on one package without inventing its scope.</td>
+</tr>
+<tr>
+<td>No first-class record links an agreed plan to subsequent reviews.</td>
+<td>Freeze an accepted plan revision and explicitly associate later review snapshots.</td>
+<td>Each criterion can be checked against actual evidence, including unmet and unknown results.</td>
+</tr>
+</tbody>
+</table></div>
+<p>This is a source-backed assessment of the current model, not user research or a measured productivity claim.</p>
+<h2 id="3-entry-points-and-lifecycle">3. Entry points and lifecycle</h2>
+<p><strong>Project → Planner → New plan → Describe the goal → Inspect baseline → Read proposal → Resolve decisions → Accept revision → Copy implementation brief → Implement externally → Link a review → Check outcomes.</strong></p>
+<p>New plan uses a compact composer: project, goal, motivation, constraints, and a baseline (current HEAD resolved to an exact commit by default). Optional inputs are an issue/specification, existing plan, or a finding from a review. A working-tree-only idea is allowed as context, but V1 source anchors use committed content; uncommitted changes are explicitly excluded and shown as such.</p>
+<p>The first deliverable is an external-agent request, using Trace's existing provider-selection pattern. Show honest states: <strong>Preparing request → Waiting for plan → Validating → Ready</strong>, with explicit invalid, failed, cancelled, and interrupted states. Waiting is not a live analysis progress bar. Manual import is first-class. Importing a valid draft never accepts it automatically.</p>
+<p>Plan organization states are <strong>Draft</strong>, <strong>Ready to decide</strong>, <strong>Accepted</strong>, <strong>In implementation</strong>, <strong>Verified</strong>, and <strong>Archived</strong>. “Needs refresh” and “Changes requested” are attention indicators. Acceptance records agreement with a particular revision, not permission to launch an agent or write code. Exporting a brief does not mark work implemented. Starting implementation and recording verification are separate explicit actions.</p>
+<h2 id="4-information-architecture">4. Information architecture</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Main question</th>
+<th>Content and interaction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Overview</td>
+<td>Why should we do this?</td>
+<td>Motivation, current pain, intended outcomes, scope boundary, main before/proposed journey, readiness, unresolved decisions.</td>
+</tr>
+<tr>
+<td>Before &amp; after</td>
+<td>What changes for people and the system?</td>
+<td>Paired user flows, architecture views, state transitions, failure paths, node inspector, scenario selector, linked problems and criteria.</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>What will be touched?</td>
+<td>Capabilities and planned file/module operations, existing context, exclusions, dependencies, blast radius, unknowns.</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td>In what order, and how?</td>
+<td>Work packages, dependency graph, ordered roadmap, per-package deliverables, proposed file changes, validation, exit criteria, rollout and rollback.</td>
+</tr>
+<tr>
+<td>Decisions</td>
+<td>What still needs agreement?</td>
+<td>Alternatives, recommendation and rationale, tradeoffs, blocking questions, risks, assumptions, user choices and revision history.</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>What would count as success?</td>
+<td>Acceptance matrix, planned checks, evidence status, baseline refresh requirements, handoff, later review links and deviations.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Keep the project shell stable when switching Reviews/Planner. Remember each workspace's reading position separately. The inspector can collapse to expand the reading canvas. Search can wait until the core reader works; avoid adding a second navigation system solely for planning.</p>
+<h2 id="5-overview-and-detailed-views">5. Overview and detailed views</h2>
+<p>The overview is an authored explanation, not a dashboard of guessed scores. It shows a concise motivation, three to five problems/outcomes, one high-level journey, scope, and the next decision. Every summary item opens its relevant detailed entity.</p>
+<p>Detailed entities form a traceable chain: <strong>Problem → Outcome → Proposed behavior → Work package → Acceptance criterion → Implementation evidence</strong>. Stable IDs let a reader follow this chain across diagrams, text, scope, and subsequent plan revisions.</p>
+<p>For example, “A plan currently needs a head commit” leads to “Create a plan before coding,” the New plan flow, the baseline-only artifact work package, and a criterion that imports a plan without a PR or implementation head.</p>
+<p>Selecting a graph node shows its role, what changes, why, evidence or assumptions, planned work, and success criteria. Selecting a file opens a current-source anchor and a proposed change description. A proposed path may not exist yet; do not display a verified editor link for it. V1 does not invent executable patches or line-level future diffs.</p>
+<h2 id="6-visual-vocabulary">6. Visual vocabulary</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Visual</th>
+<th>Use</th>
+<th>Required semantics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Paired user flow</td>
+<td>Compare today's and intended experiences.</td>
+<td>Explicit actor/trigger/outcome; labeled branches and failure/recovery paths.</td>
+</tr>
+<tr>
+<td>Architecture map</td>
+<td>Explain boundaries and data movement.</td>
+<td>Current/proposed view, changed/new/unchanged legend, links to affected modules.</td>
+</tr>
+<tr>
+<td>Dependency roadmap</td>
+<td>Explain implementation order.</td>
+<td>A directed acyclic work-package graph; parallel work only where dependencies allow it.</td>
+</tr>
+<tr>
+<td>Scope chart</td>
+<td>Show planned work distribution.</td>
+<td>Counts derived from the actual inventory; counted unit and unknown coverage visible.</td>
+</tr>
+<tr>
+<td>Acceptance matrix</td>
+<td>Explain and later verify outcomes.</td>
+<td>Planned / not checked / supported / failed / unavailable, with evidence for checked results.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Default labels are <strong>Current · observed at baseline</strong> and <strong>Proposed · not implemented</strong>. Added, modified, retained, removed, and unknown are separate states; use words and shapes in addition to color. An added feature can have an explicit “Does not exist today” current state. Missing baseline evidence is “Unknown,” not an empty graph that looks like no behavior.</p>
+<p>Use fit-to-view and zoom for large native diagrams; make a text outline available. Keep baseline and proposed selections synchronized by stable semantic IDs where possible, but explain added/removed nodes instead of inventing a one-to-one match. A scenario selector exposes happy, invalid-artifact, missing-source, and baseline-changed paths.</p>
+<p>Charts describe known inventory or expressly labeled estimates. Do not display invented ROI, risk percentages, completion percentages, or time saved. Effort is optional, qualitative, and includes uncertainty; V1 does not need calendar scheduling.</p>
+<h2 id="7-content-model-and-ownership">7. Content model and ownership</h2>
+<p>Introduce a <strong>separate versioned plan contract</strong> and proposed <code>.trace/&lt;slug&gt;.trace-plan.json</code> artifact. Preserve the existing <code>.trace.json</code> review contract. The proposed suffix deliberately does not match today's <code>ends_with(&quot;.trace.json&quot;)</code> scanner; add explicit plan discovery instead of letting review imports misclassify a plan.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Key information</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plan</td>
+<td>kind=plan, schemaVersion, planId, title, repository identity, generatedAt, baseline commit, optional parent revision digest, coverage and provenance.</td>
+</tr>
+<tr>
+<td>Brief</td>
+<td>Motivation, intended users, constraints, goals, non-goals, source requests and links.</td>
+</tr>
+<tr>
+<td>Problem / outcome</td>
+<td>Stable ID, explanation, evidence or assumption status, links to outcomes and acceptance criteria.</td>
+</tr>
+<tr>
+<td>Scenario</td>
+<td>Actor, trigger, current graph/status, proposed graph, rationale, affected modules and linked work.</td>
+</tr>
+<tr>
+<td>Planned change</td>
+<td>Operation (add/modify/remove/rename), existing path or proposed target path, current responsibility, proposed responsibility, rationale and work-package IDs.</td>
+</tr>
+<tr>
+<td>Work package</td>
+<td>Stable ID, deliverable, dependencies, detailed steps, files/modules, risks, checks, exit criteria, optional effort range with rationale.</td>
+</tr>
+<tr>
+<td>Decision / risk</td>
+<td>Alternatives, recommendation, tradeoff, blocking scope, mitigation and revisit trigger.</td>
+</tr>
+<tr>
+<td>Acceptance criterion</td>
+<td>Observable condition, validation method, related problems/scenarios/work; checks initially not run.</td>
+</tr>
+<tr>
+<td>Provenance</td>
+<td>Generator, inspected sources, structural/source validation, assumptions, unknown coverage and explicit limitations.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The native app computes a canonical artifact digest for each immutable revision; planId is stable across revisions. Agents own the authored artifact. Git owns the observed baseline. Trace owns user decisions, notes, acceptance, work tracking, review associations, and history in separate local state. Never let an agent-written “approved” or “done” value become user approval or execution evidence.</p>
+<p>Source evidence is anchored to the baseline commit, repository-relative path and line range. Proposed content links to planned changes and criteria; it does not claim future Git anchors. References to URLs/specs carry a source label and retrieval status. Planning can continue with a missing checkout, but unverified source remains explicit and verified editor actions stay unavailable.</p>
+<p>Contract validation checks shape, unique IDs, references, safe paths, graph connectivity and branch labels, acyclic dependencies, required rationale, criterion coverage, evidence ranges and baseline identity when Git is available. Validation cannot prove the truth of a proposal or the adequacy of the solution. Acceptable unknowns must be recorded; missing required material prevents “Ready to decide.”</p>
+<h2 id="8-acceptance-revision-and-staleness">8. Acceptance, revision, and staleness</h2>
+<p>Acceptance requires a structurally valid plan, reviewed required sections, all blocking decisions resolved, and acknowledged assumptions. It records the exact revision digest and baseline. A missing current-source verification is a visible, explicit exception if acceptance is allowed; the conservative V1 default is to require refreshing repository-backed evidence before acceptance.</p>
+<p>A new agent revision retains the old accepted revision in history and starts unaccepted. Compare added/updated/removed motivation, scope, flows, tasks and criteria. Retain reading progress only for unchanged entities. A previous decision may be carried forward only if its question, options, recommendation, and relevant evidence have the same fingerprint; otherwise require reconfirmation.</p>
+<p>A moved branch does not rewrite a pinned baseline. Show “Repository advanced; impact not checked.” Recheck affected evidence and planned paths, then generate a new revision or record a native unchanged-impact assessment. Do not silently replace acceptance. An implementation change is not necessarily a plan failure; the later review compares agreed intent with the actual change and records explained deviations.</p>
+<h2 id="9-delivery-plan">9. Delivery plan</h2>
+<p>All file locations below are <strong>proposed targets</strong>, except where identified as existing integration points. These are implementation slices, not completed work or time estimates.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Slice</th>
+<th>Deliverables</th>
+<th>Dependencies</th>
+<th>Exit gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 · Contract &amp; authoring</td>
+<td>New <code>packages/plan-contract/</code>; schema/types/fixtures/validator; <code>docs/trace/skills/trace-plan/</code>; plan evidence semantics and authoring guidance.</td>
+<td>None</td>
+<td>A valid baseline-only plan passes; dangling IDs, cycles, false future anchors and malformed content fail. Existing review fixtures still pass.</td>
+</tr>
+<tr>
+<td>2 · Native import &amp; state</td>
+<td>Proposed <code>src-tauri/src/plans.rs</code>; immutable plan revisions, explicit scanner dispatch, separate decisions and acceptance, safe baseline/source reads, typed bridge operations.</td>
+<td>1</td>
+<td>Import/reopen works offline; a plan cannot enter the review parser; accepting one revision cannot accept a newer revision; review history remains intact.</td>
+</tr>
+<tr>
+<td>3 · Planner workspace</td>
+<td>Proposed <code>components/planner/</code>; project mode switch; all five overview layouts with D as default and a saved Settings preference; paired flows, scope, implementation, decisions, validation and inspector. Reuse theme, safe text rendering and graph interaction primitives.</td>
+<td>1; 2 for end-to-end</td>
+<td>Reader follows a problem through proposed behavior to work and acceptance. Default/reset, saved layout, cancellation and state preservation pass checks. Keyboard and large-graph reading work in light and dark themes.</td>
+</tr>
+<tr>
+<td>4 · Creation &amp; handoff</td>
+<td>New-plan composer, planning request packaging, existing external-agent provider selection, waiting/import/validation states, revision comparison, acceptance and copyable implementation brief.</td>
+<td>2, 3</td>
+<td>An agent-generated artifact is imported and accepted deliberately; cancel/invalid/retry work; exporting a brief never launches code changes.</td>
+</tr>
+<tr>
+<td>5 · Review connection &amp; release</td>
+<td>Associate actual review generations with an accepted plan; record criterion evidence and deviations; rollout/rollback and upgrade verification.</td>
+<td>4</td>
+<td>Agreed outcome maps to exact review evidence; missing/failed checks stay visible; existing review flows pass regression checks.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Build slice 3 against fixtures while slice 2 is developed, after slice 1 stabilizes. Slice 4 waits for both. The first useful milestone is <strong>1–3: import and inspect a plan</strong>. The full V1 includes <strong>4–5: create, agree, hand off, and verify</strong>.</p>
+<p>Existing integration points are <code>apps/trace/src/App.tsx</code>, <code>components/Projects.tsx</code>, <code>components/NewReview.tsx</code>, <code>components/FlowGraph.tsx</code>, <code>components/SafeMarkdown.tsx</code>, <code>native-types.ts</code>, <code>bridge.ts</code>, and native <code>projects.rs</code>, <code>requests.rs</code>, <code>store.rs</code>, <code>git.rs</code>, and <code>lib.rs</code>. Extract only shared primitives needed by both workflows; keep review decisions and plan acceptance separate. This is not a request to perform a broad app rewrite.</p>
+<h2 id="10-acceptance-scenarios">10. Acceptance scenarios</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Observable outcome</th>
+<th>Planned validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AC-01</td>
+<td>A plan opens with one baseline and no PR/head comparison.</td>
+<td>Contract fixture, native import and creation walkthrough.</td>
+</tr>
+<tr>
+<td>AC-02</td>
+<td>Every displayed future state is labeled proposed; nonexistent files have no verified source link.</td>
+<td>Reader/component checks and visual walkthrough.</td>
+</tr>
+<tr>
+<td>AC-03</td>
+<td>Selecting a problem reaches its flow, tasks and criterion without losing context in every layout. First use defaults to D; Settings remembers A–E without resetting plan state.</td>
+<td>Navigation/selection checks; default, save/reopen, cancel, reset and invalid-preference checks; keyboard walkthrough.</td>
+</tr>
+<tr>
+<td>AC-04</td>
+<td>Tasks appear in valid dependency order; unknown effort does not become an estimate.</td>
+<td>Contract cycle fixtures and roadmap checks.</td>
+</tr>
+<tr>
+<td>AC-05</td>
+<td>New revisions and changed baselines do not silently inherit acceptance.</td>
+<td>Native persistence/reconciliation tests.</td>
+</tr>
+<tr>
+<td>AC-06</td>
+<td>Invalid/missing artifacts, interrupted handoffs and missing Git source remain recoverable.</td>
+<td>Native import/request scenarios and manual retry walkthrough.</td>
+</tr>
+<tr>
+<td>AC-07</td>
+<td>Existing reports, reviewer decisions, checkpoint/resume and agent requests still work.</td>
+<td>Current frontend/native/contract suites plus macOS regression walkthrough.</td>
+</tr>
+<tr>
+<td>AC-08</td>
+<td>A linked review may leave criteria failed or unknown; a missing finding never counts as proof of a fix.</td>
+<td>Association/evidence tests and one real end-to-end plan-to-review case.</td>
+</tr>
+</tbody>
+</table></div>
+<p>No implementation validation has run for this proposal. The HTML prototype only demonstrates layout and in-memory interactions.</p>
+<h2 id="11-boundaries-risks-and-rollout">11. Boundaries, risks and rollout</h2>
+<p><strong>V1 includes:</strong> repository-backed plans, manual import, external-agent generation, structured explanations, two-state diagrams, task dependencies, decisions, revision history, explicit acceptance, exportable handoff and review association. <strong>Deferred:</strong> autonomous implementation, issue-tracker sync, team approval roles, multiplayer editing, scheduling, arbitrary diagram scripting, interactive patch application and automatic progress inference.</p>
+<p>Key risks are confusing proposed behavior with verified behavior, invalidating accepted intent during refresh, overloading the navigation, and coupling the two contracts. Mitigate with explicit labels, immutable revisions, a small shared shell, independent validation, and clear ownership. The largest technical uncertainty is how much of the current flow inspector can be reused without forcing baseline/head assumptions into planning; prove this with one fixture before generalizing it.</p>
+<p>Release behind an explicit Planner preview entry. Use synthetic fixtures first, then plan one real small Trace change through implementation and review. Preserve all review data during additive migrations. Rollback hides Planner and disables plan discovery while retaining imported plans and user state; it must not delete artifacts or downgrade a database destructively.</p>
+<h2 id="12-decisions-to-make-after-the-prototype">12. Decisions to make after the prototype</h2>
+<ol>
+<li><strong>Workspace direction — decided 5 October 2026:</strong> keep A–E, use D by default, and let each user choose an overview layout in Settings. Preserve the plan and reading state when changing layout.</li>
+<li><strong>Scope of V1:</strong> recommend the complete create → inspect → accept → handoff → link review cycle, with import/read as the first delivery milestone.</li>
+<li><strong>Baseline policy:</strong> recommend committed snapshots only in V1; revisit captured working-tree snapshots later.</li>
+<li><strong>Terminology:</strong> recommend Planner as the workspace, New plan as the action, and Planning as an activity status.</li>
+</ol>
+<h2 id="13-source-audit-and-prototype-limits">13. Source audit and prototype limits</h2>
+<p>Inspected checkout: <code>ef3ea6e666c95631c1a06433f605b0a8a423e690</code> on 28 September 2026.</p>
+<ul>
+<li><code>apps/trace/src/App.tsx</code>: current workspace modes and Overview/Files/Flows/Findings navigation.</li>
+<li><code>packages/report-contract/src/index.ts</code>: required comparison, base/head evidence, before/after flow model and review rounds.</li>
+<li><code>apps/trace/src/components/NewReview.tsx</code>: comparison-first composer and external-agent launch pattern.</li>
+<li><code>apps/trace/src/components/FlowGraph.tsx</code>: selectable graph nodes, source anchors, zoom and fit controls.</li>
+<li><code>apps/trace/src/review-workspace.ts</code>: review-specific organization, resume and flow selection.</li>
+<li><code>apps/trace/src-tauri/src/projects.rs</code>: review artifact discovery suffix.</li>
+<li><code>apps/trace/src-tauri/src/requests.rs</code>: request preparation, artifact arrival checks and import.</li>
+<li><code>docs/trace/REVIEW-CONTINUITY.md</code> and current READMEs: current review continuity, ownership and source limitations.</li>
+</ul>
+<p>The self-contained prototype illustrates <strong>adding Planner to Trace itself</strong>. Current-state observations are based on this audit; proposed tasks, decisions and future flows are design content. The browser does not read Git, call an agent, save native state, accept a real plan or verify code. Plan controls change temporary demo state only; Settings saves the layout preference in this browser when storage is available. The visual scope chart counts the six authored capability groups in the example, not actual files, elapsed work or measured benefit.</p>
+<footer>Editable source: <a href="PLANNER-PLAN.md">PLANNER-PLAN.md</a> · <a href="prototypes/trace-planner-prototype.html">Interactive UI mockup</a><br>Prepared from repository source at ef3ea6e. No application implementation is included in these design artifacts.</footer></main></div></body></html>
