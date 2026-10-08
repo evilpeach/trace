@@ -1,3 +1,4 @@
+import { version as appVersion } from "../package.json";
 import {
   useCallback,
   useEffect,
@@ -886,7 +887,7 @@ export default function App() {
         <div className="brand">
           <Logo />
           <span>Trace</span>
-          <span className="version-badge">0.1</span>
+          <span className="version-badge">{appVersion}</span>
         </div>
         <FocusedSidebar
           key={`${focusedProjectId ?? "empty"}:${sidebarRevision}`}

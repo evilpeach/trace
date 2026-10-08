@@ -19,6 +19,8 @@ keyboard shortcuts, and current limits.
   [diagram library research](DIAGRAM-RESEARCH.md): design rationale and references.
 - [Branding guide](branding/README.md): the selected Folded Blueprint identity
   and app-icon exports.
+- [Testing and releases](RELEASING.md): CI checks, version tags, macOS downloads,
+  and signing limitations.
 - [Design-system proposal](DESIGN-SYSTEM-PROPOSAL.md): shared foundations,
   component states, and diagram language for reviews and the proposed Planner.
 

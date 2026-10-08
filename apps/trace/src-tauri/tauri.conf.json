@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Trace",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "identifier": "dev.trace.review",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -10,11 +10,36 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [{"label":"main","title":"Trace","width":1400,"height":920,"minWidth":1000,"minHeight":700}],
+    "windows": [
+      {
+        "label": "main",
+        "title": "Trace",
+        "width": 1400,
+        "height": 920,
+        "minWidth": 1000,
+        "minHeight": 700
+      }
+    ],
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none'",
-      "capabilities": ["main"]
+      "capabilities": [
+        "main"
+      ]
     }
   },
-  "bundle": {"active":true,"targets":["app"],"icon":["icons/32x32.png","icons/128x128.png","icons/128x128@2x.png","icons/icon.icns"],"macOS":{"minimumSystemVersion":"12.0"}}
+  "bundle": {
+    "active": true,
+    "targets": [
+      "app"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "12.0"
+    }
+  }
 }
